@@ -1,7 +1,15 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useState, useEffect } from "react";
-import { Mail, Github, Linkedin, GraduationCap, Briefcase, Calendar, MapPin } from "lucide-react";
+import {
+  Mail,
+  Github,
+  Linkedin,
+  GraduationCap,
+  Briefcase,
+  Calendar,
+  MapPin,
+} from "lucide-react";
 import { ExperienceEntry } from "./ExperienceEntry";
 import { ProjectCard } from "./ProjectCard";
 import { Hobbies } from "./Hobbies";
@@ -24,7 +32,11 @@ export function Portfolio() {
     }
   }, [projects, seedData, isSeeding]);
 
-  if (projects === undefined || experiences === undefined || skills === undefined) {
+  if (
+    projects === undefined ||
+    experiences === undefined ||
+    skills === undefined
+  ) {
     return (
       <div className="flex justify-center items-center py-20">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
@@ -32,8 +44,8 @@ export function Portfolio() {
     );
   }
 
-  const featuredProjects = projects.filter(p => p.featured);
-  const featuredSkills = skills.filter(s => s.featured);
+  const featuredProjects = projects.filter((p) => p.featured);
+  const featuredSkills = skills.filter((s) => s.featured);
 
   return (
     <div className="space-y-20">
@@ -47,10 +59,14 @@ export function Portfolio() {
             Software Engineer & AI Enthusiast
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-2">
-            I turn caffeine ☕ into code, ideas into AI systems, and "it works on my machine" into scalable production applications.
+            I turn caffeine ☕ into code, ideas into AI systems, and "it works
+            on my machine" into scalable production applications.
           </p>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
-            Currently pursuing my Software Engineering Master's at Carnegie Mellon University, where I'm building the future (and occasionally debugging the past). Passionate about crafting elegant solutions to complex problems and making machines do cool stuff.
+            Currently pursuing my Software Engineering Master's at Carnegie
+            Mellon University, where I'm building the future (and occasionally
+            debugging the past). Passionate about crafting elegant solutions to
+            complex problems and making machines do cool stuff.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -85,18 +101,30 @@ export function Portfolio() {
       {/* Education */}
       <section>
         <div className="flex items-center space-x-3 mb-8">
-          <GraduationCap className="text-blue-600 dark:text-blue-400" size={32} />
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Education</h2>
+          <GraduationCap
+            className="text-blue-600 dark:text-blue-400"
+            size={32}
+          />
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Education
+          </h2>
         </div>
         <div className="space-y-6">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="flex flex-col md:flex-row md:justify-between md:items-start">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Carnegie Mellon University</h3>
-                <p className="text-blue-600 dark:text-blue-400 font-medium">Master of Software Engineering - Scalable Systems</p>
-                <p className="text-gray-600 dark:text-gray-300">GPA: 4.16/4.33</p>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Carnegie Mellon University
+                </h3>
+                <p className="text-blue-600 dark:text-blue-400 font-medium">
+                  Master of Software Engineering - Scalable Systems
+                </p>
+                <p className="text-gray-600 dark:text-gray-300">
+                  GPA: 4.16/4.33
+                </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                  Coursework: ML Systems, Diffusion and Flow Matching, API Design, Design Patterns, Quality Assurance
+                  Coursework: ML Systems, Diffusion and Flow Matching, API
+                  Design, Design Patterns, Quality Assurance
                 </p>
               </div>
               <div className="text-right mt-4 md:mt-0">
@@ -114,9 +142,15 @@ export function Portfolio() {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="flex flex-col md:flex-row md:justify-between md:items-start">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Thapar Institute of Engineering and Technology</h3>
-                <p className="text-blue-600 dark:text-blue-400 font-medium">Bachelor of Engineering in Computer Engineering</p>
-                <p className="text-gray-600 dark:text-gray-300">Conversational AI Specialization</p>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Thapar Institute of Engineering and Technology
+                </h3>
+                <p className="text-blue-600 dark:text-blue-400 font-medium">
+                  Bachelor of Engineering in Computer Engineering
+                </p>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Conversational AI Specialization
+                </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                   Coursework: Data Science, Natural Language Processing
                 </p>
@@ -138,11 +172,23 @@ export function Portfolio() {
 
       {/* Featured Projects */}
       <section>
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Featured Projects</h2>
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+          Featured Projects
+        </h2>
         <div className="grid md:grid-cols-2 gap-8">
-          {featuredProjects.map((project) => (
-            <ProjectCard key={project._id} project={project} featured={true} />
-          ))}
+          {featuredProjects
+            .sort(
+              (a, b) =>
+                new Date(b.startDate).getTime() -
+                new Date(a.startDate).getTime(),
+            )
+            .map((project) => (
+              <ProjectCard
+                key={project._id}
+                project={project}
+                featured={true}
+              />
+            ))}
         </div>
       </section>
 
@@ -150,34 +196,56 @@ export function Portfolio() {
       <section>
         <div className="flex items-center space-x-3 mb-8">
           <Briefcase className="text-blue-600 dark:text-blue-400" size={32} />
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Experience</h2>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Experience
+          </h2>
         </div>
         <div className="space-y-8">
-          {experiences.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()).map((exp) => (
-            <ExperienceEntry key={exp._id} experience={exp} />
-          ))}
+          {experiences
+            .sort(
+              (a, b) =>
+                new Date(b.startDate).getTime() -
+                new Date(a.startDate).getTime(),
+            )
+            .map((exp) => (
+              <ExperienceEntry key={exp._id} experience={exp} />
+            ))}
         </div>
       </section>
 
       {/* Skills */}
       <section>
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Skills</h2>
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+          Skills
+        </h2>
         <div className="grid md:grid-cols-3 gap-8">
           {Object.entries(
-            featuredSkills.reduce((acc, skill) => {
-              if (!acc[skill.category]) acc[skill.category] = [];
-              acc[skill.category].push(skill);
-              return acc;
-            }, {} as Record<string, typeof featuredSkills>)
+            featuredSkills.reduce(
+              (acc, skill) => {
+                if (!acc[skill.category]) acc[skill.category] = [];
+                acc[skill.category].push(skill);
+                return acc;
+              },
+              {} as Record<string, typeof featuredSkills>,
+            ),
           ).map(([category, categorySkills]) => (
-            <div key={category} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{category}</h3>
+            <div
+              key={category}
+              className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
+            >
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                {category}
+              </h3>
               <div className="space-y-3">
                 {categorySkills.map((skill) => (
                   <div key={skill._id}>
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-gray-700 dark:text-gray-300">{skill.name}</span>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">{skill.level}/5</span>
+                      <span className="text-gray-700 dark:text-gray-300">
+                        {skill.name}
+                      </span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {skill.level}/5
+                      </span>
                     </div>
                     <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                       <div
@@ -195,11 +263,23 @@ export function Portfolio() {
 
       {/* All Projects */}
       <section>
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">All Projects</h2>
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+          All Projects
+        </h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()).map((project) => (
-            <ProjectCard key={project._id} project={project} featured={false} />
-          ))}
+          {projects
+            .sort(
+              (a, b) =>
+                new Date(b.startDate).getTime() -
+                new Date(a.startDate).getTime(),
+            )
+            .map((project) => (
+              <ProjectCard
+                key={project._id}
+                project={project}
+                featured={false}
+              />
+            ))}
         </div>
       </section>
 
