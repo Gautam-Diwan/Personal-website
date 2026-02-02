@@ -58,6 +58,18 @@ export const seedPortfolioData = mutation({
     }
 
     // Seed projects
+    // Featured Projects
+    await ctx.db.insert("projects", {
+      title: "Globetrotter",
+      description: "Full-stack travel quiz platform for famous destinations",
+      longDescription: "Developed a full-stack travel quiz platform for famous destinations using Next.js, TypeScript, Tailwind CSS, Supabase, Postgres, and Prisma ORM, featuring cryptic clue gameplay, score tracking, and challenge invites via WhatsApp. Implemented randomized destination selection, multiple choice APIs, and animated feedback with canvas-confetti, deployed on Vercel with serverless functions for zero cost, scalable performance.",
+      technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Supabase", "Postgres", "Prisma", "Vercel"],
+      featured: true,
+      startDate: "March 2025",
+      endDate: "April 2025",
+      category: "personal",
+    });
+
     await ctx.db.insert("projects", {
       title: "Deleterious",
       description: "Open source Python mixin library for Django REST Framework batch deletion",
@@ -78,6 +90,29 @@ export const seedPortfolioData = mutation({
       featured: true,
       startDate: "April 2022",
       endDate: "December 2022",
+      category: "academic",
+    });
+
+    // Additional Projects
+    await ctx.db.insert("projects", {
+      title: "Go Djan",
+      description: "Web service providing CRUD APIs for blogs, tags, users, and friendships",
+      longDescription: "Built a web service providing CRUD APIs for blogs, tags, users, and friendships, with Bcrypt and Paseto authentication for better security over JWT. Integrated Postgres with Ent ORM for data persistence, leveraging Go's concurrency model to deliver scalable, high performance requests with minimal resource utilization.",
+      technologies: ["Go", "Postgres", "Ent ORM", "Bcrypt", "Paseto"],
+      featured: false,
+      startDate: "August 2024",
+      endDate: "September 2024",
+      category: "personal",
+    });
+
+    await ctx.db.insert("projects", {
+      title: "OuRooms Communications",
+      description: "Ephemeral real-time multi-room chat platform with focus on user privacy",
+      longDescription: "Created OuRooms, an ephemeral real-time multi-room chat platform using React, Node.js, Express.js, and Socket.io with a focus on user privacy and no data retention architecture. Added profanity filtering, location sharing via Geolocation API, and embedded video playback for user trust and usability.",
+      technologies: ["React", "Node.js", "Express.js", "Socket.io", "Geolocation API"],
+      featured: false,
+      startDate: "September 2021",
+      endDate: "December 2021",
       category: "academic",
     });
 
@@ -106,7 +141,7 @@ export const seedPortfolioData = mutation({
         "Architected dynamic subscription billing for 3k+ users NFT marketplace with Stripe webhooks, adding adjustable subscription pricing/cycles, automated chargeback handling, blockchain based and AWS SES receipts for exclusive NFT drops.",
         "Engineered real time private equity investments workflows for a private equity platform by integrating Django APIs, Websockets, LangChain RAG and SQL agents, and Redis, Kafka streaming for scalable real time group and AI chats."
       ],
-      technologies: ["AWS Lambda", "OpenAI", "Postgres", "Node.js", "React", "Tanstack Query", "Docker", "AWS ECS", "Stripe", "Django", "Redis", "Kafka"],
+      technologies: ["AWS Lambda", "OpenAI", "Postgres", "Node.js", "React", "Tanstack Query", "Fastify", "Sequelize", "Docker", "AWS ECS", "Github Actions", "Stripe", "Django", "Websockets", "LangChain", "Redis", "Kafka", "AWS SES"],
       type: "work",
     });
 
@@ -118,10 +153,10 @@ export const seedPortfolioData = mutation({
       endDate: "February 2024",
       description: [
         "Migrated core product, an Atlassian Jira alternative website and desktop app, with flagship product team and leadership from server side MVC to hybrid client side rendered JavaScript for improved UI and enabling 100% faster, mobile app like UX.",
-        "Introduced project level notebooks with GPT integration to enhance collaboration and information among project members.",
+        "Introduced project level notebooks with OpenAI GPT API integration to enhance collaboration and information among project members.",
         "Added simultaneous video and screen sharing, recording through WebRTC API, seen messages and minimised UIs to Microsoft Teams alternative product enabling focused project demos and group message accountability."
       ],
-      technologies: ["JavaScript", "WebRTC", "GPT", "MVC"],
+      technologies: ["JavaScript", "WebRTC", "OpenAI", "MVC", "Jira", "Teams"],
       type: "work",
     });
 
@@ -135,38 +170,93 @@ export const seedPortfolioData = mutation({
         "Generated static internal employee web pages from UI designs for Shell, with HTML, CSS, and Bootstrap, ensuring sub-100ms response times for 500K+ users as a sole developer.",
         "Created and tested scalable, maintainable code for multiple college application portals in Java, JBoss, SQL Server and performance testing strategies with Varnish and GTMetrix, focusing on API optimization."
       ],
-      technologies: ["HTML", "CSS", "Bootstrap", "Java", "JBoss", "SQL Server"],
+      technologies: ["HTML", "CSS", "Bootstrap", "Java", "JBoss", "SQL Server", "Varnish", "GTMetrix"],
       type: "internship",
     });
 
-    // Seed skills
-    const programmingLanguages = ["Python", "JavaScript", "TypeScript", "C", "C++", "Java", "Go"];
+    // Seed skills - Programming Languages
+    const programmingLanguages = [
+      { name: "Python", level: 5, featured: true },
+      { name: "JavaScript", level: 5, featured: true },
+      { name: "TypeScript", level: 5, featured: true },
+      { name: "Java", level: 4, featured: true },
+      { name: "Go", level: 4, featured: false },
+      { name: "C++", level: 4, featured: false },
+      { name: "C", level: 3, featured: false },
+    ];
+    
     for (const lang of programmingLanguages) {
       await ctx.db.insert("skills", {
         category: "Programming Languages",
-        name: lang,
-        level: ["Python", "JavaScript", "TypeScript"].includes(lang) ? 5 : 4,
-        featured: ["Python", "JavaScript", "TypeScript", "Java"].includes(lang),
+        name: lang.name,
+        level: lang.level,
+        featured: lang.featured,
       });
     }
 
-    const frameworks = ["React", "Node.js", "Django", "Next.js", "Express.js", "Fastify"];
+    // Seed skills - Frontend & Backend
+    const frameworks = [
+      { name: "React", level: 5, featured: true },
+      { name: "Node.js", level: 5, featured: true },
+      { name: "Next.js", level: 4, featured: true },
+      { name: "Express.js", level: 4, featured: true },
+      { name: "Django", level: 4, featured: true },
+      { name: "Fastify", level: 4, featured: false },
+      { name: "Tanstack Query", level: 4, featured: false },
+      { name: "ShadCN", level: 4, featured: false },
+      { name: "Tailwind CSS", level: 5, featured: false },
+    ];
+    
     for (const framework of frameworks) {
       await ctx.db.insert("skills", {
-        category: "Frameworks",
-        name: framework,
-        level: ["React", "Node.js", "Django"].includes(framework) ? 5 : 4,
-        featured: ["React", "Node.js", "Django", "Next.js"].includes(framework),
+        category: "Frameworks & Libraries",
+        name: framework.name,
+        level: framework.level,
+        featured: framework.featured,
       });
     }
 
-    const tools = ["AWS", "Docker", "Git", "Postgres", "Redis", "Kafka"];
-    for (const tool of tools) {
+    // Seed skills - Databases & Tools
+    const databaseTools = [
+      { name: "Postgres", level: 5, featured: true },
+      { name: "AWS", level: 4, featured: true },
+      { name: "Docker", level: 4, featured: true },
+      { name: "Redis", level: 4, featured: false },
+      { name: "Kafka", level: 4, featured: false },
+      { name: "MongoDB", level: 4, featured: false },
+      { name: "Git", level: 5, featured: false },
+      { name: "Github", level: 5, featured: false },
+      { name: "Stripe", level: 4, featured: false },
+      { name: "AWS Lambda", level: 4, featured: false },
+      { name: "AWS ECS", level: 4, featured: false },
+      { name: "SQL", level: 5, featured: false },
+    ];
+    
+    for (const tool of databaseTools) {
       await ctx.db.insert("skills", {
-        category: "Tools & Technologies",
-        name: tool,
-        level: 4,
-        featured: ["AWS", "Docker", "Postgres"].includes(tool),
+        category: "Databases & Tools",
+        name: tool.name,
+        level: tool.level,
+        featured: tool.featured,
+      });
+    }
+
+    // Seed skills - AI & ML
+    const aiTools = [
+      { name: "LangChain", level: 4, featured: true },
+      { name: "PyTorch", level: 4, featured: true },
+      { name: "OpenAI", level: 4, featured: true },
+      { name: "BERT", level: 3, featured: false },
+      { name: "Computer Vision", level: 3, featured: false },
+      { name: "Deep Learning", level: 4, featured: false },
+    ];
+    
+    for (const tool of aiTools) {
+      await ctx.db.insert("skills", {
+        category: "AI & Machine Learning",
+        name: tool.name,
+        level: tool.level,
+        featured: tool.featured,
       });
     }
 

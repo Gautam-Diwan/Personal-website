@@ -1,7 +1,10 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useState, useEffect } from "react";
-import { Mail, Github, Linkedin, ExternalLink, Calendar, MapPin, GraduationCap, Briefcase } from "lucide-react";
+import { Mail, Github, Linkedin, GraduationCap, Briefcase, Calendar, MapPin } from "lucide-react";
+import { ExperienceEntry } from "./ExperienceEntry";
+import { ProjectCard } from "./ProjectCard";
+import { Hobbies } from "./Hobbies";
 
 export function Portfolio() {
   const projects = useQuery(api.portfolio.getProjects, {});
@@ -30,7 +33,6 @@ export function Portfolio() {
   }
 
   const featuredProjects = projects.filter(p => p.featured);
-  const workExperiences = experiences.filter(e => e.type === "work");
   const featuredSkills = skills.filter(s => s.featured);
 
   return (
@@ -44,9 +46,11 @@ export function Portfolio() {
           <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">
             Software Engineer & AI Enthusiast
           </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-2">
+            I turn caffeine ☕ into code, ideas into AI systems, and "it works on my machine" into scalable production applications.
+          </p>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
-            CS Master's student at Carnegie Mellon University. 
-            Passionate about building AI powered applications and web applications that solve real world problems.
+            Currently pursuing my Software Engineering Master's at Carnegie Mellon University, where I'm building the future (and occasionally debugging the past). Passionate about crafting elegant solutions to complex problems and making machines do cool stuff.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -137,56 +141,7 @@ export function Portfolio() {
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Featured Projects</h2>
         <div className="grid md:grid-cols-2 gap-8">
           {featuredProjects.map((project) => (
-            <div key={project._id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{project.title}</h3>
-                <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-full capitalize">
-                  {project.category}
-                </span>
-              </div>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">{project.description}</p>
-              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
-                <div className="flex items-center">
-                  <Calendar size={16} className="mr-1" />
-                  <span>{project.startDate} - {project.endDate || "Present"}</span>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {project.technologies.map((tech) => (
-                  <span
-                    key={tech}
-                    className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-              <div className="flex gap-4">
-                {project.githubUrl && (
-                  <a
-                    href={project.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
-                  >
-                    <Github size={16} />
-                    <span>GitHub</span>
-                    <ExternalLink size={14} />
-                  </a>
-                )}
-                {project.liveUrl && (
-                  <a
-                    href={project.liveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
-                  >
-                    <ExternalLink size={16} />
-                    <span>Live Demo</span>
-                  </a>
-                )}
-              </div>
-            </div>
+            <ProjectCard key={project._id} project={project} featured={true} />
           ))}
         </div>
       </section>
@@ -198,43 +153,8 @@ export function Portfolio() {
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Experience</h2>
         </div>
         <div className="space-y-8">
-          {workExperiences.map((exp) => (
-            <div key={exp._id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-4">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{exp.position}</h3>
-                  <p className="text-blue-600 dark:text-blue-400 font-medium">{exp.company}</p>
-                  <div className="flex items-center text-gray-600 dark:text-gray-300 mt-1">
-                    <MapPin size={16} className="mr-1" />
-                    <span>{exp.location}</span>
-                  </div>
-                </div>
-                <div className="text-right mt-2 md:mt-0">
-                  <div className="flex items-center text-gray-500 dark:text-gray-400">
-                    <Calendar size={16} className="mr-1" />
-                    <span>{exp.startDate} - {exp.endDate || "Present"}</span>
-                  </div>
-                </div>
-              </div>
-              <ul className="space-y-2 mb-4">
-                {exp.description.map((item, index) => (
-                  <li key={index} className="text-gray-700 dark:text-gray-300 flex items-start">
-                    <span className="text-blue-600 dark:text-blue-400 mr-2 mt-2">•</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="flex flex-wrap gap-2">
-                {exp.technologies.map((tech) => (
-                  <span
-                    key={tech}
-                    className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
+          {experiences.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()).map((exp) => (
+            <ExperienceEntry key={exp._id} experience={exp} />
           ))}
         </div>
       </section>
@@ -277,62 +197,14 @@ export function Portfolio() {
       <section>
         <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">All Projects</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => (
-            <div key={project._id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{project.title}</h3>
-                <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-full capitalize">
-                  {project.category}
-                </span>
-              </div>
-              <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{project.description}</p>
-              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
-                <Calendar size={14} className="mr-1" />
-                <span>{project.startDate} - {project.endDate || "Present"}</span>
-              </div>
-              <div className="flex flex-wrap gap-1 mb-4">
-                {project.technologies.slice(0, 3).map((tech) => (
-                  <span
-                    key={tech}
-                    className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full"
-                  >
-                    {tech}
-                  </span>
-                ))}
-                {project.technologies.length > 3 && (
-                  <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-full">
-                    +{project.technologies.length - 3}
-                  </span>
-                )}
-              </div>
-              <div className="flex gap-3 text-sm">
-                {project.githubUrl && (
-                  <a
-                    href={project.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                  >
-                    <Github size={14} />
-                    <span>GitHub</span>
-                  </a>
-                )}
-                {project.liveUrl && (
-                  <a
-                    href={project.liveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                  >
-                    <ExternalLink size={14} />
-                    <span>Live Demo</span>
-                  </a>
-                )}
-              </div>
-            </div>
+          {projects.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()).map((project) => (
+            <ProjectCard key={project._id} project={project} featured={false} />
           ))}
         </div>
       </section>
+
+      {/* Hobbies */}
+      <Hobbies />
     </div>
   );
 }
