@@ -3,8 +3,9 @@ import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { ConvexReactClient } from "convex/react";
 import "./index.css";
 import App from "./App";
+import env from "./env";
 
-const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
+const convex = new ConvexReactClient(env.CONVEX_URL);
 
 createRoot(document.getElementById("root")!).render(
   <ConvexAuthProvider client={convex}>
