@@ -106,3 +106,24 @@ export const createPost = mutation({
     });
   },
 });
+
+export const deletePost = mutation({
+  args: { postId: v.id("blogPosts") },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Must be logged in to delete a post");
+    }
+
+    const post = await ctx.db.get(args.postId);
+    if (!post) {
+      throw new Error("Post not found");
+    }
+
+    if (post.authorId !== userId) {
+      throw new Error("You can only delete your own posts");
+    }
+
+    await ctx.db.delete(args.postId);
+  },
+});

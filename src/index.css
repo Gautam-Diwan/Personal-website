@@ -8,7 +8,7 @@
 }
 
 .accent-text {
-  @apply text-slate-600;
+  @apply text-slate-600 dark:text-slate-300;
 }
 
 body {
@@ -32,9 +32,22 @@ body {
   background: var(--color-light);
 }
 
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-light: #0f172a;
+    --color-dark: #f8fafc;
+  }
+}
+
+.dark {
+  --color-light: #0f172a;
+  --color-dark: #f8fafc;
+}
+
 /* only use this to update the style of the auth input fields. use a different class for all other input fields */
 .auth-input-field {
-  @apply w-full px-4 py-3 rounded-container bg-white border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow shadow-sm hover:shadow;
+  @apply w-full px-4 py-3 rounded-container bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow shadow-sm hover:shadow text-gray-900 dark:text-white;
 }
 
 /* only use this to update the style of the auth buttons. use the button class for all other buttons */

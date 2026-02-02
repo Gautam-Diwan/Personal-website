@@ -1,6 +1,7 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useState, useEffect } from "react";
+import { Mail, Github, Linkedin, ExternalLink, Calendar, MapPin, GraduationCap, Briefcase } from "lucide-react";
 
 export function Portfolio() {
   const projects = useQuery(api.portfolio.getProjects, {});
@@ -23,7 +24,7 @@ export function Portfolio() {
   if (projects === undefined || experiences === undefined || skills === undefined) {
     return (
       <div className="flex justify-center items-center py-20">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
       </div>
     );
   }
@@ -36,64 +37,95 @@ export function Portfolio() {
     <div className="space-y-20">
       {/* Hero Section */}
       <section className="text-center py-20">
-        <h1 className="text-5xl font-bold text-gray-900 mb-6">
-          Software Engineer & AI Enthusiast
-        </h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-          Master's student at Carnegie Mellon University specializing in scalable systems. 
-          Passionate about building AI-powered applications and distributed systems that solve real-world problems.
-        </p>
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-32 h-32 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mb-6 flex items-center justify-center text-white text-4xl font-bold">
+            GD
+          </div>
+          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">
+            Software Engineer & AI Enthusiast
+          </h1>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
+            CS Master's student at Carnegie Mellon University. 
+            Passionate about building AI powered applications and web applications that solve real world problems.
+          </p>
+        </div>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <a
             href="mailto:gdiwan@cs.cmu.edu"
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors font-medium"
           >
-            Get In Touch
+            <Mail size={20} />
+            <span>Get In Touch</span>
           </a>
           <a
             href="https://github.com/Gautam-Diwan"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+            className="inline-flex items-center space-x-2 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
           >
-            View GitHub
+            <Github size={20} />
+            <span>View GitHub</span>
+          </a>
+          <a
+            href="https://linkedin.com/in/gautamdiwan"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center space-x-2 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors font-medium"
+          >
+            <Linkedin size={20} />
+            <span>View LinkedIn</span>
           </a>
         </div>
       </section>
 
       {/* Education */}
       <section>
-        <h2 className="text-3xl font-bold text-gray-900 mb-8">Education</h2>
+        <div className="flex items-center space-x-3 mb-8">
+          <GraduationCap className="text-blue-600 dark:text-blue-400" size={32} />
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Education</h2>
+        </div>
         <div className="space-y-6">
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="flex flex-col md:flex-row md:justify-between md:items-start">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">Carnegie Mellon University</h3>
-                <p className="text-blue-600 font-medium">Master of Software Engineering - Scalable Systems</p>
-                <p className="text-gray-600">GPA: 4.16/4.33</p>
-                <p className="text-sm text-gray-500 mt-2">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Carnegie Mellon University</h3>
+                <p className="text-blue-600 dark:text-blue-400 font-medium">Master of Software Engineering - Scalable Systems</p>
+                <p className="text-gray-600 dark:text-gray-300">GPA: 4.16/4.33</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                   Coursework: ML Systems, Diffusion and Flow Matching, API Design, Design Patterns, Quality Assurance
                 </p>
               </div>
               <div className="text-right mt-4 md:mt-0">
-                <p className="text-gray-600">Pittsburgh, PA</p>
-                <p className="text-gray-500">December 2026</p>
+                <div className="flex items-center text-gray-600 dark:text-gray-300 mb-1">
+                  <MapPin size={16} className="mr-1" />
+                  <span>Pittsburgh, PA</span>
+                </div>
+                <div className="flex items-center text-gray-500 dark:text-gray-400">
+                  <Calendar size={16} className="mr-1" />
+                  <span>December 2026</span>
+                </div>
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
             <div className="flex flex-col md:flex-row md:justify-between md:items-start">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">Thapar Institute of Engineering and Technology</h3>
-                <p className="text-blue-600 font-medium">Bachelor of Engineering in Computer Engineering</p>
-                <p className="text-gray-600">Conversational AI Specialization</p>
-                <p className="text-sm text-gray-500 mt-2">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">Thapar Institute of Engineering and Technology</h3>
+                <p className="text-blue-600 dark:text-blue-400 font-medium">Bachelor of Engineering in Computer Engineering</p>
+                <p className="text-gray-600 dark:text-gray-300">Conversational AI Specialization</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                   Coursework: Data Science, Natural Language Processing
                 </p>
               </div>
               <div className="text-right mt-4 md:mt-0">
-                <p className="text-gray-600">Patiala, India</p>
-                <p className="text-gray-500">June 2023</p>
+                <div className="flex items-center text-gray-600 dark:text-gray-300 mb-1">
+                  <MapPin size={16} className="mr-1" />
+                  <span>Patiala, India</span>
+                </div>
+                <div className="flex items-center text-gray-500 dark:text-gray-400">
+                  <Calendar size={16} className="mr-1" />
+                  <span>June 2023</span>
+                </div>
               </div>
             </div>
           </div>
@@ -102,17 +134,28 @@ export function Portfolio() {
 
       {/* Featured Projects */}
       <section>
-        <h2 className="text-3xl font-bold text-gray-900 mb-8">Featured Projects</h2>
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Featured Projects</h2>
         <div className="grid md:grid-cols-2 gap-8">
           {featuredProjects.map((project) => (
-            <div key={project._id} className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">{project.title}</h3>
-              <p className="text-gray-600 mb-4">{project.description}</p>
+            <div key={project._id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-start mb-3">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{project.title}</h3>
+                <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-full capitalize">
+                  {project.category}
+                </span>
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">{project.description}</p>
+              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
+                <div className="flex items-center">
+                  <Calendar size={16} className="mr-1" />
+                  <span>{project.startDate} - {project.endDate || "Present"}</span>
+                </div>
+              </div>
               <div className="flex flex-wrap gap-2 mb-4">
                 {project.technologies.map((tech) => (
                   <span
                     key={tech}
-                    className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
+                    className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full"
                   >
                     {tech}
                   </span>
@@ -124,9 +167,11 @@ export function Portfolio() {
                     href={project.githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 font-medium"
+                    className="inline-flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
                   >
-                    GitHub →
+                    <Github size={16} />
+                    <span>GitHub</span>
+                    <ExternalLink size={14} />
                   </a>
                 )}
                 {project.liveUrl && (
@@ -134,9 +179,10 @@ export function Portfolio() {
                     href={project.liveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 font-medium"
+                    className="inline-flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
                   >
-                    Live Demo →
+                    <ExternalLink size={16} />
+                    <span>Live Demo</span>
                   </a>
                 )}
               </div>
@@ -147,26 +193,33 @@ export function Portfolio() {
 
       {/* Experience */}
       <section>
-        <h2 className="text-3xl font-bold text-gray-900 mb-8">Experience</h2>
+        <div className="flex items-center space-x-3 mb-8">
+          <Briefcase className="text-blue-600 dark:text-blue-400" size={32} />
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Experience</h2>
+        </div>
         <div className="space-y-8">
           {workExperiences.map((exp) => (
-            <div key={exp._id} className="bg-white p-6 rounded-lg shadow-sm border">
+            <div key={exp._id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
               <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-4">
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900">{exp.position}</h3>
-                  <p className="text-blue-600 font-medium">{exp.company}</p>
-                  <p className="text-gray-600">{exp.location}</p>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{exp.position}</h3>
+                  <p className="text-blue-600 dark:text-blue-400 font-medium">{exp.company}</p>
+                  <div className="flex items-center text-gray-600 dark:text-gray-300 mt-1">
+                    <MapPin size={16} className="mr-1" />
+                    <span>{exp.location}</span>
+                  </div>
                 </div>
                 <div className="text-right mt-2 md:mt-0">
-                  <p className="text-gray-500">
-                    {exp.startDate} - {exp.endDate || "Present"}
-                  </p>
+                  <div className="flex items-center text-gray-500 dark:text-gray-400">
+                    <Calendar size={16} className="mr-1" />
+                    <span>{exp.startDate} - {exp.endDate || "Present"}</span>
+                  </div>
                 </div>
               </div>
               <ul className="space-y-2 mb-4">
                 {exp.description.map((item, index) => (
-                  <li key={index} className="text-gray-700 flex items-start">
-                    <span className="text-blue-600 mr-2 mt-2">•</span>
+                  <li key={index} className="text-gray-700 dark:text-gray-300 flex items-start">
+                    <span className="text-blue-600 dark:text-blue-400 mr-2 mt-2">•</span>
                     <span>{item}</span>
                   </li>
                 ))}
@@ -175,7 +228,7 @@ export function Portfolio() {
                 {exp.technologies.map((tech) => (
                   <span
                     key={tech}
-                    className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full"
+                    className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full"
                   >
                     {tech}
                   </span>
@@ -188,7 +241,7 @@ export function Portfolio() {
 
       {/* Skills */}
       <section>
-        <h2 className="text-3xl font-bold text-gray-900 mb-8">Skills</h2>
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Skills</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {Object.entries(
             featuredSkills.reduce((acc, skill) => {
@@ -197,18 +250,18 @@ export function Portfolio() {
               return acc;
             }, {} as Record<string, typeof featuredSkills>)
           ).map(([category, categorySkills]) => (
-            <div key={category} className="bg-white p-6 rounded-lg shadow-sm border">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">{category}</h3>
+            <div key={category} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{category}</h3>
               <div className="space-y-3">
                 {categorySkills.map((skill) => (
                   <div key={skill._id}>
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-gray-700">{skill.name}</span>
-                      <span className="text-sm text-gray-500">{skill.level}/5</span>
+                      <span className="text-gray-700 dark:text-gray-300">{skill.name}</span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{skill.level}/5</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                       <div
-                        className="bg-blue-600 h-2 rounded-full"
+                        className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full"
                         style={{ width: `${(skill.level / 5) * 100}%` }}
                       ></div>
                     </div>
@@ -222,28 +275,32 @@ export function Portfolio() {
 
       {/* All Projects */}
       <section>
-        <h2 className="text-3xl font-bold text-gray-900 mb-8">All Projects</h2>
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">All Projects</h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
-            <div key={project._id} className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <div key={project._id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
               <div className="flex justify-between items-start mb-3">
-                <h3 className="text-lg font-semibold text-gray-900">{project.title}</h3>
-                <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full capitalize">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{project.title}</h3>
+                <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-full capitalize">
                   {project.category}
                 </span>
               </div>
-              <p className="text-gray-600 text-sm mb-4">{project.description}</p>
+              <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">{project.description}</p>
+              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+                <Calendar size={14} className="mr-1" />
+                <span>{project.startDate} - {project.endDate || "Present"}</span>
+              </div>
               <div className="flex flex-wrap gap-1 mb-4">
                 {project.technologies.slice(0, 3).map((tech) => (
                   <span
                     key={tech}
-                    className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
+                    className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full"
                   >
                     {tech}
                   </span>
                 ))}
                 {project.technologies.length > 3 && (
-                  <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                  <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-full">
                     +{project.technologies.length - 3}
                   </span>
                 )}
@@ -254,9 +311,10 @@ export function Portfolio() {
                     href={project.githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800"
+                    className="inline-flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                   >
-                    GitHub
+                    <Github size={14} />
+                    <span>GitHub</span>
                   </a>
                 )}
                 {project.liveUrl && (
@@ -264,9 +322,10 @@ export function Portfolio() {
                     href={project.liveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800"
+                    className="inline-flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                   >
-                    Live Demo
+                    <ExternalLink size={14} />
+                    <span>Live Demo</span>
                   </a>
                 )}
               </div>
