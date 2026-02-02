@@ -3,18 +3,22 @@ import { api } from "../../convex/_generated/api";
 import { useState } from "react";
 import { Authenticated, Unauthenticated } from "convex/react";
 import { SignInForm } from "../SignInForm";
-import { Search, Calendar, Clock, Tag, Plus, X, Edit, Trash2 } from "lucide-react";
+import { Search, Calendar, Clock, Tag, Plus, X, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+
+const POSTS_PER_PAGE = 5;
 
 export function Blog() {
-  const posts = useQuery(api.blog.getAllPosts, { limit: 10 });
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  const allPosts = useQuery(api.blog.getAllPosts, { limit: 100 });
   const searchResults = useQuery(
     api.blog.searchPosts,
-    searchQuery.trim() ? { query: searchQuery, limit: 5 } : "skip"
+    searchQuery.trim() ? { query: searchQuery, limit: 100 } : "skip"
   );
   const deletePost = useMutation(api.blog.deletePost);
 
-  if (posts === undefined) {
+  if (allPosts === undefined) {
     return (
       <div className="flex justify-center items-center py-20">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
@@ -22,7 +26,19 @@ export function Blog() {
     );
   }
 
-  const displayPosts = searchQuery.trim() && searchResults ? searchResults : posts;
+  // Get the posts to display (search results or all posts)
+  const displayPosts = searchQuery.trim() && searchResults ? searchResults : allPosts;
+  
+  // Reset to page 1 when search query changes
+  if (searchQuery.trim() && currentPage !== 1) {
+    setCurrentPage(1);
+  }
+
+  // Paginate the posts
+  const totalPages = Math.ceil(displayPosts.length / POSTS_PER_PAGE);
+  const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
+  const endIndex = startIndex + POSTS_PER_PAGE;
+  const paginatedPosts = displayPosts.slice(startIndex, endIndex);
 
   const handleDeletePost = async (postId: string) => {
     if (confirm("Are you sure you want to delete this post?")) {
@@ -50,7 +66,10 @@ export function Blog() {
             type="text"
             placeholder="Search posts..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
           />
         </div>
@@ -63,15 +82,6 @@ export function Blog() {
         </div>
       </Authenticated>
 
-      {/* Admin Sign In */}
-      <Unauthenticated>
-        <div className="mt-12 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Admin Access</h3>
-          <p className="text-gray-600 dark:text-gray-300 mb-4">Sign in to manage blog posts and portfolio content.</p>
-          <SignInForm />
-        </div>
-      </Unauthenticated>
-
       {/* Blog Posts */}
       <section>
         {displayPosts.length === 0 ? (
@@ -81,69 +91,119 @@ export function Blog() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-8">
-            {displayPosts.map((post) => (
-              <article key={post._id} className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {post.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="inline-flex items-center space-x-1 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full"
+          <>
+            <div className="grid gap-8">
+              {paginatedPosts.map((post) => (
+                <article key={post._id} className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {post.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center space-x-1 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full"
+                      >
+                        <Tag size={12} />
+                        <span>{tag}</span>
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer">
+                    {post.title}
+                  </h2>
+                  
+                  <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+                    {post.excerpt}
+                  </p>
+                  
+                  <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center space-x-4">
+                      <span>By {post.author?.name || "Gautam Diwan"}</span>
+                      <span>•</span>
+                      <div className="flex items-center space-x-1">
+                        <Clock size={14} />
+                        <span>{post.readTime} min read</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Calendar size={14} />
+                      <span>
+                        {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : "Draft"}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 flex justify-between items-center">
+                    <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
+                      Read more →
+                    </button>
+                    <Authenticated>
+                      <div className="flex space-x-2">
+                        <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                          <Edit size={16} />
+                        </button>
+                        <button 
+                          onClick={() => handleDeletePost(post._id)}
+                          className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </Authenticated>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="mt-12 flex items-center justify-center gap-4">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  aria-label="Previous page"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+                
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                        currentPage === page
+                          ? "bg-blue-600 dark:bg-blue-500 text-white"
+                          : "border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      }`}
                     >
-                      <Tag size={12} />
-                      <span>{tag}</span>
-                    </span>
+                      {page}
+                    </button>
                   ))}
                 </div>
                 
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer">
-                  {post.title}
-                </h2>
-                
-                <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
-                  {post.excerpt}
-                </p>
-                
-                <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-                  <div className="flex items-center space-x-4">
-                    <span>By {post.author?.name || "Gautam Diwan"}</span>
-                    <span>•</span>
-                    <div className="flex items-center space-x-1">
-                      <Clock size={14} />
-                      <span>{post.readTime} min read</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Calendar size={14} />
-                    <span>
-                      {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : "Draft"}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="mt-6 flex justify-between items-center">
-                  <button className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium">
-                    Read more →
-                  </button>
-                  <Authenticated>
-                    <div className="flex space-x-2">
-                      <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
-                        <Edit size={16} />
-                      </button>
-                      <button 
-                        onClick={() => handleDeletePost(post._id)}
-                        className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </Authenticated>
-                </div>
-              </article>
-            ))}
-          </div>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  aria-label="Next page"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+            )}
+          </>
         )}
       </section>
+
+      {/* Admin Sign In */}
+      <Unauthenticated>
+        <div className="mt-12 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Admin Access</h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">Sign in to manage blog posts and portfolio content.</p>
+          <SignInForm />
+        </div>
+      </Unauthenticated>
     </div>
   );
 }

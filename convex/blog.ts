@@ -120,10 +120,6 @@ export const deletePost = mutation({
       throw new Error("Post not found");
     }
 
-    if (post.authorId !== userId) {
-      throw new Error("You can only delete your own posts");
-    }
-
     await ctx.db.delete(args.postId);
   },
 });
