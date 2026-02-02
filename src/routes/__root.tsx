@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { DarkModeProvider } from "../contexts/DarkModeContext";
+import env from "../env";
 
 export const Route = createRootRoute({
   component: () => (
@@ -15,7 +16,9 @@ export const Route = createRootRoute({
         </main>
         <Footer />
         <Toaster />
-        <TanStackRouterDevtools />
+        {env.ENVIRONMENT === "local" && (
+          <TanStackRouterDevtools initialIsOpen={false} />
+        )}
       </div>
     </DarkModeProvider>
   ),
