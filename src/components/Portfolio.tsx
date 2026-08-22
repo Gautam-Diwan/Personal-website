@@ -20,17 +20,22 @@ export function Portfolio() {
   const skills = useQuery(api.portfolio.getSkills, {});
   const seedData = useMutation(api.portfolio.seedPortfolioData);
 
-  const [isSeeding, setIsSeeding] = useState(false);
+  const [didEnsure, setDidEnsure] = useState(false);
+  const CONTENT_VERSION = 2;
 
   useEffect(() => {
-    // Auto-seed data if no projects exist
-    if (projects !== undefined && projects.length === 0 && !isSeeding) {
-      setIsSeeding(true);
-      seedData({}).then(() => {
-        setIsSeeding(false);
-      });
+    if (projects === undefined || skills === undefined || didEnsure) {
+      return;
     }
-  }, [projects, seedData, isSeeding]);
+    const meta = skills.find(
+      (skill) =>
+        skill.category === "_meta" && skill.name === "contentVersion",
+    );
+    if (projects.length === 0 || !meta || meta.level < CONTENT_VERSION) {
+      setDidEnsure(true);
+      seedData({});
+    }
+  }, [projects, skills, seedData, didEnsure]);
 
   if (
     projects === undefined ||
@@ -45,7 +50,7 @@ export function Portfolio() {
   }
 
   const featuredProjects = projects.filter((p) => p.featured);
-  const featuredSkills = skills.filter((s) => s.featured);
+  const visibleSkills = skills.filter((s) => s.category !== "_meta");
 
   return (
     <div className="space-y-20">
@@ -120,11 +125,17 @@ export function Portfolio() {
                   Master of Software Engineering - Scalable Systems
                 </p>
                 <p className="text-gray-600 dark:text-gray-300">
-                  GPA: 4.16/4.33
+                  GPA: 4.14/4.33
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                  Coursework: ML Systems, Diffusion and Flow Matching, API
-                  Design, Design Patterns, Quality Assurance
+                  Coursework: ML Systems, Diffusion and Flow Matching (A+),
+                  Engineering Data Intensive Scalable Systems, Software
+                  Architectures, DevOps, API Design, Design Patterns, Quality
+                  Assurance, Formal Methods, Statistics for Decision Making,
+                  Quality Management, Software Project Management, Agile
+                  Methods, Product Management Essentials, Requirements for
+                  Information Systems, Machine Learning with Large Datasets,
+                  Database Systems
                 </p>
               </div>
               <div className="text-right mt-4 md:mt-0">
@@ -134,7 +145,7 @@ export function Portfolio() {
                 </div>
                 <div className="flex items-center text-gray-500 dark:text-gray-400">
                   <Calendar size={16} className="mr-1" />
-                  <span>December 2026</span>
+                  <span>Expected December 2026</span>
                 </div>
               </div>
             </div>
@@ -152,7 +163,8 @@ export function Portfolio() {
                   Conversational AI Specialization
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                  Coursework: Data Science, Natural Language Processing
+                  Coursework: Natural Language Processing, Speech Processing,
+                  Data Science, Data Analytics, Machine Learning
                 </p>
               </div>
               <div className="text-right mt-4 md:mt-0">
@@ -220,15 +232,22 @@ export function Portfolio() {
         </h2>
         <div className="grid md:grid-cols-3 gap-8">
           {Object.entries(
-            featuredSkills.reduce(
+            visibleSkills.reduce(
               (acc, skill) => {
                 if (!acc[skill.category]) acc[skill.category] = [];
                 acc[skill.category].push(skill);
                 return acc;
               },
-              {} as Record<string, typeof featuredSkills>,
+              {} as Record<string, typeof visibleSkills>,
             ),
-          ).map(([category, categorySkills]) => (
+          ).map(([category, categorySkills]) => {
+            const featuredCategorySkills = categorySkills.filter(
+              (skill) => skill.featured,
+            );
+            const additionalSkills = categorySkills.filter(
+              (skill) => !skill.featured,
+            );
+            return (
             <div
               key={category}
               className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
@@ -237,7 +256,7 @@ export function Portfolio() {
                 {category}
               </h3>
               <div className="space-y-3">
-                {categorySkills.map((skill) => (
+                {featuredCategorySkills.map((skill) => (
                   <div key={skill._id}>
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-gray-700 dark:text-gray-300">
@@ -256,8 +275,21 @@ export function Portfolio() {
                   </div>
                 ))}
               </div>
+              {additionalSkills.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {additionalSkills.map((skill) => (
+                    <span
+                      key={skill._id}
+                      className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm rounded-full"
+                    >
+                      {skill.name}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

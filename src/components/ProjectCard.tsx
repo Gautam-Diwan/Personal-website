@@ -18,7 +18,7 @@ export function ProjectCard({ project, featured = false }: ProjectCardProps) {
             {project.category}
           </span>
         </div>
-        <p className="text-gray-600 dark:text-gray-300 mb-4">{project.description}</p>
+        <p className="text-gray-600 dark:text-gray-300 mb-4">{project.longDescription}</p>
         <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
           <div className="flex items-center">
             <Calendar size={16} className="mr-1" />
