@@ -3,6 +3,11 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Doc } from "../../convex/_generated/dataModel";
 import { GROUP_BY_ID, type GroupId } from "./groups";
+import {
+  experiences as seedExperiences,
+  projects as seedProjects,
+  skills as seedSkills,
+} from "../../convex/content";
 
 /** Keep in sync with CONTENT_VERSION in convex/portfolio.ts */
 export const CONTENT_VERSION = 4;
@@ -32,8 +37,49 @@ export function projectsInGroup<T extends { slug?: string; groups?: string[] }>(
     .sort((a, b) => rank(a.slug) - rank(b.slug));
 }
 
+/*
+ * Bundled copy of the same content that is seeded into Convex (convex/content.ts).
+ * Pages render from it immediately, so they never depend on the Convex WebSocket being
+ * reachable: some browsers, privacy extensions, DNS filters, and corporate networks
+ * block wss:// to convex.cloud, which previously left every list stuck on skeletons.
+ * Live Convex data replaces it as soon as it arrives and is at the current version.
+ */
+const byRecency = <T extends { sortKey?: number }>(rows: T[]) =>
+  rows
+    .map((r, i) => ({ r, i }))
+    .sort((a, b) => (b.r.sortKey ?? 0) - (a.r.sortKey ?? 0) || a.i - b.i)
+    .map(({ r }) => r);
+
+const STATIC_PROJECTS = byRecency(
+  seedProjects.map((p, i) => ({
+    ...p,
+    _id: `static-project-${p.slug}`,
+    _creationTime: i,
+  })),
+) as unknown as Project[];
+
+const STATIC_EXPERIENCES = byRecency(
+  seedExperiences.map((e, i) => ({
+    ...e,
+    _id: `static-experience-${i}`,
+    _creationTime: i,
+  })),
+) as unknown as Experience[];
+
+const STATIC_SKILLS = seedSkills.flatMap((group, gi) =>
+  group.items.map((name, i) => ({
+    _id: `static-skill-${gi}-${i}`,
+    _creationTime: gi * 100 + i,
+    category: group.category,
+    name,
+    level: 4,
+    featured: i < 4,
+  })),
+) as unknown as Doc<"skills">[];
+
 /**
- * Loads all portfolio content and reseeds the Convex tables once if the
+ * Portfolio content for the UI. Returns the bundled content immediately and switches to
+ * live Convex data once it is loaded and current; also reseeds Convex once if the
  * deployed content version is older than this build's.
  */
 export function usePortfolio() {
@@ -43,21 +89,42 @@ export function usePortfolio() {
   const seed = useMutation(api.portfolio.seedPortfolioData);
   const requested = useRef(false);
 
+  const meta = skills?.find(
+    (s) => s.category === "_meta" && s.name === "contentVersion",
+  );
+  const liveIsCurrent =
+    projects !== undefined &&
+    experiences !== undefined &&
+    skills !== undefined &&
+    projects.length > 0 &&
+    meta !== undefined &&
+    meta.level >= CONTENT_VERSION;
+
   useEffect(() => {
     if (projects === undefined || skills === undefined || requested.current)
       return;
-    const meta = skills.find(
-      (s) => s.category === "_meta" && s.name === "contentVersion",
-    );
-    if (projects.length === 0 || !meta || meta.level < CONTENT_VERSION) {
+    if (!liveIsCurrent) {
       requested.current = true;
-      void seed({});
+      seed({}).catch(() => {
+        /* offline or blocked: the bundled content is already showing */
+      });
     }
-  }, [projects, skills, seed]);
+  }, [projects, skills, seed, liveIsCurrent]);
 
-  const contentSkills = skills?.filter((s) => s.category !== "_meta");
-  const loading =
-    projects === undefined || experiences === undefined || skills === undefined;
-
-  return { projects, experiences, skills: contentSkills, loading };
+  if (liveIsCurrent) {
+    return {
+      projects,
+      experiences,
+      skills: skills.filter((s) => s.category !== "_meta"),
+      loading: false,
+      source: "live" as const,
+    };
+  }
+  return {
+    projects: STATIC_PROJECTS,
+    experiences: STATIC_EXPERIENCES,
+    skills: STATIC_SKILLS,
+    loading: false,
+    source: "bundled" as const,
+  };
 }
