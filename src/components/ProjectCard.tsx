@@ -10,6 +10,7 @@ import {
 } from "framer-motion";
 import { ArrowUpRight, Calendar, Github, Globe, Plus, X } from "lucide-react";
 import { GroupBadge } from "./ui";
+import { TechPill } from "./TechLogo";
 import { projectGroups, type Project } from "../lib/content";
 import { GROUP_BY_ID } from "../lib/groups";
 import { ease, fadeUp } from "../lib/motion";
@@ -180,9 +181,7 @@ function ProjectDetails({
 
         <div className="mt-8 flex flex-wrap gap-1.5 border-t hairline pt-6">
           {project.technologies.map((t) => (
-            <span key={t} className="chip !text-fg/80">
-              {t}
-            </span>
+            <TechPill key={t} name={t} size="md" />
           ))}
         </div>
       </motion.div>
@@ -313,9 +312,7 @@ export function ProjectCard({
         <div className="pointer-events-none relative z-10 mt-5 flex items-center justify-between gap-3">
           <div className="flex flex-wrap gap-1.5">
             {tech.map((t) => (
-              <span key={t} className="chip !py-0.5">
-                {t}
-              </span>
+              <TechPill key={t} name={t} size="sm" />
             ))}
           </div>
           <div className="flex shrink-0 items-center gap-1.5">

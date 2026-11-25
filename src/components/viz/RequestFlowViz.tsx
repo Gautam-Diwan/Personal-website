@@ -6,6 +6,8 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import { Power } from "lucide-react";
+import { useDarkMode } from "../../contexts/DarkModeContext";
+import { brandColor, iconFor } from "../../lib/techIcons";
 
 /*
  * Request lifecycle through a CQRS microservice stack (modeled on the Cloud Bookstore
@@ -16,20 +18,32 @@ import { Power } from "lucide-react";
 
 type NodeId =
   "client" | "bff" | "cmd" | "qry" | "rec" | "rds" | "kafka" | "mongo";
+/** Brand mark shown inside each node (BFF and services ran on EKS in the original project). */
+const NODE_LOGO: Record<NodeId, string> = {
+  client: "React",
+  bff: "Kubernetes",
+  cmd: "FastAPI",
+  qry: "FastAPI",
+  rec: "FastAPI",
+  rds: "Postgres",
+  kafka: "Kafka",
+  mongo: "MongoDB",
+};
+
 const NODES: Record<
   NodeId,
   { x: number; y: number; label: string; sub: string }
 > = {
-  client: { x: 70, y: 175, label: "Client", sub: "React SPA" },
-  bff: { x: 245, y: 175, label: "BFF", sub: "path router" },
-  cmd: { x: 450, y: 60, label: "Command svc", sub: "FastAPI · writes" },
-  qry: { x: 450, y: 175, label: "Query svc", sub: "FastAPI · reads" },
-  rec: { x: 450, y: 290, label: "Recs svc", sub: "3s timeout" },
-  rds: { x: 660, y: 60, label: "RDS", sub: "Postgres · source" },
-  kafka: { x: 840, y: 60, label: "Kafka", sub: "CRM events" },
-  mongo: { x: 660, y: 175, label: "MongoDB", sub: "read model" },
+  client: { x: 88, y: 175, label: "Client", sub: "React SPA" },
+  bff: { x: 268, y: 175, label: "BFF", sub: "path router" },
+  cmd: { x: 470, y: 60, label: "Command svc", sub: "FastAPI · writes" },
+  qry: { x: 470, y: 175, label: "Query svc", sub: "FastAPI · reads" },
+  rec: { x: 470, y: 290, label: "Recs svc", sub: "3s timeout" },
+  rds: { x: 678, y: 60, label: "RDS", sub: "Postgres · source" },
+  kafka: { x: 872, y: 60, label: "Kafka", sub: "CRM events" },
+  mongo: { x: 678, y: 175, label: "MongoDB", sub: "read model" },
 };
-const NW = 132;
+const NW = 160;
 const NH = 50;
 
 const EDGES: [NodeId, NodeId][] = [
@@ -78,6 +92,7 @@ const jitter = (base: number) =>
   Math.round(base * (0.8 + Math.random() * 0.45));
 
 export function RequestFlowViz() {
+  const { isDark } = useDarkMode();
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { margin: "-120px" });
   const reduced = useReducedMotion();
@@ -294,6 +309,15 @@ export function RequestFlowViz() {
   };
 
   const activeNodes = new Set(flights.flatMap((f) => f.path));
+  const logos = Object.fromEntries(
+    (Object.keys(NODE_LOGO) as NodeId[]).map((id) => {
+      const icon = iconFor(NODE_LOGO[id]);
+      return [
+        id,
+        icon ? { path: icon.path, color: brandColor(icon, isDark) } : null,
+      ];
+    }),
+  ) as Record<NodeId, { path: string; color: string } | null>;
   const breakerColor =
     breaker === "closed"
       ? WEB
@@ -347,7 +371,7 @@ export function RequestFlowViz() {
       <div>
         <div className="overflow-x-auto border-b hairline px-4 py-5">
           <svg
-            viewBox="0 0 920 350"
+            viewBox="0 0 960 350"
             className="mx-auto w-full min-w-[620px] max-w-[1040px]"
             role="img"
             aria-label="Request flow through BFF, CQRS services, databases, and a circuit breaker"
@@ -450,8 +474,15 @@ export function RequestFlowViz() {
                     strokeDasharray={down ? "5 4" : undefined}
                     style={{ transition: "stroke 0.25s" }}
                   />
+                  {logos[id] && (
+                    <g
+                      transform={`translate(${n.x - NW / 2 + 11} ${n.y - 10}) scale(0.83)`}
+                    >
+                      <path d={logos[id]!.path} fill={logos[id]!.color} />
+                    </g>
+                  )}
                   <text
-                    x={n.x}
+                    x={n.x + 13}
                     y={n.y - 3}
                     textAnchor="middle"
                     fontSize={13.5}
@@ -461,7 +492,7 @@ export function RequestFlowViz() {
                     {n.label}
                   </text>
                   <text
-                    x={n.x}
+                    x={n.x + 13}
                     y={n.y + 14}
                     textAnchor="middle"
                     className="font-mono"
@@ -508,66 +539,61 @@ export function RequestFlowViz() {
               {auto ? "auto demo · click to take over" : "manual"}
             </span>
           </div>
-          <ul className="mt-3 space-y-2">
-            <AnimatePresence initial={false}>
-              {log.map((e) => {
-                const total = e.segs.reduce((s, x) => s + x.ms, 0);
-                const ok = e.status < 400;
-                return (
-                  <motion.li
-                    key={e.id}
-                    layout
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="rounded-lg border hairline bg-bg/70 px-3 py-2 font-mono text-xs"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="w-10 font-semibold text-fg">
-                        {e.method}
-                      </span>
-                      <span className="flex-1 truncate text-fg">{e.url}</span>
-                      <span
-                        className="rounded px-1.5 py-0.5 font-semibold"
-                        style={{
-                          color: ok ? WEB : "rgb(var(--systems))",
-                          background: ok
-                            ? "rgb(var(--web) / 0.12)"
-                            : "rgb(var(--systems) / 0.14)",
+          {/* Fixed-height slots: new rows fade in without changing the panel's height */}
+          <ul className="mt-3 grid h-[304px] grid-rows-4 gap-2 overflow-hidden">
+            {log.map((e) => {
+              const total = e.segs.reduce((s, x) => s + x.ms, 0);
+              const ok = e.status < 400;
+              return (
+                <motion.li
+                  key={e.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="h-[70px] rounded-lg border hairline bg-bg/70 px-3 py-2 font-mono text-xs"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="w-10 font-semibold text-fg">
+                      {e.method}
+                    </span>
+                    <span className="flex-1 truncate text-fg">{e.url}</span>
+                    <span
+                      className="rounded px-1.5 py-0.5 font-semibold"
+                      style={{
+                        color: ok ? WEB : "rgb(var(--systems))",
+                        background: ok
+                          ? "rgb(var(--web) / 0.12)"
+                          : "rgb(var(--systems) / 0.14)",
+                      }}
+                    >
+                      {e.status}
+                    </span>
+                    <span className="w-14 text-right text-fg">
+                      {total >= 1000
+                        ? `${(total / 1000).toFixed(1)}s`
+                        : `${total}ms`}
+                    </span>
+                  </div>
+                  <div className="mt-1.5 flex h-2 overflow-hidden rounded-full bg-fg/10">
+                    {e.segs.map((s, i) => (
+                      <motion.span
+                        key={i}
+                        initial={{ width: 0 }}
+                        animate={{
+                          width: `${(s.ms / Math.max(total, maxMs)) * 100}%`,
                         }}
-                      >
-                        {e.status}
-                      </span>
-                      <span className="w-14 text-right text-fg">
-                        {total >= 1000
-                          ? `${(total / 1000).toFixed(1)}s`
-                          : `${total}ms`}
-                      </span>
-                    </div>
-                    <div className="mt-1.5 flex h-2 overflow-hidden rounded-full bg-fg/10">
-                      {e.segs.map((s, i) => (
-                        <motion.span
-                          key={i}
-                          initial={{ width: 0 }}
-                          animate={{
-                            width: `${(s.ms / Math.max(total, maxMs)) * 100}%`,
-                          }}
-                          transition={{ duration: 0.5, delay: i * 0.12 }}
-                          style={{ background: s.color }}
-                          title={`${s.label}: ${s.ms}ms`}
-                        />
-                      ))}
-                    </div>
-                    {e.note && (
-                      <div className="mt-1 text-[11px] text-muted">
-                        {e.note}
-                      </div>
-                    )}
-                  </motion.li>
-                );
-              })}
-            </AnimatePresence>
+                        transition={{ duration: 0.5, delay: i * 0.12 }}
+                        style={{ background: s.color }}
+                        title={`${s.label}: ${s.ms}ms`}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-1 truncate text-[11px] text-muted">
+                    {e.note ?? `${e.segs.map((s) => s.label).join(" → ")}`}
+                  </div>
+                </motion.li>
+              );
+            })}
             {log.length === 0 && (
               <li className="font-mono text-xs text-muted">
                 Send a request to see it traced…
@@ -599,22 +625,25 @@ export function RequestFlowViz() {
                 trips at {FAIL_THRESHOLD}
               </span>
             </div>
-            {breaker === "open" && (
-              <div className="mt-2">
-                <div className="h-1.5 overflow-hidden rounded-full bg-fg/10">
-                  <div
-                    className="h-full rounded-full"
-                    style={{
-                      width: `${cooldown * 100}%`,
-                      background: "rgb(var(--systems))",
-                    }}
-                  />
-                </div>
-                <div className="mt-1 text-[11px] text-muted">
-                  cooling down, then one half-open trial request
-                </div>
+            {/* Always rendered so the panel keeps a constant height across breaker states */}
+            <div className="mt-2">
+              <div className="h-1.5 overflow-hidden rounded-full bg-fg/10">
+                <div
+                  className="h-full rounded-full transition-[width] duration-100"
+                  style={{
+                    width: `${breaker === "open" ? cooldown * 100 : breaker === "half-open" ? 100 : 0}%`,
+                    background: breakerColor,
+                  }}
+                />
               </div>
-            )}
+              <div className="mt-1 text-[11px] text-muted">
+                {breaker === "open"
+                  ? "cooling down, then one half-open trial request"
+                  : breaker === "half-open"
+                    ? "half-open: the next request is a trial"
+                    : "closed: requests flow to the recs service"}
+              </div>
+            </div>
           </div>
         </div>
       </div>

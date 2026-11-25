@@ -166,8 +166,8 @@ export function QueryPlanViz() {
 
   const advance = () => {
     if (phase === "query") {
+      // Type the query in, then wait: execution only starts when the visitor clicks Run
       if (typed < SQL_LEN) setTyped((t) => Math.min(SQL_LEN, t + 3));
-      else run();
     } else if (phase === "optimize") {
       if (optTick < PLANS.length + 1) setOptTick((t) => t + 1);
       else setPhase("plan");
@@ -179,16 +179,21 @@ export function QueryPlanViz() {
   };
 
   useEffect(() => {
-    if (!reduced) return;
-    setTyped(SQL_LEN);
+    if (reduced) setTyped(SQL_LEN);
+  }, [reduced]);
+
+  // Reduced motion: Run jumps straight to the finished execution
+  useEffect(() => {
+    if (!reduced || phase !== "optimize") return;
     setOptTick(PLANS.length + 1);
     setStep(last);
     setPhase("done");
     setPlaying(false);
-  }, [reduced, last]);
+  }, [reduced, phase, last]);
 
   useEffect(() => {
     if (!inView || !playing || done) return;
+    if (phase === "query" && typed >= SQL_LEN) return;
     const ms =
       phase === "query"
         ? typed < SQL_LEN
@@ -313,8 +318,8 @@ export function QueryPlanViz() {
           ) : (
             <button
               onClick={run}
-              className="relative flex items-center gap-2 rounded-lg px-3.5 py-2 font-mono text-xs font-semibold text-black transition-transform hover:scale-[1.03]"
-              style={{ background: SYS() }}
+              className="relative flex items-center gap-2 rounded-lg px-3.5 py-2 font-mono text-xs font-semibold transition-transform hover:scale-[1.03]"
+              style={{ background: SYS(), color: "rgb(var(--bg))" }}
             >
               {typed >= SQL_LEN && (
                 <motion.span

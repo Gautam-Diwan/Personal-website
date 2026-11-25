@@ -31,6 +31,11 @@ Each domain page can show an interactive showcase (`SHOWCASES` in `src/pages/Gro
 A single fixed three.js particle field sits behind every page and morphs to a shape per domain
 (`src/components/three/shapes.ts`).
 
+## Portrait
+
+The home hero shows `public/gautam.jpg` (a square crop works best, ~640px). Until that file
+exists it falls back to a GD monogram.
+
 ## Editing content
 
 All projects, experiences, and skills live in **`convex/content.ts`**. A project can belong to

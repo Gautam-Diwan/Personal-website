@@ -10,7 +10,7 @@ import { ProjectCard } from "../components/ProjectCard";
 import { ExperienceTimeline } from "../components/ExperienceTimeline";
 import { DiffusionTerminal } from "../components/DiffusionTerminal";
 import { QueryPlanViz } from "../components/viz/QueryPlanViz";
-import { MatrixFactorizationViz } from "../components/viz/MatrixFactorizationViz";
+import { RecommenderGate } from "../components/viz/RecommenderGate";
 import { RequestFlowViz } from "../components/viz/RequestFlowViz";
 
 type Showcase = {
@@ -33,7 +33,7 @@ const SHOWCASES: Partial<Record<GroupId, Showcase>> = {
     eyebrow: "Under the hood",
     title: "Matrix factorization, trained in front of you.",
     body: "A Manim-style walkthrough of collaborative filtering. Sparse ratings are factored into user and item embeddings in ℝ³, trained with SGD on the observed entries only, and the missing ratings fall out as dot products. The training is real and runs in your browser.",
-    node: <MatrixFactorizationViz />,
+    node: <RecommenderGate />,
     wide: true,
   },
   web: {

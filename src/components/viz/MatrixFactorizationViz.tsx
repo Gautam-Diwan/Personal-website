@@ -59,10 +59,10 @@ const ramp = (t: number, start: number, dur: number) =>
 
 /* ---------- 2D: bracketed matrices in the multiplication layout ---------- */
 
-const CW = 44; // R / Vᵀ cell width
-const RH = 34; // R / U row height
-const VH = 30; // Vᵀ row height
-const UW = 46; // U cell width
+const CW = 54; // R / Vᵀ cell width
+const RH = 42; // R / U row height
+const VH = 36; // Vᵀ row height
+const UW = 58; // U cell width
 const U_X = 18;
 const R_X = U_X + UW * K + 34;
 const V_Y = 18;
@@ -85,7 +85,7 @@ function Brackets({
 }) {
   const t = 7;
   return (
-    <g stroke={color} strokeWidth={1.6} fill="none" opacity={progress}>
+    <g stroke={color} strokeWidth={2} fill="none" opacity={progress}>
       <path d={`M${x + t},${y} L${x},${y} L${x},${y + h} L${x + t},${y + h}`} />
       <path
         d={`M${x + w - t},${y} L${x + w},${y} L${x + w},${y + h} L${x + w - t},${y + h}`}
@@ -112,7 +112,7 @@ function Matrices({
 
   return (
     <svg
-      viewBox={`0 0 ${R_X + CW * ITEMS + 16} ${R_Y + RH * USERS + 22}`}
+      viewBox={`0 0 ${R_X + CW * ITEMS + 16} ${R_Y + RH * USERS + 40}`}
       className="w-full"
       role="img"
       aria-label="Ratings matrix R approximated by U times V transpose"
@@ -120,23 +120,23 @@ function Matrices({
       {/* Title in the empty top-left quadrant */}
       <text
         x={U_X + 4}
-        y={V_Y + 40}
+        y={V_Y + 50}
         fill={M.text}
-        fontSize={30}
+        fontSize={40}
         fontStyle="italic"
         className="font-serif"
         opacity={rIn}
       >
         R ≈ UV
-        <tspan fontSize={18} dy={-12}>
+        <tspan fontSize={24} dy={-16}>
           ᵀ
         </tspan>
       </text>
       <text
         x={U_X + 4}
-        y={V_Y + 66}
+        y={V_Y + 82}
         fill={M.dim}
-        fontSize={14}
+        fontSize={17}
         className="font-serif"
         opacity={fIn}
       >
@@ -158,9 +158,9 @@ function Matrices({
             <text
               key={`v${i}${f}`}
               x={R_X + i * CW + CW / 2}
-              y={V_Y + f * VH + VH / 2 + 5}
+              y={V_Y + f * VH + VH / 2 + 7}
               textAnchor="middle"
-              fontSize={14.5}
+              fontSize={19}
               fill={M.yellow}
               className="font-serif"
             >
@@ -172,7 +172,7 @@ function Matrices({
           x={R_X - 16}
           y={V_Y + (VH * K) / 2 + 6}
           textAnchor="end"
-          fontSize={20}
+          fontSize={27}
           fontStyle="italic"
           fill={M.yellow}
           className="font-serif"
@@ -196,9 +196,9 @@ function Matrices({
             <text
               key={`u${r}${f}`}
               x={U_X + f * UW + UW / 2}
-              y={R_Y + r * RH + RH / 2 + 5}
+              y={R_Y + r * RH + RH / 2 + 7}
               textAnchor="middle"
-              fontSize={14.5}
+              fontSize={19}
               fill={M.blue}
               className="font-serif"
             >
@@ -208,9 +208,9 @@ function Matrices({
         )}
         <text
           x={U_X + (UW * K) / 2}
-          y={R_Y + RH * USERS + 20}
+          y={R_Y + RH * USERS + 32}
           textAnchor="middle"
-          fontSize={20}
+          fontSize={27}
           fontStyle="italic"
           fill={M.blue}
           className="font-serif"
@@ -251,9 +251,9 @@ function Matrices({
               {r !== null ? (
                 <text
                   x={cx}
-                  y={cy + 6}
+                  y={cy + 9}
                   textAnchor="middle"
-                  fontSize={19}
+                  fontSize={26}
                   fill={M.text}
                   className="font-serif"
                 >
@@ -262,9 +262,9 @@ function Matrices({
               ) : predIn > 0 ? (
                 <text
                   x={cx}
-                  y={cy + 6}
+                  y={cy + 8}
                   textAnchor="middle"
-                  fontSize={17.5}
+                  fontSize={23}
                   fill={M.green}
                   className="font-serif"
                   opacity={predIn}
@@ -275,9 +275,9 @@ function Matrices({
               ) : (
                 <text
                   x={cx}
-                  y={cy + 6}
+                  y={cy + 9}
                   textAnchor="middle"
-                  fontSize={19}
+                  fontSize={26}
                   fill={M.dim}
                   className="font-serif"
                 >
@@ -591,7 +591,7 @@ function LossCurve({
   return (
     <svg
       viewBox={`0 0 ${W} ${H}`}
-      className="w-full max-w-[320px]"
+      className="w-full max-w-[400px]"
       role="img"
       aria-label={`Training RMSE ${cur.toFixed(2)}`}
     >
@@ -612,7 +612,7 @@ function LossCurve({
             x={pad.l - 8}
             y={y(v) + 4}
             textAnchor="end"
-            fontSize={11}
+            fontSize={14}
             fill={M.dim}
             className="font-serif"
           >
@@ -623,7 +623,7 @@ function LossCurve({
         x={W - pad.r}
         y={H - 6}
         textAnchor="end"
-        fontSize={12}
+        fontSize={15}
         fill={M.dim}
         fontStyle="italic"
         className="font-serif"
@@ -642,7 +642,7 @@ function LossCurve({
         x={W - pad.r}
         textAnchor="end"
         y={pad.t + 12}
-        fontSize={14}
+        fontSize={17}
         fill={M.text}
         className="font-serif"
       >
@@ -746,7 +746,7 @@ export function MatrixFactorizationViz() {
       className="overflow-hidden rounded-2xl border border-white/15 shadow-2xl"
       style={{ background: M.bg, color: M.text }}
     >
-      <div className="grid lg:grid-cols-[1fr_1.05fr]">
+      <div className="grid lg:grid-cols-[1.3fr_1fr]">
         <div className="p-5 sm:p-6">
           <Matrices t={time} state={state} data={data} focus={focus} />
         </div>
@@ -759,7 +759,7 @@ export function MatrixFactorizationViz() {
             <color attach="background" args={[M.bg]} />
             <Scene stateRef={stateRef} labels={labels} reduced={reduced} />
           </Canvas>
-          <div className="pointer-events-none absolute inset-0 overflow-hidden font-serif text-[15px] italic">
+          <div className="pointer-events-none absolute inset-0 overflow-hidden font-serif text-[19px] italic">
             {Array.from({ length: USERS + ITEMS }, (_, i) => (
               <span
                 key={i}
@@ -770,14 +770,14 @@ export function MatrixFactorizationViz() {
                 style={{ color: i < USERS ? M.blue : M.yellow, opacity: 0 }}
               >
                 {i < USERS ? "u" : "v"}
-                <sub className="text-[10px] not-italic">
+                <sub className="text-[13px] not-italic">
                   {i < USERS ? i + 1 : i - USERS + 1}
                 </sub>
               </span>
             ))}
           </div>
           <div
-            className="pointer-events-none absolute left-4 top-4 font-serif text-sm"
+            className="pointer-events-none absolute left-4 top-4 font-serif text-base"
             style={{ color: M.dim }}
           >
             <span style={{ color: M.blue }}>u</span> users ·{" "}
@@ -795,12 +795,15 @@ export function MatrixFactorizationViz() {
               animate={{ clipPath: "inset(0 0% 0 0)" }}
               exit={{ opacity: 0 }}
               transition={{ duration: 1, ease: "easeOut" }}
-              className="font-serif text-lg leading-snug sm:text-xl"
+              className="font-serif text-xl leading-snug sm:text-2xl"
             >
               {caption}
             </motion.p>
           </AnimatePresence>
-          <p className="mt-2 font-serif text-[15px]" style={{ color: M.dim }}>
+          <p
+            className="mt-2 font-serif text-[17px] sm:text-lg"
+            style={{ color: M.dim }}
+          >
             <span className="italic">L</span> = Σ<sub>observed</sub> (r
             <sub>ui</sub> − μ − u<sub>u</sub>·v<sub>i</sub>)² + λ(‖U‖² + ‖V‖²)
             {time >= T_PRED && (

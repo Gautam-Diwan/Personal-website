@@ -21,7 +21,7 @@ function hasWebGL() {
 }
 
 const BASE_OPACITY: Record<SceneShape, number> = {
-  home: 0.55,
+  home: 0.42,
   systems: 0,
   ml: 0.8,
   ai: 0.9,
@@ -70,7 +70,7 @@ export function SceneBackground() {
             <Suspense fallback={null}>
               <ParticleField
                 shape={shape === "systems" ? "home" : shape}
-                align="right"
+                align={shape === "home" ? "center" : "right"}
                 isDark={isDark}
                 reducedMotion={reducedMotion}
               />
