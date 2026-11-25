@@ -79,7 +79,7 @@ export function SectionHeading({
           {eyebrow}
         </RevealItem>
         <RevealItem>
-          <h2 className="mt-4 text-3xl font-medium tracking-tight sm:text-4xl md:text-5xl">
+          <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl md:text-5xl">
             {title}
           </h2>
         </RevealItem>

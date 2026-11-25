@@ -20,9 +20,9 @@ export function WorkInProgress() {
         </motion.div>
         <motion.h1
           variants={fadeUp}
-          className="mt-8 text-[clamp(2.6rem,7vw,5rem)] font-medium leading-[0.98] tracking-[-0.035em]"
+          className="mt-8 text-[clamp(2.6rem,7vw,5rem)] font-black leading-[1.02] tracking-[-0.035em]"
         >
-          The blog is <span className="font-serif italic text-muted">still compiling.</span>
+          The blog is <span style={{ color: "rgb(var(--accent))" }}>still compiling.</span>
         </motion.h1>
         <motion.p variants={fadeUp} className="mt-6 max-w-lg leading-relaxed text-muted">
           Writing on ML systems, GPU kernels, and building agents that survive production is on the

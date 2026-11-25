@@ -1,19 +1,28 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, Moon, Sun, X, Github } from "lucide-react";
+import { Menu, Moon, Sun, Volume2, VolumeX, X } from "lucide-react";
 import { useDarkMode } from "../../contexts/DarkModeContext";
 import { GROUPS } from "../../lib/groups";
 import { ease } from "../../lib/motion";
+import {
+  onSoundChange,
+  playBlip,
+  playPop,
+  playSwitch,
+  setSoundEnabled,
+  soundEnabled,
+} from "../../lib/sound";
+import { TechLogo } from "../TechLogo";
 
 const NAV = [
-  { to: "/", label: "Home", color: "accent" },
+  { to: "/", label: "Home", color: "fg" },
   ...GROUPS.map((g) => ({
     to: g.path,
     label: g.id === "ml" ? "ML" : g.id === "ai" ? "AI" : g.label,
     color: g.id,
   })),
-  { to: "/blog", label: "Blog", color: "accent" },
+  { to: "/blog", label: "Blog", color: "fg" },
 ] as const;
 
 function useActive() {
@@ -22,15 +31,30 @@ function useActive() {
     to === "/" ? pathname === "/" : pathname.startsWith(to);
 }
 
+function useSound() {
+  const [on, setOn] = useState(soundEnabled);
+  useEffect(() => {
+    const off = onSoundChange(setOn);
+    return () => {
+      off();
+    };
+  }, []);
+  return on;
+}
+
+const iconBtn =
+  "grid h-10 w-10 place-items-center rounded-lg text-fg transition-colors hover:bg-fg/[0.07] active:scale-95";
+
 export function Navbar() {
   const { isDark, toggleDarkMode } = useDarkMode();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const isActive = useActive();
+  const sound = useSound();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const onScroll = () => setScrolled(window.scrollY > 8);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -38,96 +62,95 @@ export function Navbar() {
 
   useEffect(() => setOpen(false), [pathname]);
 
+  const toggleTheme = () => {
+    playSwitch(!isDark);
+    toggleDarkMode();
+  };
+  const toggleSound = () => {
+    if (sound) {
+      setSoundEnabled(false);
+    } else {
+      setSoundEnabled(true);
+      playBlip();
+    }
+  };
+
   return (
-    <header className="fixed inset-x-0 top-0 z-50 px-4 pt-3 sm:px-6">
+    <header
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+        scrolled || open
+          ? "border-b hairline bg-bg/85 backdrop-blur-xl"
+          : "border-b border-transparent"
+      }`}
+    >
       <motion.nav
-        initial={{ y: -24, opacity: 0 }}
+        initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease }}
-        className={`mx-auto flex max-w-page items-center justify-between rounded-full border px-3 py-2 transition-all duration-300 ${
-          scrolled || open
-            ? "border-line/10 bg-bg/70 shadow-[0_8px_30px_rgb(0_0_0/0.12)] backdrop-blur-xl"
-            : "border-transparent bg-transparent"
-        }`}
+        transition={{ duration: 0.5, ease }}
+        className="mx-auto flex h-[68px] max-w-page items-center justify-between gap-4 px-4 sm:px-6"
+        aria-label="Main"
       >
         <Link
           to="/"
-          className="group flex items-center gap-2.5 pl-1"
+          onClick={() => playPop(0.9)}
+          className="group flex items-center gap-2.5"
           aria-label="Gautam Diwan, home"
         >
-          <span className="relative grid h-8 w-8 place-items-center overflow-hidden rounded-full bg-fg font-mono text-[11px] font-medium text-bg">
+          <span
+            className="grid h-9 w-9 place-items-center rounded-lg font-mono text-xs font-bold text-bg transition-transform duration-300 group-hover:-rotate-6"
+            style={{ background: "rgb(var(--accent))" }}
+          >
             GD
-            <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
           </span>
-          <span className="hidden text-sm font-medium tracking-tight sm:block">
+          <span className="hidden text-lg font-extrabold tracking-tight text-fg sm:block">
             Gautam Diwan
           </span>
         </Link>
 
-        <ul className="hidden items-center gap-0.5 md:flex">
-          {NAV.map((item) => {
+        <ul className="hidden items-center gap-1 md:flex">
+          {NAV.map((item, i) => {
             const active = isActive(item.to);
-            const tinted = item.color !== "accent";
-            const c = (a: number) => `rgb(var(--${item.color}) / ${a})`;
+            const color = `rgb(var(--${item.color}))`;
             return (
               <li key={item.to}>
                 <Link
                   to={item.to}
-                  className={`group/nav relative block rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
-                    tinted
-                      ? ""
-                      : active
-                        ? "text-fg"
-                        : "text-muted hover:text-fg"
-                  }`}
-                  style={tinted ? { color: c(1) } : undefined}
+                  onClick={() => playPop(0.85 + i * 0.07)}
+                  className="relative block px-3 py-2 text-[15px] font-bold transition-transform hover:-translate-y-px"
+                  style={{ color }}
                 >
+                  {item.label}
                   {active && (
                     <motion.span
-                      layoutId="nav-pill"
-                      className="absolute inset-0 rounded-full border"
-                      style={
-                        tinted
-                          ? { background: c(0.12), borderColor: c(0.35) }
-                          : {
-                              background: "rgb(var(--fg) / 0.06)",
-                              borderColor: "rgb(var(--line) / 0.1)",
-                            }
-                      }
+                      layoutId="nav-underline"
+                      className="absolute inset-x-3 -bottom-0.5 h-[3px] rounded-full"
+                      style={{ background: color }}
                       transition={{
                         type: "spring",
-                        stiffness: 380,
+                        stiffness: 420,
                         damping: 32,
                       }}
                     />
                   )}
-                  {!active && tinted && (
-                    <span
-                      className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-200 group-hover/nav:opacity-100"
-                      style={{ background: c(0.08) }}
-                    />
-                  )}
-                  <span className="relative">{item.label}</span>
                 </Link>
               </li>
             );
           })}
         </ul>
 
-        <div className="flex items-center gap-1">
-          <a
-            href="https://github.com/Gautam-Diwan"
-            target="_blank"
-            rel="noreferrer"
-            className="hidden h-9 w-9 place-items-center rounded-full text-muted transition-colors hover:bg-fg/5 hover:text-fg sm:grid"
-            aria-label="GitHub"
-          >
-            <Github size={16} />
-          </a>
+        <div className="flex items-center gap-0.5">
           <button
-            onClick={toggleDarkMode}
-            className="grid h-9 w-9 place-items-center rounded-full text-muted transition-colors hover:bg-fg/5 hover:text-fg"
-            aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            onClick={toggleSound}
+            className={iconBtn}
+            aria-label={sound ? "Disable sounds" : "Enable sounds"}
+            aria-pressed={sound}
+          >
+            {sound ? <Volume2 size={19} /> : <VolumeX size={19} />}
+          </button>
+          <button
+            onClick={toggleTheme}
+            className={iconBtn}
+            aria-label={isDark ? "Activate light mode" : "Activate dark mode"}
           >
             <AnimatePresence mode="wait" initial={false}>
               <motion.span
@@ -137,72 +160,66 @@ export function Navbar() {
                 exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
                 transition={{ duration: 0.25 }}
               >
-                {isDark ? <Moon size={16} /> : <Sun size={16} />}
+                {isDark ? <Moon size={19} /> : <Sun size={19} />}
               </motion.span>
             </AnimatePresence>
           </button>
           <a
-            href="mailto:gdiwan@cs.cmu.edu"
-            className="btn-primary hidden !px-4 !py-2 !text-[13px] sm:inline-flex"
+            href="https://github.com/Gautam-Diwan"
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => playPop(1.2)}
+            className={`${iconBtn} hidden sm:grid`}
+            aria-label="GitHub"
           >
-            Get in touch
+            <TechLogo name="GitHub" size={19} />
           </a>
           <button
-            onClick={() => setOpen((o) => !o)}
-            className="grid h-9 w-9 place-items-center rounded-full text-fg hover:bg-fg/5 md:hidden"
+            onClick={() => {
+              playPop(open ? 0.8 : 1);
+              setOpen((o) => !o);
+            }}
+            className={`${iconBtn} md:hidden`}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
           >
-            {open ? <X size={18} /> : <Menu size={18} />}
+            {open ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </motion.nav>
 
       <AnimatePresence>
         {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+          <motion.ul
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25, ease }}
-            className="card mx-auto mt-2 max-w-page !bg-bg/90 p-2 backdrop-blur-xl md:hidden"
+            className="overflow-hidden border-t hairline px-4 md:hidden"
           >
             {NAV.map((item, i) => (
-              <motion.div
-                key={item.to}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.03 }}
-              >
+              <li key={item.to} className="border-b hairline last:border-b-0">
                 <Link
                   to={item.to}
-                  className={`flex items-center rounded-xl px-4 py-3 text-sm font-medium ${
-                    item.color === "accent"
-                      ? isActive(item.to)
-                        ? "bg-fg/[0.06] text-fg"
-                        : "text-muted"
-                      : ""
-                  }`}
-                  style={
-                    item.color === "accent"
-                      ? undefined
-                      : {
-                          color: `rgb(var(--${item.color}))`,
-                          background: isActive(item.to)
-                            ? `rgb(var(--${item.color}) / 0.12)`
-                            : undefined,
-                        }
-                  }
+                  onClick={() => playPop(0.85 + i * 0.07)}
+                  className="flex items-center justify-between py-3.5 text-lg font-bold"
+                  style={{ color: `rgb(var(--${item.color}))` }}
                 >
                   {item.label === "ML"
                     ? "Machine Learning"
                     : item.label === "AI"
                       ? "Artificial Intelligence"
                       : item.label}
+                  {isActive(item.to) && (
+                    <span
+                      className="h-2 w-2 rounded-full"
+                      style={{ background: `rgb(var(--${item.color}))` }}
+                    />
+                  )}
                 </Link>
-              </motion.div>
+              </li>
             ))}
-          </motion.div>
+          </motion.ul>
         )}
       </AnimatePresence>
     </header>

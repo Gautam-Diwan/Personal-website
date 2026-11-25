@@ -26,7 +26,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['"Geist"', "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ['"Figtree"', "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ['"Geist Mono"', "ui-monospace", "SFMono-Regular", "monospace"],
         serif: ['"Instrument Serif"', "ui-serif", "Georgia", "serif"],
       },

@@ -638,7 +638,7 @@ export const projects: ProjectSeed[] = [
 export const experiences: ExperienceSeed[] = [
   {
     company: "RedZone Robotics",
-    position: "Software Developer (CMU MSE Practicum)",
+    position: "Software Developer · Carnegie Mellon practicum (Master of Software Engineering – Scalable Systems)",
     location: "Pittsburgh, PA",
     startDate: "August 2026",
     endDate: "December 2026",

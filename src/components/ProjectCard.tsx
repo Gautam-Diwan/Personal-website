@@ -15,7 +15,7 @@ import { projectGroups, type Project } from "../lib/content";
 import { GROUP_BY_ID } from "../lib/groups";
 import { ease, fadeUp } from "../lib/motion";
 
-function ProjectDetails({
+export function ProjectDetails({
   project,
   onClose,
 }: {

@@ -36,6 +36,19 @@ A single fixed three.js particle field sits behind every page and morphs to a sh
 The home hero shows `public/gautam.jpg` (a square crop works best, ~640px). Until that file
 exists it falls back to a GD monogram.
 
+## Visitor distance and map
+
+The home page says how far the visitor is from Pittsburgh. `api/geo.ts` is a Vercel Function that
+echoes Vercel's own `x-vercel-ip-latitude` / `-longitude` / `-city` request headers, so no
+third-party IP lookup is involved and nothing is stored. Locally there is no `/api/geo`, so the
+sentence falls back to a relocation line; append `?geo=43.65,-79.38` to any URL to simulate a
+visitor. The map (`src/components/LocationMap.tsx`) uses d3-geo with Natural Earth 110m countries.
+
+## Sound effects
+
+Navbar clicks, the theme toggle, and a few buttons play short synthesized sounds (Web Audio, no
+files, `src/lib/sound.ts`). The speaker icon in the navbar mutes them, and the choice is remembered.
+
 ## Editing content
 
 All projects, experiences, and skills live in **`convex/content.ts`**. A project can belong to

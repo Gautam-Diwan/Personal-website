@@ -7,7 +7,7 @@ export function Footer() {
     <footer className="relative mt-24 border-t hairline">
       <div className="mx-auto grid max-w-page gap-12 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
-          <p className="font-serif text-3xl italic leading-tight">
+          <p className="text-3xl font-black leading-tight text-fg">
             Let's build something fast.
           </p>
           <p className="mt-3 max-w-sm text-sm text-muted">

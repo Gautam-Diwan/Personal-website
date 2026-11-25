@@ -1,322 +1,319 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Link } from "@tanstack/react-router";
 import {
   animate,
+  AnimatePresence,
   motion,
   useInView,
   useMotionValue,
   useTransform,
 } from "framer-motion";
+import { ArrowRight, ArrowUpRight, Linkedin, Mail } from "lucide-react";
 import {
-  ArrowDown,
-  ArrowRight,
-  ArrowUpRight,
-  Briefcase,
-  CalendarDays,
-  GraduationCap,
-  Linkedin,
-  Mail,
-  MapPin,
-} from "lucide-react";
-import { TechLogo, TechPill } from "../components/TechLogo";
-import { usePortfolio, projectGroups, type Project } from "../lib/content";
-import { GROUPS } from "../lib/groups";
+  usePortfolio,
+  projectsInGroup,
+  projectGroups,
+  type Project,
+} from "../lib/content";
+import { GROUPS, GROUP_BY_ID, type GroupId } from "../lib/groups";
 import { ease, fadeUp, stagger } from "../lib/motion";
-import {
-  PageContainer,
-  Reveal,
-  RevealItem,
-  SectionHeading,
-  Skeleton,
-} from "../components/ui";
-import { ProjectCard } from "../components/ProjectCard";
+import { HOME, milesBetween, useVisitorGeo } from "../lib/geo";
+import { playPop } from "../lib/sound";
+import { PageContainer, Reveal, RevealItem, Skeleton } from "../components/ui";
 import { ExperienceTimeline } from "../components/ExperienceTimeline";
+import { ProjectDetails } from "../components/ProjectCard";
+import { TechLogo } from "../components/TechLogo";
+import { useDarkMode } from "../contexts/DarkModeContext";
+import { brandColor, iconFor } from "../lib/techIcons";
 
-const INTERESTS = [
-  { id: "systems", label: "Systems", detail: "kernels · DBs" },
-  { id: "ml", label: "ML", detail: "training · inference" },
-  { id: "ai", label: "AI", detail: "agents · RAG" },
-  { id: "web", label: "Web", detail: "full-stack" },
-] as const;
+const LocationMap = lazy(() => import("../components/LocationMap"));
 
-const FACTS = [
-  {
-    icon: MapPin,
-    text: "Pittsburgh, PA",
-    sub: "open to relocation",
-    color: "--web",
-  },
-  {
-    icon: GraduationCap,
-    text: "MSE, Carnegie Mellon",
-    sub: "GPA 4.14 / 4.33",
-    color: "--ai",
-  },
-  {
-    icon: Briefcase,
-    text: "Software Developer",
-    sub: "RedZone Robotics",
-    color: "--systems",
-  },
-  {
-    icon: CalendarDays,
-    text: "Graduating Dec 2026",
-    sub: "full-time, L1/L2",
-    color: "--ml",
-  },
-];
+/* ---------- small building blocks ---------- */
 
-/** Portrait with a rotating gradient ring; falls back to a monogram until /gautam.jpg exists. */
-function Avatar() {
-  const [failed, setFailed] = useState(false);
+/** Inline link to a domain page, colored like that domain (used inside prose). */
+function DomainLink({
+  id,
+  children,
+}: {
+  id: GroupId;
+  children: React.ReactNode;
+}) {
+  const g = GROUP_BY_ID[id];
   return (
-    <div className="relative h-36 w-36 sm:h-40 sm:w-40">
-      <div
-        className="absolute -inset-[5px] animate-[spin_9s_linear_infinite] rounded-full"
-        style={{
-          background:
-            "conic-gradient(from 0deg, rgb(var(--ai)), rgb(var(--ml)), rgb(var(--systems)), rgb(var(--web)), rgb(var(--ai)))",
-        }}
-      />
-      <div className="absolute -inset-[1px] rounded-full bg-bg" />
-      {failed ? (
-        <div
-          className="relative grid h-full w-full place-items-center rounded-full font-mono text-4xl font-semibold text-white"
-          style={{
-            background:
-              "linear-gradient(135deg, rgb(var(--ai)), rgb(var(--ml)) 55%, rgb(var(--systems)))",
-          }}
-          aria-label="Gautam Diwan"
-          role="img"
-        >
-          GD
-        </div>
-      ) : (
-        <img
-          src="/gautam.jpg"
-          alt="Portrait of Gautam Diwan"
-          width={160}
-          height={160}
-          onError={() => setFailed(true)}
-          className="relative h-full w-full rounded-full object-cover"
-        />
-      )}
-      <span
-        className="absolute bottom-2 right-2 grid h-6 w-6 place-items-center rounded-full border-[3px] border-bg bg-web"
-        title="Available for full-time roles"
-      >
-        <span className="absolute inset-0 animate-ping rounded-full bg-web opacity-50" />
-      </span>
-    </div>
+    <Link
+      to={g.path}
+      onClick={() => playPop(1)}
+      className="font-bold underline decoration-2 underline-offset-4 transition-[text-decoration-thickness] hover:decoration-[3px]"
+      style={{
+        color: `rgb(var(${g.cssVar}))`,
+        textDecorationColor: `rgb(var(${g.cssVar}) / 0.45)`,
+      }}
+    >
+      {children}
+    </Link>
   );
 }
 
+function Heading({
+  kicker,
+  children,
+  color = "--accent",
+}: {
+  kicker: string;
+  children: React.ReactNode;
+  color?: string;
+}) {
+  return (
+    <Reveal className="mb-8 md:mb-10">
+      <RevealItem>
+        <p
+          className="text-sm font-extrabold uppercase tracking-[0.14em]"
+          style={{ color: `rgb(var(${color}))` }}
+        >
+          {kicker}
+        </p>
+      </RevealItem>
+      <RevealItem>
+        <h2 className="mt-2 text-3xl font-black tracking-tight text-fg sm:text-[2.6rem] sm:leading-[1.1]">
+          {children}
+        </h2>
+      </RevealItem>
+    </Reveal>
+  );
+}
+
+/** Hand-drawn squiggle arrow pointing at the photo. */
+function Squiggle({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 120 60"
+      className={className}
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M4 50 C 22 10, 40 58, 58 26 S 92 6, 112 22"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+      <path
+        d="M100 12 L113 22 L99 30"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+const textLink =
+  "inline-flex items-center gap-2 text-base font-bold text-fg underline decoration-fg/30 decoration-2 underline-offset-4 hover:decoration-fg";
+
+/* ---------- hero ---------- */
+
 function Hero() {
   return (
-    <section className="relative flex min-h-[94svh] items-center pb-14 pt-28 md:pt-32">
-      <PageContainer className="w-full">
+    <section className="pb-16 pt-28 md:pb-24 md:pt-36">
+      <PageContainer className="grid items-center gap-12 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
         <motion.div
           initial="hidden"
           animate="show"
-          variants={stagger(0.08, 0.1)}
-          className="mx-auto flex max-w-4xl flex-col items-center text-center"
+          variants={stagger(0.08, 0.05)}
+          className="order-2 lg:order-1"
         >
-          <motion.div variants={fadeUp}>
-            <Avatar />
-          </motion.div>
-
-          <motion.div
-            variants={fadeUp}
-            className="mt-7 inline-flex items-center gap-2.5 rounded-full border px-4 py-1.5 text-sm font-semibold"
-            style={{
-              color: "rgb(var(--web))",
-              borderColor: "rgb(var(--web) / 0.45)",
-              background: "rgb(var(--web) / 0.1)",
-            }}
-          >
-            <span className="h-2 w-2 rounded-full bg-web" />
-            Available for full-time roles
-          </motion.div>
-
           <motion.h1
             variants={fadeUp}
-            className="mt-5 text-[clamp(3rem,9vw,6.5rem)] font-semibold leading-[0.95] tracking-[-0.045em] text-fg"
+            className="text-[clamp(2.8rem,7vw,5.2rem)] font-black leading-[1.02] tracking-[-0.03em] text-fg"
           >
-            Gautam Diwan
+            Hi there! I&rsquo;m{" "}
+            <span style={{ color: "rgb(var(--accent))" }}>Gautam</span>.
           </motion.h1>
-
-          <motion.p
-            variants={fadeUp}
-            className="mt-4 text-xl font-semibold sm:text-2xl"
-          >
-            <span style={{ color: "rgb(var(--systems))" }}>ML Systems</span>
-            <span className="text-fg"> &amp; </span>
-            <span style={{ color: "rgb(var(--ai))" }}>AI Engineer</span>
-          </motion.p>
-
-          <motion.p
-            variants={fadeUp}
-            className="mt-5 max-w-2xl text-base leading-relaxed text-muted sm:text-lg"
-          >
-            I build the infrastructure that makes models fast and agents
-            reliable: GPU kernels, distributed training, database internals, and
-            production LLM pipelines.
-          </motion.p>
-
-          <motion.ul
-            variants={fadeUp}
-            className="mt-8 grid w-full max-w-3xl grid-cols-2 gap-2 sm:grid-cols-4"
-          >
-            {FACTS.map(({ icon: Icon, text, sub, color }) => (
-              <li
-                key={text}
-                className="card flex flex-col items-center gap-1 px-3 py-3.5 !bg-surface/85"
-              >
-                <span
-                  className="grid h-8 w-8 place-items-center rounded-full"
-                  style={{
-                    color: `rgb(var(${color}))`,
-                    background: `rgb(var(${color}) / 0.14)`,
-                  }}
-                >
-                  <Icon size={16} />
-                </span>
-                <span className="mt-1 text-sm font-semibold leading-tight text-fg">
-                  {text}
-                </span>
-                <span className="text-xs text-muted">{sub}</span>
-              </li>
-            ))}
-          </motion.ul>
 
           <motion.div
             variants={fadeUp}
-            className="mt-7 flex flex-wrap justify-center gap-2"
+            className="mt-7 max-w-[40rem] space-y-5 text-lg leading-relaxed text-fg/90 sm:text-xl sm:leading-relaxed"
           >
-            {INTERESTS.map((it) => {
-              const g = GROUPS.find((x) => x.id === it.id)!;
-              const Icon = g.icon;
-              return (
-                <Link
-                  key={it.id}
-                  to={g.path}
-                  className="group inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-all duration-200 hover:-translate-y-0.5"
-                  style={{
-                    borderColor: `rgb(var(${g.cssVar}) / 0.5)`,
-                    background: `rgb(var(${g.cssVar}) / 0.12)`,
-                  }}
-                >
-                  <Icon size={15} style={{ color: `rgb(var(${g.cssVar}))` }} />
-                  <span
-                    className="font-semibold"
-                    style={{ color: `rgb(var(${g.cssVar}))` }}
-                  >
-                    {it.label}
-                  </span>
-                  <span className="text-fg/90">{it.detail}</span>
-                  <ArrowRight
-                    size={13}
-                    className="text-fg transition-transform group-hover:translate-x-0.5"
-                  />
-                </Link>
-              );
-            })}
+            <p>
+              I&rsquo;m an ML systems and AI engineer finishing my{" "}
+              <strong className="font-bold text-fg">
+                Master of Software Engineering – Scalable Systems
+              </strong>{" "}
+              at <strong className="font-bold text-fg">Carnegie Mellon</strong>{" "}
+              (GPA 4.14 / 4.33), graduating in December 2026.
+            </p>
+            <p>
+              I like making things fast and reliable. That has meant GPU kernels
+              and a buffer pool for{" "}
+              <DomainLink id="systems">Systems</DomainLink>, training and
+              compressing models in <DomainLink id="ml">ML</DomainLink>, LLM
+              agents that survive production in{" "}
+              <DomainLink id="ai">AI</DomainLink>, and full-stack products on
+              the <DomainLink id="web">Web</DomainLink>.
+            </p>
+            <p className="text-muted">
+              Right now I&rsquo;m a Software Developer on a Carnegie Mellon
+              practicum with RedZone Robotics, and I&rsquo;m looking for
+              full-time ML infrastructure, AI platform, and backend roles.
+            </p>
           </motion.div>
 
           <motion.div
             variants={fadeUp}
-            className="mt-8 flex flex-wrap justify-center gap-3"
+            className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4"
           >
-            <a href="#work" className="btn-primary group">
-              Explore my work
-              <ArrowDown
-                size={15}
-                className="transition-transform group-hover:translate-y-0.5"
-              />
-            </a>
-            <a href="mailto:gdiwan@cs.cmu.edu" className="btn-ghost">
-              <Mail size={15} /> Email
+            <a
+              href="mailto:gdiwan@cs.cmu.edu"
+              onClick={() => playPop(1.1)}
+              className="inline-flex items-center gap-2 rounded-lg px-5 py-3 text-base font-extrabold transition-transform hover:-translate-y-0.5 active:translate-y-0"
+              style={{
+                background: "rgb(var(--accent))",
+                color: "rgb(var(--bg))",
+              }}
+            >
+              <Mail size={18} /> Email me
             </a>
             <a
               href="https://github.com/Gautam-Diwan"
               target="_blank"
               rel="noreferrer"
-              className="btn-ghost"
+              className={textLink}
             >
-              <TechLogo name="GitHub" size={15} /> GitHub
+              <TechLogo name="GitHub" size={18} /> GitHub
             </a>
             <a
               href="https://linkedin.com/in/gautamdiwan"
               target="_blank"
               rel="noreferrer"
-              className="btn-ghost"
+              className={textLink}
             >
-              <Linkedin size={15} style={{ color: "#0A66C2" }} /> LinkedIn
+              <Linkedin size={18} style={{ color: "#0A66C2" }} /> LinkedIn
+            </a>
+            <a href="#work" className={textLink}>
+              See my work <ArrowRight size={16} />
             </a>
           </motion.div>
         </motion.div>
+
+        <motion.figure
+          initial={{ opacity: 0, rotate: 4, y: 20 }}
+          animate={{ opacity: 1, rotate: -3, y: 0 }}
+          transition={{ duration: 0.9, ease, delay: 0.25 }}
+          whileHover={{ rotate: 0, scale: 1.015 }}
+          className="relative order-1 mx-auto w-[min(72vw,340px)] lg:order-2 lg:w-full lg:max-w-[420px]"
+        >
+          <div
+            className="absolute inset-0 translate-x-4 translate-y-4 rounded-[10px]"
+            style={{ background: "rgb(var(--accent))" }}
+            aria-hidden="true"
+          />
+          <img
+            src="/gautam.jpg"
+            alt="Gautam Diwan in a suit, smiling, in a Carnegie Mellon atrium"
+            width={800}
+            height={1000}
+            className="relative block aspect-[4/5] w-full rounded-[10px] border-[3px] object-cover"
+            style={{ borderColor: "rgb(var(--fg))" }}
+          />
+          <figcaption
+            className="absolute -left-10 bottom-12 hidden -rotate-6 items-center gap-1 font-extrabold sm:flex"
+            style={{ color: "rgb(var(--ai))" }}
+          >
+            <span
+              className="rounded-md px-2 py-1 text-base"
+              style={{ background: "rgb(var(--bg))" }}
+            >
+              that&rsquo;s me!
+            </span>
+            <Squiggle className="h-8 w-16" />
+          </figcaption>
+        </motion.figure>
       </PageContainer>
     </section>
   );
 }
 
-const MARQUEE_ROWS = [
-  [
-    "CUDA",
-    "PyTorch",
-    "Python",
-    "C++",
-    "Apache TVM",
-    "MLX",
-    "Hugging Face",
-    "NumPy",
-    "Polars",
-    "DuckDB",
-    "Modal",
-    "FFmpeg",
-  ],
-  [
-    "LangGraph",
-    "Claude",
-    "OpenAI",
-    "FastAPI",
-    "React",
-    "TypeScript",
-    "Next.js",
-    "Docker",
-    "Kubernetes",
-    "Terraform",
-    "AWS",
-    "GCP",
-    "Kafka",
-    "Postgres",
-    "MongoDB",
-    "Redis",
-    "Grafana",
-    "Go",
-  ],
-];
+/* ---------- location ---------- */
 
-function Marquee() {
+function Location() {
+  const geo = useVisitorGeo();
+  const ref = useRef<HTMLDivElement>(null);
+  const near = useInView(ref, { once: true, margin: "200px" });
+  const miles = geo ? Math.round(milesBetween(HOME, geo)) : null;
+  const km = miles !== null ? Math.round(miles * 1.60934) : null;
+
   return (
-    <div className="relative space-y-3 overflow-hidden border-y hairline bg-surface/40 py-5 backdrop-blur-sm [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]">
-      {MARQUEE_ROWS.map((row, r) => (
-        <div
-          key={r}
-          className="flex w-max animate-marquee gap-3 pr-3"
-          style={{
-            animationDirection: r % 2 ? "reverse" : "normal",
-            animationDuration: r % 2 ? "60s" : "50s",
-          }}
-        >
-          {[...row, ...row].map((t, i) => (
-            <TechPill key={i} name={t} size="lg" />
-          ))}
+    <section className="py-14 md:py-20">
+      <PageContainer>
+        <Reveal className="max-w-[46rem]">
+          <RevealItem>
+            <p
+              className="text-2xl font-bold leading-snug text-fg sm:text-[1.85rem] sm:leading-snug"
+              aria-live="polite"
+            >
+              {geo === undefined ? (
+                <>I&rsquo;m in {HOME.label}.</>
+              ) : miles !== null && miles < 25 ? (
+                <>
+                  I&rsquo;m in {HOME.label}, and according to your IP address,{" "}
+                  <span style={{ color: "rgb(var(--accent))" }}>
+                    so are you
+                  </span>
+                  . Coffee?
+                </>
+              ) : miles !== null ? (
+                <>
+                  I&rsquo;m in {HOME.label}, roughly{" "}
+                  <span style={{ color: "rgb(var(--accent))" }}>
+                    {miles.toLocaleString()} miles
+                  </span>{" "}
+                  {geo?.country && geo.country !== "US" && (
+                    <span className="text-muted">
+                      ({km!.toLocaleString()} km){" "}
+                    </span>
+                  )}
+                  away from your current location, according to your IP address.
+                </>
+              ) : (
+                <>
+                  I&rsquo;m in {HOME.label}, and happy to relocate: San
+                  Francisco, New York, and Seattle are all on the table.
+                </>
+              )}
+            </p>
+          </RevealItem>
+        </Reveal>
+        <div ref={ref} className="mt-8 min-h-[200px]">
+          {near && geo !== undefined && (
+            <Suspense fallback={<Skeleton className="aspect-[96/46] w-full" />}>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6 }}
+              >
+                <LocationMap visitor={geo} />
+              </motion.div>
+            </Suspense>
+          )}
         </div>
-      ))}
-    </div>
+        <p className="mt-3 text-sm text-muted">
+          Your location is approximate, comes from your IP address via Vercel,
+          and is never stored.
+        </p>
+      </PageContainer>
+    </section>
   );
 }
+
+/* ---------- stats ---------- */
 
 function Counter({
   to,
@@ -346,52 +343,41 @@ function Stats({ projectCount }: { projectCount: number }) {
     {
       node: <Counter to={4.14} decimals={2} />,
       label: "GPA at Carnegie Mellon",
-      sub: "out of 4.33",
-      color: "--ai",
+      color: "--accent",
     },
     {
       node: <Counter to={8} suffix="×" />,
-      label: "Faster image sampling",
-      sub: "NFE 320 → 40, FID improved",
+      label: "faster image sampling",
       color: "--ml",
     },
     {
       node: <Counter to={50} prefix="~" suffix="%" />,
-      label: "Agent runtime cut",
-      sub: "n8n → LangGraph fan-out",
-      color: "--systems",
+      label: "less agent runtime",
+      color: "--ai",
     },
     {
       node: <Counter to={projectCount} />,
-      label: "Projects shipped",
-      sub: "across 4 domains",
+      label: "projects shipped",
       color: "--web",
     },
   ];
   return (
-    <PageContainer className="py-14 md:py-20">
-      <Reveal className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <PageContainer className="py-12 md:py-16">
+      <Reveal className="grid grid-cols-2 gap-y-10 md:grid-cols-4">
         {stats.map((s, i) => (
           <RevealItem
             key={i}
-            className="relative overflow-hidden rounded-2xl border p-6 text-center md:p-7"
-            style={{
-              borderColor: `rgb(var(${s.color}) / 0.4)`,
-              background: `rgb(var(${s.color}) / 0.08)`,
-            }}
+            className={`px-4 md:px-6 ${i % 2 ? "border-l hairline" : ""} ${i === 2 ? "md:border-l" : ""}`}
           >
-            <span
-              className="absolute inset-x-0 top-0 h-1"
-              style={{ background: `rgb(var(${s.color}))` }}
-            />
             <div
-              className="text-4xl font-semibold tracking-tight md:text-5xl"
+              className="text-5xl font-black tracking-tight md:text-6xl"
               style={{ color: `rgb(var(${s.color}))` }}
             >
               {s.node}
             </div>
-            <div className="mt-3 text-sm font-semibold text-fg">{s.label}</div>
-            <div className="mt-1 font-mono text-xs text-muted">{s.sub}</div>
+            <div className="mt-2 text-base font-semibold text-fg">
+              {s.label}
+            </div>
           </RevealItem>
         ))}
       </Reveal>
@@ -399,260 +385,351 @@ function Stats({ projectCount }: { projectCount: number }) {
   );
 }
 
-function Domains({ projects }: { projects: Project[] }) {
+/* ---------- logo marquee (plain logos, no pills) ---------- */
+
+const MARQUEE = [
+  "CUDA",
+  "PyTorch",
+  "Python",
+  "C++",
+  "Apache TVM",
+  "MLX",
+  "Hugging Face",
+  "LangGraph",
+  "Claude",
+  "OpenAI",
+  "FastAPI",
+  "React",
+  "TypeScript",
+  "Docker",
+  "Kubernetes",
+  "Terraform",
+  "AWS",
+  "GCP",
+  "Kafka",
+  "Postgres",
+  "MongoDB",
+  "DuckDB",
+  "Polars",
+  "Grafana",
+  "Go",
+];
+
+function Marquee() {
+  const { isDark } = useDarkMode();
   return (
-    <PageContainer className="py-12 md:py-20">
-      <div id="work" className="scroll-mt-28" />
-      <SectionHeading
-        center
-        index="01"
-        eyebrow="Domains"
-        title={
-          <>
-            Four ways <span className="font-serif italic text-muted">in.</span>
-          </>
-        }
-      >
-        Most projects live in more than one place. Pick a lens and every page
-        reshapes the scene behind it.
-      </SectionHeading>
-      <Reveal className="grid gap-4 sm:grid-cols-2">
-        {GROUPS.map((g, i) => {
-          const inGroup = projects.filter((p) =>
-            projectGroups(p).includes(g.id),
-          );
-          const Icon = g.icon;
+    <div className="relative overflow-hidden border-y hairline py-6 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]">
+      <div className="flex w-max animate-marquee items-center gap-12 pr-12">
+        {[...MARQUEE, ...MARQUEE].map((t, i) => {
+          const icon = iconFor(t);
           return (
-            <RevealItem key={g.id}>
-              <Link
-                to={g.path}
-                className="card group relative block h-full overflow-hidden p-7 transition-all duration-500 hover:-translate-y-1 hover:border-line/20"
-              >
-                <div
-                  className="absolute -right-24 -top-24 h-64 w-64 rounded-full opacity-0 blur-3xl transition-opacity duration-700 group-hover:opacity-100"
-                  style={{ background: `rgb(var(${g.cssVar}) / 0.22)` }}
-                />
-                <div className="relative flex items-start justify-between">
-                  <span
-                    className="grid h-11 w-11 place-items-center rounded-xl border transition-transform duration-500 group-hover:rotate-[-8deg] group-hover:scale-110"
-                    style={{
-                      color: `rgb(var(${g.cssVar}))`,
-                      borderColor: `rgb(var(${g.cssVar}) / 0.3)`,
-                      background: `rgb(var(${g.cssVar}) / 0.08)`,
-                    }}
-                  >
-                    <Icon size={20} />
-                  </span>
-                  <span className="font-mono text-[11px] text-subtle">
-                    0{i + 1} / {String(inGroup.length).padStart(2, "0")}{" "}
-                    projects
-                  </span>
-                </div>
-                <h3 className="relative mt-8 text-2xl font-medium tracking-tight sm:text-3xl">
-                  {g.label}
-                </h3>
-                <p className="relative mt-2 text-sm text-muted">{g.tagline}</p>
-                <ul className="relative mt-6 space-y-1.5 border-t hairline pt-5">
-                  {inGroup.slice(0, 3).map((p) => (
-                    <li
-                      key={p._id}
-                      className="flex items-center justify-between gap-3 text-sm text-fg/80"
-                    >
-                      <span className="truncate">{p.title}</span>
-                      <span className="shrink-0 font-mono text-[11px] text-subtle">
-                        {p.startDate.slice(-4)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                <span
-                  className="relative mt-6 inline-flex items-center gap-1.5 text-sm font-medium"
-                  style={{ color: `rgb(var(${g.cssVar}))` }}
-                >
-                  View{" "}
-                  {g.id === "ml" || g.id === "ai"
-                    ? g.id.toUpperCase()
-                    : g.label.toLowerCase()}{" "}
-                  work
-                  <ArrowRight
-                    size={15}
-                    className="transition-transform duration-300 group-hover:translate-x-1"
-                  />
-                </span>
-              </Link>
-            </RevealItem>
+            <span
+              key={i}
+              className="flex items-center gap-3 text-lg font-bold"
+              style={{ color: icon ? brandColor(icon, isDark) : undefined }}
+            >
+              <TechLogo name={t} size={26} />
+              <span className="text-fg">{t}</span>
+            </span>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- domains as rows ---------- */
+
+function Domains({ projects }: { projects: Project[] }) {
+  return (
+    <PageContainer className="py-14 md:py-20">
+      <div id="work" className="scroll-mt-24" />
+      <Heading kicker="Four ways in">What I work on</Heading>
+      <Reveal>
+        <ul className="border-t hairline">
+          {GROUPS.map((g, i) => {
+            // Pin-aware ordering: BusTub leads Systems everywhere it is listed
+            const list = projectsInGroup(projects, g.id);
+            const Icon = g.icon;
+            return (
+              <RevealItem key={g.id} className="border-b hairline">
+                <Link
+                  to={g.path}
+                  onClick={() => playPop(0.9 + i * 0.08)}
+                  className="group grid gap-3 py-7 transition-colors md:grid-cols-[3rem_1.1fr_1.5fr_2rem] md:items-center md:gap-6 md:px-3 md:hover:bg-fg/[0.035]"
+                >
+                  <span
+                    className="font-mono text-sm font-bold"
+                    style={{ color: `rgb(var(${g.cssVar}))` }}
+                  >
+                    0{i + 1}
+                  </span>
+                  <div>
+                    <h3
+                      className="flex items-center gap-2.5 text-2xl font-black tracking-tight"
+                      style={{ color: `rgb(var(${g.cssVar}))` }}
+                    >
+                      <Icon size={22} /> {g.label}
+                    </h3>
+                    <p className="mt-1 text-base text-muted">{g.tagline}</p>
+                  </div>
+                  <p className="text-base leading-relaxed text-fg">
+                    {list.slice(0, 3).map((p, j) => (
+                      <span key={p._id}>
+                        {j > 0 && <span className="text-subtle"> · </span>}
+                        <span className={j === 0 ? "font-bold" : ""}>
+                          {p.title}
+                        </span>
+                      </span>
+                    ))}
+                    {list.length > 3 && (
+                      <span className="text-subtle">
+                        {" "}
+                        · +{list.length - 3} more
+                      </span>
+                    )}
+                  </p>
+                  <ArrowRight
+                    size={22}
+                    className="hidden text-fg transition-transform duration-300 group-hover:translate-x-1 md:block"
+                  />
+                </Link>
+              </RevealItem>
+            );
+          })}
+        </ul>
       </Reveal>
     </PageContainer>
   );
 }
 
+/* ---------- selected work as a numbered list ---------- */
+
 function Featured({ projects }: { projects: Project[] }) {
-  const featured = projects.filter((p) => p.featured);
+  // Pinned projects (BusTub) lead, then the rest by recency
+  const pinnedSlugs = GROUPS.flatMap((g) => g.pinned ?? []);
+  const pinRank = (p: Project) => {
+    const i = pinnedSlugs.indexOf(p.slug ?? "");
+    return i === -1 ? pinnedSlugs.length : i;
+  };
+  const featured = projects
+    .filter((p) => p.featured)
+    .sort((a, b) => pinRank(a) - pinRank(b));
+  const [open, setOpen] = useState<Project | null>(null);
+  const close = useCallback(() => setOpen(null), []);
   return (
-    <PageContainer className="py-12 md:py-20">
-      <SectionHeading
-        center
-        index="02"
-        eyebrow="Selected work"
-        title={
-          <>
-            Things I'm{" "}
-            <span className="font-serif italic text-muted">proud of.</span>
-          </>
-        }
-      >
-        Measured against a clear bar: cuBLAS, the leaderboard, the bill, or the
-        FID score.
-      </SectionHeading>
-      <motion.div
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, margin: "-60px" }}
-        variants={stagger(0.08)}
-        className="grid gap-4 md:grid-cols-6"
-      >
-        {featured.map((p, i) => {
-          // Two large cards up top, then rows of 3 (or 2 if 3 would leave an orphan)
-          const restSpan =
-            (featured.length - 2) % 3 === 0 ? "md:col-span-2" : "md:col-span-3";
-          return (
-            <motion.div
-              key={p._id}
-              variants={fadeUp}
-              className={i < 2 ? "md:col-span-3" : restSpan}
-            >
-              <ProjectCard project={p} size={i < 2 ? "lg" : "md"} />
-            </motion.div>
-          );
-        })}
-      </motion.div>
+    <PageContainer className="py-14 md:py-20">
+      <Heading kicker="Selected work" color="--ai">
+        Things I&rsquo;m proud of
+      </Heading>
+      <Reveal>
+        <ol className="border-t hairline">
+          {featured.map((p, i) => {
+            const g = GROUP_BY_ID[projectGroups(p)[0] ?? "ai"];
+            const metric = p.metrics?.[0];
+            return (
+              <RevealItem key={p._id}>
+                <button
+                  onClick={() => {
+                    playPop(1.05);
+                    setOpen(p);
+                  }}
+                  className="group grid w-full gap-3 border-b hairline py-7 text-left transition-colors md:grid-cols-[4rem_1fr_auto] md:gap-8 md:px-3 md:hover:bg-fg/[0.035]"
+                  aria-haspopup="dialog"
+                >
+                  <span
+                    className="text-4xl font-black leading-none"
+                    style={{ color: `rgb(var(${g.cssVar}))` }}
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span>
+                    <span
+                      className="block text-sm font-bold"
+                      style={{ color: `rgb(var(${g.cssVar}))` }}
+                    >
+                      {p.context}
+                    </span>
+                    <span className="mt-1 block text-2xl font-black tracking-tight text-fg underline decoration-transparent decoration-2 underline-offset-4 transition-colors group-hover:decoration-current">
+                      {p.title}
+                    </span>
+                    <span className="mt-2 block max-w-2xl text-base leading-relaxed text-muted">
+                      {p.description}
+                    </span>
+                    <span className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+                      {p.technologies.slice(0, 5).map((t) => (
+                        <span
+                          key={t}
+                          className="inline-flex items-center gap-1.5 text-sm font-semibold text-fg"
+                        >
+                          <TechLogo name={t} size={15} />
+                          {t}
+                        </span>
+                      ))}
+                    </span>
+                  </span>
+                  {metric && (
+                    <span className="md:text-right">
+                      <span className="block font-mono text-xl font-bold text-fg">
+                        {metric.value}
+                      </span>
+                      <span className="block text-sm text-muted">
+                        {metric.label}
+                      </span>
+                    </span>
+                  )}
+                </button>
+              </RevealItem>
+            );
+          })}
+        </ol>
+      </Reveal>
+      <AnimatePresence>
+        {open && <ProjectDetails project={open} onClose={close} />}
+      </AnimatePresence>
     </PageContainer>
   );
 }
 
-function SkillsAndEducation({
-  skills,
-}: {
-  skills: { category: string; name: string }[];
-}) {
+/* ---------- toolkit + education (plain columns) ---------- */
+
+function Toolkit({ skills }: { skills: { category: string; name: string }[] }) {
   const byCat = skills.reduce<Record<string, string[]>>((acc, s) => {
     (acc[s.category] ??= []).push(s.name);
     return acc;
   }, {});
   return (
-    <PageContainer className="py-12 md:py-20">
-      <SectionHeading
-        center
-        index="04"
-        eyebrow="Toolkit & education"
-        title={
-          <>
-            The <span className="font-serif italic text-muted">toolkit.</span>
-          </>
-        }
-      />
-      <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
-        <Reveal className="card grid gap-px overflow-hidden !bg-line/[0.07] sm:grid-cols-2">
-          {Object.entries(byCat).map(([cat, items]) => (
-            <RevealItem key={cat} className="bg-bg/85 p-6 backdrop-blur">
-              <p className="eyebrow mb-4">{cat}</p>
-              <div className="flex flex-wrap gap-1.5">
-                {items.map((s) => (
-                  <motion.span
-                    key={s}
-                    whileHover={{ y: -2 }}
-                    className="cursor-default"
-                  >
-                    <TechPill name={s} size="md" />
-                  </motion.span>
-                ))}
-              </div>
-            </RevealItem>
-          ))}
-        </Reveal>
-        <Reveal className="flex flex-col gap-4">
-          {[
-            {
-              school: "Carnegie Mellon University",
-              degree: "Master of Software Engineering, Scalable Systems",
-              meta: "Expected Dec 2026 · GPA 4.14 / 4.33",
-              detail:
-                "ML Systems (15-642), Diffusion and Flow Matching (10-799, A+), Database Systems (15-645), ML with Large Datasets (10-805), Software Architectures, DevOps.",
-            },
-            {
-              school: "Thapar Institute of Engineering and Technology",
-              degree: "B.E. Computer Engineering, Conversational AI",
-              meta: "Jun 2023 · Patiala, India",
-              detail:
-                "NLP, speech processing, data science, and machine learning.",
-            },
-          ].map((e) => (
-            <RevealItem key={e.school} className="card flex-1 p-6">
-              <div className="flex items-center gap-3">
-                <span className="grid h-9 w-9 place-items-center rounded-lg border hairline text-muted">
-                  <GraduationCap size={17} />
-                </span>
-                <p className="font-mono text-[11px] text-subtle">{e.meta}</p>
-              </div>
-              <h3 className="mt-5 text-lg font-medium tracking-tight">
-                {e.school}
-              </h3>
-              <p className="text-sm text-muted">{e.degree}</p>
-              <p className="mt-4 text-sm leading-relaxed text-fg/90">
-                {e.detail}
-              </p>
-            </RevealItem>
-          ))}
-        </Reveal>
-      </div>
+    <PageContainer className="py-14 md:py-20">
+      <Heading kicker="Toolkit" color="--web">
+        What I build with
+      </Heading>
+      <Reveal className="grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+        {Object.entries(byCat).map(([cat, items]) => (
+          <RevealItem key={cat}>
+            <h3 className="border-b hairline pb-2 text-lg font-black text-fg">
+              {cat}
+            </h3>
+            <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5">
+              {items.map((s) => (
+                <li
+                  key={s}
+                  className="flex items-center gap-2 text-base font-medium text-fg"
+                >
+                  {iconFor(s) ? (
+                    <TechLogo name={s} size={17} />
+                  ) : (
+                    <span
+                      className="mx-[5px] h-1.5 w-1.5 rounded-full bg-subtle"
+                      aria-hidden="true"
+                    />
+                  )}
+                  {s}
+                </li>
+              ))}
+            </ul>
+          </RevealItem>
+        ))}
+      </Reveal>
     </PageContainer>
   );
 }
 
-function ContactCTA() {
+function Education() {
+  const rows = [
+    {
+      school: "Carnegie Mellon University",
+      degree: "Master of Software Engineering – Scalable Systems",
+      meta: "Pittsburgh, PA · GPA 4.14 / 4.33 · Expected December 2026",
+      detail:
+        "ML Systems (15-642), Diffusion and Flow Matching (10-799, A+), Database Systems (15-645), Machine Learning with Large Datasets (10-805), Software Architectures, DevOps.",
+      color: "--accent",
+    },
+    {
+      school: "Thapar Institute of Engineering and Technology",
+      degree: "B.E. Computer Engineering, Conversational AI specialization",
+      meta: "Patiala, India · June 2023",
+      detail: "NLP, speech processing, data science, and machine learning.",
+      color: "--ml",
+    },
+  ];
   return (
-    <PageContainer className="pt-16">
-      <Reveal>
-        <RevealItem className="card relative overflow-hidden px-6 py-16 text-center sm:px-12 md:py-24">
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgb(var(--accent)/0.15),transparent_60%)]" />
-          <p className="eyebrow">Currently</p>
-          <h2 className="mx-auto mt-5 max-w-3xl text-4xl font-medium tracking-tight sm:text-5xl md:text-6xl">
+    <PageContainer className="py-14 md:py-20">
+      <Heading kicker="Education" color="--ml">
+        Where I studied
+      </Heading>
+      <Reveal className="border-t hairline">
+        {rows.map((r) => (
+          <RevealItem
+            key={r.school}
+            className="grid gap-2 border-b hairline py-7 md:grid-cols-[1fr_1.3fr] md:gap-10"
+          >
+            <div>
+              <h3
+                className="text-2xl font-black tracking-tight"
+                style={{ color: `rgb(var(${r.color}))` }}
+              >
+                {r.school}
+              </h3>
+              <p className="mt-1 text-sm font-semibold text-muted">{r.meta}</p>
+            </div>
+            <div>
+              <p className="text-lg font-bold text-fg">{r.degree}</p>
+              <p className="mt-1 text-base leading-relaxed text-muted">
+                {r.detail}
+              </p>
+            </div>
+          </RevealItem>
+        ))}
+      </Reveal>
+    </PageContainer>
+  );
+}
+
+function Contact() {
+  return (
+    <PageContainer className="py-16 md:py-24">
+      <Reveal className="max-w-[44rem]">
+        <RevealItem>
+          <h2 className="text-4xl font-black leading-tight tracking-tight text-fg sm:text-5xl">
             Looking for teams where performance is a{" "}
-            <span
-              className="font-serif italic"
-              style={{ color: "rgb(var(--accent))" }}
-            >
-              feature.
-            </span>
+            <span style={{ color: "rgb(var(--accent))" }}>feature</span>.
           </h2>
-          <p className="mx-auto mt-6 max-w-lg text-muted">
-            ML infrastructure, AI platform, LLM engineering, or backend roles.
-            Graduating December 2026.
+        </RevealItem>
+        <RevealItem>
+          <p className="mt-5 text-lg leading-relaxed text-muted sm:text-xl">
+            ML infrastructure, AI platform, LLM engineering, or backend roles. I
+            graduate in December 2026, I&rsquo;m open to relocating, and my
+            inbox is open.
           </p>
-          <div className="mt-10 flex flex-wrap justify-center gap-3">
-            <a href="mailto:gdiwan@cs.cmu.edu" className="btn-primary group">
-              Email me{" "}
-              <ArrowUpRight
-                size={15}
-                className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-              />
-            </a>
-            <a
-              href="https://linkedin.com/in/gautamdiwan"
-              target="_blank"
-              rel="noreferrer"
-              className="btn-ghost"
-            >
-              <Linkedin size={15} /> Connect
-            </a>
-          </div>
+        </RevealItem>
+        <RevealItem className="mt-8 flex flex-wrap items-center gap-6">
+          <a
+            href="mailto:gdiwan@cs.cmu.edu"
+            onClick={() => playPop(1.1)}
+            className="inline-flex items-center gap-2 rounded-lg px-5 py-3 text-base font-extrabold transition-transform hover:-translate-y-0.5"
+            style={{
+              background: "rgb(var(--accent))",
+              color: "rgb(var(--bg))",
+            }}
+          >
+            gdiwan@cs.cmu.edu <ArrowUpRight size={17} />
+          </a>
+          <a
+            href="https://linkedin.com/in/gautamdiwan"
+            target="_blank"
+            rel="noreferrer"
+            className={textLink}
+          >
+            <Linkedin size={18} style={{ color: "#0A66C2" }} /> Connect on
+            LinkedIn
+          </a>
         </RevealItem>
       </Reveal>
     </PageContainer>
   );
 }
+
+/* ---------- page ---------- */
 
 export function HomePage() {
   const { projects, experiences, skills, loading } = usePortfolio();
@@ -660,11 +737,12 @@ export function HomePage() {
   return (
     <>
       <Hero />
+      <Location />
       <Marquee />
       {loading || !projects || !experiences || !skills ? (
-        <PageContainer className="grid gap-4 py-24 sm:grid-cols-2">
+        <PageContainer className="space-y-4 py-20">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-72" />
+            <Skeleton key={i} className="h-24" />
           ))}
         </PageContainer>
       ) : (
@@ -672,25 +750,15 @@ export function HomePage() {
           <Stats projectCount={projects.length} />
           <Domains projects={projects} />
           <Featured projects={projects} />
-          <PageContainer className="py-12 md:py-20">
-            <SectionHeading
-              center
-              index="03"
-              eyebrow="Experience"
-              title={
-                <>
-                  Where I've{" "}
-                  <span className="font-serif italic text-muted">worked.</span>
-                </>
-              }
-            >
-              From 500k-user web delivery to RAG phone lines to agent pipelines
-              and 360° video rendering.
-            </SectionHeading>
+          <PageContainer className="py-14 md:py-20">
+            <Heading kicker="Experience" color="--systems">
+              Where I&rsquo;ve worked
+            </Heading>
             <ExperienceTimeline experiences={experiences} />
           </PageContainer>
-          <SkillsAndEducation skills={skills} />
-          <ContactCTA />
+          <Toolkit skills={skills} />
+          <Education />
+          <Contact />
         </>
       )}
     </>

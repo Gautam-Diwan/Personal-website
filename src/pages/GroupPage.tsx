@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { ArrowRight, Layers } from "lucide-react";
-import { usePortfolio, projectGroups } from "../lib/content";
+import { usePortfolio, projectGroups, projectsInGroup } from "../lib/content";
 import { GROUPS, GROUP_BY_ID, type GroupId } from "../lib/groups";
 import { ease, fadeUp, stagger } from "../lib/motion";
 import { PageContainer, SectionHeading, Skeleton } from "../components/ui";
@@ -57,17 +57,7 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
   const [filter, setFilter] = useState<string | null>(null);
   const Icon = group.icon;
 
-  const inGroup = useMemo(() => {
-    const pinned = group.pinned ?? [];
-    const rank = (slug?: string) => {
-      const i = pinned.indexOf(slug ?? "");
-      return i === -1 ? pinned.length : i;
-    };
-    // Stable sort keeps recency order for everything that is not pinned
-    return (projects ?? [])
-      .filter((p) => projectGroups(p).includes(groupId))
-      .sort((a, b) => rank(a.slug) - rank(b.slug));
-  }, [projects, groupId, group.pinned]);
+  const inGroup = useMemo(() => projectsInGroup(projects ?? [], groupId), [projects, groupId]);
   const topTech = useMemo(() => {
     const counts = new Map<string, number>();
     inGroup.forEach((p) =>
@@ -160,13 +150,13 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
             </motion.div>
             <motion.h1
               variants={fadeUp}
-              className="mt-6 text-[clamp(2.6rem,7vw,5.2rem)] font-medium leading-[0.98] tracking-[-0.035em]"
+              className="mt-6 text-[clamp(2.6rem,7vw,5.2rem)] font-black leading-[1.02] tracking-[-0.035em]"
             >
               {group.label}
             </motion.h1>
             <motion.p
               variants={fadeUp}
-              className="mt-4 font-serif text-2xl italic text-muted sm:text-3xl"
+              className="mt-4 text-2xl font-bold text-muted sm:text-3xl"
             >
               {group.tagline}
             </motion.p>
@@ -217,7 +207,7 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
               <p className="eyebrow" style={{ color: color() }}>
                 {showcase.eyebrow}
               </p>
-              <p className="mt-3 text-2xl font-medium tracking-tight">
+              <p className="mt-3 text-2xl font-black tracking-tight">
                 {showcase.title}
               </p>
               <p className="mt-3 text-sm leading-relaxed text-muted">
@@ -307,7 +297,7 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
                   title={
                     <>
                       Related{" "}
-                      <span className="font-serif italic text-muted">
+                      <span style={{ color: color() }}>
                         experience.
                       </span>
                     </>
@@ -328,7 +318,7 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
                 <p className="eyebrow flex items-center gap-2">
                   <Layers size={12} /> Next domain
                 </p>
-                <p className="mt-3 text-3xl font-medium tracking-tight md:text-4xl">
+                <p className="mt-3 text-3xl font-black tracking-tight md:text-4xl">
                   {nextGroup.label}
                 </p>
                 <p className="mt-1 text-sm text-muted">{nextGroup.tagline}</p>

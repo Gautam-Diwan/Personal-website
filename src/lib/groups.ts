@@ -1,4 +1,10 @@
-import { Cpu, BrainCircuit, Sparkles, Globe, type LucideIcon } from "lucide-react";
+import {
+  Cpu,
+  BrainCircuit,
+  Sparkles,
+  Globe,
+  type LucideIcon,
+} from "lucide-react";
 
 export type GroupId = "systems" | "ml" | "ai" | "web";
 export type SceneShape = "home" | GroupId;
@@ -27,7 +33,7 @@ export const GROUPS: GroupMeta[] = [
     short: "SYS",
     icon: Cpu,
     cssVar: "--systems",
-    hex: ["#fbb03b", "#d97706"],
+    hex: ["#ffad33", "#a35200"],
     pinned: ["bustub"],
     tagline: "Kernels, storage engines, and distributed infrastructure.",
     description:
@@ -40,7 +46,7 @@ export const GROUPS: GroupMeta[] = [
     short: "ML",
     icon: BrainCircuit,
     cssVar: "--ml",
-    hex: ["#a78bfa", "#7c3aed"],
+    hex: ["#ac91ff", "#7319e6"],
     tagline: "Training, fine-tuning, and making models fast.",
     description:
       "Models end to end: few-step diffusion, federated QLoRA on Apple Silicon, muP learning-rate transfer, quantization and pruning on Blackwell, and the data pipelines that feed them.",
@@ -52,7 +58,7 @@ export const GROUPS: GroupMeta[] = [
     short: "AI",
     icon: Sparkles,
     cssVar: "--ai",
-    hex: ["#22d3ee", "#0891b2"],
+    hex: ["#ff66aa", "#d6006f"],
     tagline: "Agents and LLM products that hold up in production.",
     description:
       "LLM systems built like systems: parallel agent graphs with checkpoint resume, cost-aware prompt caching, guardrails, voice agents, and local inference providers merged upstream.",
@@ -64,17 +70,16 @@ export const GROUPS: GroupMeta[] = [
     short: "WEB",
     icon: Globe,
     cssVar: "--web",
-    hex: ["#34d399", "#059669"],
+    hex: ["#3de0a3", "#008055"],
     tagline: "Full-stack products, APIs, and real-time apps.",
     description:
       "Product engineering across the stack: React editors with serverless rendering, microservice platforms, real-time chat, open-source Django tooling, and this site.",
   },
 ];
 
-export const GROUP_BY_ID = Object.fromEntries(GROUPS.map((g) => [g.id, g])) as Record<
-  GroupId,
-  GroupMeta
->;
+export const GROUP_BY_ID = Object.fromEntries(
+  GROUPS.map((g) => [g.id, g]),
+) as Record<GroupId, GroupMeta>;
 
 export const groupColor = (id: GroupId, alpha = 1) =>
   `rgb(var(--${id}) / ${alpha})`;

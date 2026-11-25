@@ -7,7 +7,10 @@ export const fadeUp: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease } },
 };
 
-export const stagger = (staggerChildren = 0.08, delayChildren = 0): Variants => ({
+export const stagger = (
+  staggerChildren = 0.08,
+  delayChildren = 0,
+): Variants => ({
   hidden: {},
   show: { transition: { staggerChildren, delayChildren } },
 });
