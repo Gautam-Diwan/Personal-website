@@ -568,6 +568,14 @@ function Education() {
       detail:
         "ML Systems (15-642), Diffusion and Flow Matching (10-799, A+), Database Systems (15-645), Machine Learning with Large Datasets (10-805), Software Architectures, DevOps.",
       color: "--accent",
+      // Official marks from Wikimedia Commons (public domain); shown on a white plate so the
+      // brand colors keep their contrast in dark mode too
+      logo: {
+        src: "/logos/cmu-wordmark.svg",
+        width: 179,
+        height: 16,
+        h: "h-[18px] sm:h-[22px]",
+      },
     },
     {
       school: "Thapar Institute of Engineering and Technology",
@@ -575,6 +583,12 @@ function Education() {
       meta: "Patiala, India · June 2023",
       detail: "NLP, speech processing, data science, and machine learning.",
       color: "--ml",
+      logo: {
+        src: "/logos/thapar.png",
+        width: 800,
+        height: 139,
+        h: "h-8 sm:h-9",
+      },
     },
   ];
   return (
@@ -589,6 +603,16 @@ function Education() {
             className="grid gap-2 border-b hairline py-7 md:grid-cols-[1fr_1.3fr] md:gap-10"
           >
             <div>
+              <div className="mb-4 inline-flex items-center rounded-lg bg-white px-4 py-3 shadow-sm ring-1 ring-black/10">
+                <img
+                  src={r.logo.src}
+                  alt={`${r.school} logo`}
+                  width={r.logo.width}
+                  height={r.logo.height}
+                  loading="lazy"
+                  className={`${r.logo.h} w-auto`}
+                />
+              </div>
               <h3
                 className="text-2xl font-black tracking-tight"
                 style={{ color: `rgb(var(${r.color}))` }}

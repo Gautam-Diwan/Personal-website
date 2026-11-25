@@ -36,6 +36,12 @@ A single fixed three.js particle field sits behind every page and morphs to a sh
 The home hero shows `public/gautam.jpg` (a square crop works best, ~640px). Until that file
 exists it falls back to a GD monogram.
 
+## School logos
+
+`public/logos/cmu-wordmark.svg` and `public/logos/thapar.png` come from Wikimedia Commons, where
+both are marked public domain; they remain trademarks of their institutions and are used only to
+identify where I studied. They sit on a white plate so the brand colors keep contrast in dark mode.
+
 ## Visitor distance and map
 
 The home page says how far the visitor is from Pittsburgh. `api/geo.ts` is a Vercel Function that
