@@ -336,21 +336,27 @@ export function QueryPlanViz() {
           )}
         </motion.div>
 
-        <div className={expanded ? "grid lg:grid-cols-[1.05fr_1fr]" : ""}>
+        <div
+          className={
+            expanded
+              ? "grid grid-cols-1 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]"
+              : ""
+          }
+        >
           {/* Left column: SQL, optimizer, plan */}
           <div
             className={
               expanded
-                ? "border-b hairline p-5 lg:border-b-0 lg:border-r"
+                ? "min-w-0 border-b hairline p-4 sm:p-5 lg:border-b-0 lg:border-r"
                 : "p-5 sm:p-7"
             }
           >
             <motion.pre
               layoutId="sql-block"
               transition={{ duration: 0.7, ease }}
-              className={`overflow-x-auto rounded-xl border hairline bg-bg font-mono ${
+              className={`overflow-x-auto whitespace-pre-wrap break-words rounded-xl border hairline bg-bg font-mono ${
                 expanded
-                  ? "p-4 text-[12px] leading-6"
+                  ? "p-3 text-[11px] leading-5 sm:p-4 sm:text-[12px] sm:leading-6"
                   : "min-h-[190px] p-5 text-[14px] leading-7 sm:text-[15px]"
               }`}
             >
@@ -401,9 +407,9 @@ export function QueryPlanViz() {
                           animate={{ width: `${width}%` }}
                           transition={{ duration: 0.6, ease: "easeOut" }}
                         />
-                        <span className="relative flex items-center justify-between gap-3">
+                        <span className="relative flex flex-col gap-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                           <span
-                            className={`truncate ${rejected ? "line-through decoration-1" : ""}`}
+                            className={`min-w-0 break-words sm:truncate ${rejected ? "line-through decoration-1" : ""}`}
                           >
                             <span className="font-semibold text-fg">
                               {plan.label}
@@ -541,7 +547,7 @@ export function QueryPlanViz() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 40 }}
                 transition={{ duration: 0.6, ease, delay: 0.6 }}
-                className="p-5"
+                className="min-w-0 p-4 sm:p-5"
               >
                 <div className="flex items-baseline justify-between">
                   <p className="eyebrow">Buffer pool · ARC · {POOL} frames</p>

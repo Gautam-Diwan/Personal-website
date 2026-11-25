@@ -72,8 +72,8 @@ export function ExperienceTimeline({
                 )}
               </div>
               <span
-                className={`absolute left-0 top-[22px] h-[15px] w-[15px] rounded-full border-2 border-bg md:left-[11rem] ${
-                  current ? "bg-accent" : "bg-elevated ring-1 ring-line/20"
+                className={`absolute left-0 top-[22px] z-10 h-[15px] w-[15px] rounded-full border-[3px] shadow-[0_0_0_4px_rgb(var(--bg))] md:left-[11rem] ${
+                  current ? "border-accent bg-accent" : "border-muted bg-bg"
                 }`}
               >
                 {current && (
