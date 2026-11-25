@@ -45,8 +45,14 @@ identify where I studied. They sit on a white plate so the brand colors keep con
 ## Visitor distance and map
 
 The home page says how far the visitor is from Pittsburgh. `api/geo.ts` is a Vercel Function that
-echoes Vercel's own `x-vercel-ip-latitude` / `-longitude` / `-city` request headers, so no
-third-party IP lookup is involved and nothing is stored. Locally there is no `/api/geo`, so the
+reads IP-geolocation request headers, so no third-party IP lookup is involved and nothing is stored.
+
+Because gautamdiwan.com is proxied through Cloudflare, Vercel's `x-vercel-ip-*` headers describe the
+Cloudflare edge server rather than the visitor. The function therefore prefers Cloudflare's
+`cf-iplatitude` / `cf-iplongitude` / `cf-ipcity` headers, which Cloudflare sends once
+**Rules → Transform Rules → Managed Transforms → "Add visitor location headers"** is enabled for the
+zone. Without them, proxied requests return `{ ok: false }` and the page shows its fallback line
+instead of a wrong distance. Direct `*.vercel.app` traffic still uses Vercel's headers. Locally there is no `/api/geo`, so the
 sentence falls back to a relocation line; append `?geo=43.65,-79.38` to any URL to simulate a
 visitor. The map (`src/components/LocationMap.tsx`) uses d3-geo with Natural Earth 110m countries.
 
