@@ -1,5 +1,10 @@
 import { lazy, Suspense, useMemo } from "react";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import { useRouterState } from "@tanstack/react-router";
 import { useDarkMode } from "../../contexts/DarkModeContext";
 import { isGroupId, type SceneShape } from "../../lib/groups";
@@ -14,6 +19,14 @@ function hasWebGL() {
     return false;
   }
 }
+
+const BASE_OPACITY: Record<SceneShape, number> = {
+  home: 0.55,
+  systems: 0,
+  ml: 0.8,
+  ai: 0.9,
+  web: 0.8,
+};
 
 function useRouteShape(): SceneShape {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -32,7 +45,10 @@ export function SceneBackground() {
   const glowVar = shape === "home" ? "accent" : shape;
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+    >
       <div className="grid-bg absolute inset-0" />
       <div
         className="absolute -top-48 left-1/2 h-[560px] w-[1000px] -translate-x-1/2 rounded-full blur-3xl transition-[background] duration-1000"
@@ -44,14 +60,22 @@ export function SceneBackground() {
       />
       {webgl && (
         <motion.div className="absolute inset-0" style={{ opacity, scale }}>
-          <Suspense fallback={null}>
-            <ParticleField
-              shape={shape}
-              align="right"
-              isDark={isDark}
-              reducedMotion={reducedMotion}
-            />
-          </Suspense>
+          {/* Per-page intensity: dimmed behind the home hero, hidden on Systems (its viz is the focus) */}
+          <motion.div
+            className="absolute inset-0"
+            initial={false}
+            animate={{ opacity: BASE_OPACITY[shape] }}
+            transition={{ duration: 0.8 }}
+          >
+            <Suspense fallback={null}>
+              <ParticleField
+                shape={shape === "systems" ? "home" : shape}
+                align="right"
+                isDark={isDark}
+                reducedMotion={reducedMotion}
+              />
+            </Suspense>
+          </motion.div>
         </motion.div>
       )}
     </div>

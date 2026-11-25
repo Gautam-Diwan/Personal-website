@@ -21,8 +21,10 @@ Each domain page can show an interactive showcase (`SHOWCASES` in `src/pages/Gro
 
 - **Systems:** optimizer plan selection, then execution through an ARC buffer pool
   (`src/components/viz/QueryPlanViz.tsx`, simulator in `viz/arc.ts`)
-- **ML:** reverse-mode autodiff over a computational graph with gradient steps
-  (`src/components/viz/AutodiffViz.tsx`)
+- **ML:** Manim-style 3D walkthrough of matrix factorization trained with SGD in the browser
+  (`src/components/viz/MatrixFactorizationViz.tsx`, training in `viz/mf.ts`)
+- **Web:** request lifecycle through a CQRS/BFF stack with a circuit breaker and latency waterfall
+  (`src/components/viz/RequestFlowViz.tsx`)
 - **AI:** a chat terminal that renders its answer like a masked text diffusion model
   (`src/components/DiffusionTerminal.tsx`)
 

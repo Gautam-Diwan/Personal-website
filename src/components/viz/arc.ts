@@ -35,7 +35,9 @@ export function simulateArc(trace: Access[], c: number): ArcSnapshot[] {
   const B2: string[] = [];
   let p = 0;
   const frames: (string | null)[] = Array(c).fill(null);
-  const snaps: ArcSnapshot[] = [{ frames: [...frames], T1: [], T2: [], B1: [], B2: [], p }];
+  const snaps: ArcSnapshot[] = [
+    { frames: [...frames], T1: [], T2: [], B1: [], B2: [], p },
+  ];
 
   const remove = (l: string[], x: string) => {
     const i = l.indexOf(x);
@@ -121,11 +123,15 @@ export function simulateArc(trace: Access[], c: number): ArcSnapshot[] {
 
 /**
  * Page accesses for an index nested-loop join: walk the orders date index leaf by leaf,
- * fetch each heap page once, and probe the customers primary key per tuple. Customer
- * ids are skewed so a few hot pages get re-referenced, which ARC promotes to T2.
+ * fetch each heap page, and probe the customers primary key per tuple. After each probe the
+ * executor returns to the outer heap page to read o.total (late materialization).
+ *
+ * Customer ids are skewed so a few hot pages get re-referenced (frequency, T2), while the
+ * late-materialization revisits reward recency (T1). The two compete, so ARC's target p
+ * swings both ways: ~15 changes over 61 accesses (seed chosen by searching variants).
  */
 export function buildJoinTrace(): Access[] {
-  let s = 42;
+  let s = 327;
   const rand = () => {
     s = (s * 16807) % 2147483647;
     return s / 2147483647;
@@ -136,11 +142,16 @@ export function buildJoinTrace(): Access[] {
   for (const leaf of ["ix:L3", "ix:L4", "ix:L5", "ix:L6"]) {
     trace.push({ page: leaf, op: "scanO" });
     for (let h = 0; h < 2; h++) {
-      trace.push({ page: `o:${heap++}`, op: "scanO", tuples: 2 });
+      const heapPage = `o:${heap++}`;
+      trace.push({ page: heapPage, op: "scanO", tuples: 2 });
       for (let t = 0; t < 2; t++) {
-        const cust = rand() < 0.6 ? hot[Math.floor(rand() * hot.length)] : Math.floor(rand() * 14);
+        const cust =
+          rand() < 0.6
+            ? hot[Math.floor(rand() * hot.length)]
+            : Math.floor(rand() * 14);
         trace.push({ page: "pk:root", op: "scanC" });
         trace.push({ page: `c:${cust}`, op: "scanC", joined: true });
+        trace.push({ page: heapPage, op: "scanO" }); // late materialization: read o.total
       }
     }
   }

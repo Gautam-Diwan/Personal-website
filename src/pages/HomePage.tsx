@@ -2,139 +2,258 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   animate,
-  AnimatePresence,
   motion,
   useInView,
   useMotionValue,
-  useReducedMotion,
   useTransform,
 } from "framer-motion";
-import { ArrowDown, ArrowRight, ArrowUpRight, GraduationCap, Github, Linkedin } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUpRight,
+  Briefcase,
+  GraduationCap,
+  Github,
+  History,
+  Linkedin,
+  Mail,
+  MapPin,
+  Target,
+} from "lucide-react";
 import { usePortfolio, projectGroups, type Project } from "../lib/content";
 import { GROUPS } from "../lib/groups";
 import { ease, fadeUp, stagger } from "../lib/motion";
-import { PageContainer, Reveal, RevealItem, SectionHeading, Skeleton } from "../components/ui";
+import {
+  PageContainer,
+  Reveal,
+  RevealItem,
+  SectionHeading,
+  Skeleton,
+} from "../components/ui";
 import { ProjectCard } from "../components/ProjectCard";
 import { ExperienceTimeline } from "../components/ExperienceTimeline";
 
-const ROTATING = [
-  { word: "fast", color: "systems" },
-  { word: "reliable", color: "ai" },
-  { word: "efficient", color: "ml" },
-  { word: "useful", color: "web" },
+const INTERESTS = [
+  { id: "systems", label: "Systems", detail: "GPU kernels · databases" },
+  { id: "ml", label: "ML", detail: "training · inference" },
+  { id: "ai", label: "AI", detail: "LLM agents · RAG" },
+  { id: "web", label: "Web", detail: "full-stack products" },
+] as const;
+
+const GLANCE = [
+  {
+    icon: MapPin,
+    label: "Based in",
+    value: "Pittsburgh, PA",
+    note: "Open to relocation (SF, NYC, Seattle)",
+  },
+  {
+    icon: GraduationCap,
+    label: "Studying",
+    value: "MSE, Scalable Systems · Carnegie Mellon",
+    note: "GPA 4.14 / 4.33 · Graduating Dec 2026",
+  },
+  {
+    icon: Briefcase,
+    label: "Now",
+    value: "Software Developer · RedZone Robotics",
+    note: "CMU MSE practicum, 360° video pipeline",
+  },
+  {
+    icon: History,
+    label: "Previously",
+    value: "AI/ML Intern · Skilly",
+    note: "SWE · HCode Technologies, KDataScience",
+  },
+  {
+    icon: Target,
+    label: "Looking for",
+    value: "ML infra, AI platform, LLM and backend roles",
+    note: "Full-time, early-career (L1/L2)",
+  },
 ];
 
-function RotatingWord() {
-  const [i, setI] = useState(0);
-  const reduced = useReducedMotion();
-  useEffect(() => {
-    if (reduced) return;
-    const t = setInterval(() => setI((x) => (x + 1) % ROTATING.length), 2400);
-    return () => clearInterval(t);
-  }, [reduced]);
-  const cur = ROTATING[i];
-  return (
-    <span className="relative inline-grid align-baseline">
-      {/* Reserve width of the longest word */}
-      <span className="invisible col-start-1 row-start-1 pr-[0.1em] font-serif italic">efficient.</span>
-      <AnimatePresence mode="popLayout" initial={false}>
-        <motion.span
-          key={cur.word}
-          initial={{ y: "70%", opacity: 0, filter: "blur(8px)" }}
-          animate={{ y: "0%", opacity: 1, filter: "blur(0px)" }}
-          exit={{ y: "-70%", opacity: 0, filter: "blur(8px)" }}
-          transition={{ duration: 0.55, ease }}
-          className="col-start-1 row-start-1 font-serif italic"
-          style={{ color: `rgb(var(--${cur.color}))` }}
-        >
-          {cur.word}
-          <span className="not-italic text-subtle">.</span>
-        </motion.span>
-      </AnimatePresence>
-    </span>
-  );
-}
-
 function Hero() {
-  const words = "I make AI systems".split(" ");
   return (
-    <section className="relative flex min-h-[100svh] items-center pb-24 pt-32">
-      <PageContainer className="w-full">
-        <motion.div initial="hidden" animate="show" variants={stagger(0.09, 0.15)} className="max-w-3xl">
-          <motion.div variants={fadeUp} className="mb-8 inline-flex items-center gap-2.5 rounded-full border hairline bg-surface/50 py-1.5 pl-2 pr-4 backdrop-blur">
-            <span className="relative flex h-2 w-2">
+    <section className="relative flex min-h-[92svh] items-center pb-16 pt-28 md:pt-36">
+      <PageContainer className="grid w-full items-center gap-12 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
+        <motion.div
+          initial="hidden"
+          animate="show"
+          variants={stagger(0.08, 0.1)}
+        >
+          <motion.div
+            variants={fadeUp}
+            className="inline-flex items-center gap-2.5 rounded-full border hairline bg-surface/80 py-1.5 pl-2.5 pr-4 backdrop-blur"
+          >
+            <span className="relative flex h-2.5 w-2.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-web opacity-60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-web" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-web" />
             </span>
-            <span className="text-xs text-muted">Open to full-time roles · Pittsburgh, PA</span>
+            <span className="text-sm font-medium text-fg">
+              Available for full-time roles
+            </span>
           </motion.div>
 
-          <motion.p variants={fadeUp} className="eyebrow mb-5">
-            Gautam Diwan · ML Systems &amp; AI Engineer
+          <motion.h1
+            variants={fadeUp}
+            className="mt-7 text-[clamp(3rem,8vw,6.25rem)] font-semibold leading-[0.95] tracking-[-0.04em] text-fg"
+          >
+            Gautam Diwan
+          </motion.h1>
+
+          <motion.p
+            variants={fadeUp}
+            className="mt-5 text-xl font-medium leading-snug text-fg sm:text-2xl"
+          >
+            ML Systems &amp; AI Engineer
+            <span className="text-muted"> at </span>
+            <span className="whitespace-nowrap">Carnegie Mellon</span>
           </motion.p>
 
-          <h1 className="text-[clamp(2.6rem,7vw,5.6rem)] font-medium leading-[0.98] tracking-[-0.035em]">
-            {words.map((w, i) => (
-              <motion.span
-                key={i}
-                variants={{
-                  hidden: { y: "100%", opacity: 0 },
-                  show: { y: "0%", opacity: 1, transition: { duration: 0.8, ease } },
-                }}
-                className="mr-[0.22em] inline-block"
-              >
-                {w}
-              </motion.span>
-            ))}
-            <br className="hidden sm:block" />
-            <motion.span variants={fadeUp} className="inline-block">
-              <RotatingWord />
-            </motion.span>
-          </h1>
-
-          <motion.p variants={fadeUp} className="mt-8 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-            Master of Software Engineering (Scalable Systems) at Carnegie Mellon. I write GPU kernels,
-            distributed training engines, and production LLM agents, and I care about the profiler
-            more than the demo.
+          <motion.p
+            variants={fadeUp}
+            className="mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg"
+          >
+            I build the infrastructure that makes models fast and agents
+            reliable: GPU kernels, distributed training, database internals, and
+            production LLM pipelines.
           </motion.p>
 
-          <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-3">
+          <motion.div variants={fadeUp} className="mt-9">
+            <p className="eyebrow mb-3">What I work on</p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {INTERESTS.map((it) => {
+                const g = GROUPS.find((x) => x.id === it.id)!;
+                const Icon = g.icon;
+                return (
+                  <Link
+                    key={it.id}
+                    to={g.path}
+                    className="group rounded-xl border px-3.5 py-3 transition-all duration-200 hover:-translate-y-0.5"
+                    style={{
+                      borderColor: `rgb(var(${g.cssVar}) / 0.45)`,
+                      background: `rgb(var(${g.cssVar}) / 0.1)`,
+                    }}
+                  >
+                    <span
+                      className="flex items-center gap-2 text-sm font-semibold"
+                      style={{ color: `rgb(var(${g.cssVar}))` }}
+                    >
+                      <Icon size={15} />
+                      {it.label}
+                      <ArrowRight
+                        size={13}
+                        className="ml-auto opacity-0 transition-opacity group-hover:opacity-100"
+                      />
+                    </span>
+                    <span className="mt-1 block text-xs text-fg/85">
+                      {it.detail}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          <motion.div
+            variants={fadeUp}
+            className="mt-9 flex flex-wrap items-center gap-3"
+          >
             <a href="#work" className="btn-primary group">
               Explore my work
-              <ArrowDown size={15} className="transition-transform group-hover:translate-y-0.5" />
+              <ArrowDown
+                size={15}
+                className="transition-transform group-hover:translate-y-0.5"
+              />
             </a>
-            <a href="https://github.com/Gautam-Diwan" target="_blank" rel="noreferrer" className="btn-ghost">
+            <a href="mailto:gdiwan@cs.cmu.edu" className="btn-ghost">
+              <Mail size={15} /> Email
+            </a>
+            <a
+              href="https://github.com/Gautam-Diwan"
+              target="_blank"
+              rel="noreferrer"
+              className="btn-ghost"
+            >
               <Github size={15} /> GitHub
             </a>
-            <a href="https://linkedin.com/in/gautamdiwan" target="_blank" rel="noreferrer" className="btn-ghost">
+            <a
+              href="https://linkedin.com/in/gautamdiwan"
+              target="_blank"
+              rel="noreferrer"
+              className="btn-ghost"
+            >
               <Linkedin size={15} /> LinkedIn
             </a>
           </motion.div>
         </motion.div>
-      </PageContainer>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.6, duration: 1 }}
-        className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 sm:flex"
-      >
-        <span className="eyebrow !text-[10px]">Scroll</span>
-        <span className="relative h-10 w-px overflow-hidden bg-line/15">
-          <motion.span
-            className="absolute inset-x-0 top-0 h-4 bg-fg"
-            animate={{ y: [-16, 40] }}
-            transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
-          />
-        </span>
-      </motion.div>
+        <motion.aside
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease, delay: 0.45 }}
+          aria-label="At a glance"
+          className="card !bg-surface/90 p-6 shadow-[0_30px_80px_-30px_rgb(0_0_0/0.45)] sm:p-7"
+        >
+          <div className="flex items-center gap-4 border-b hairline pb-5">
+            <span
+              className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl font-mono text-lg font-semibold text-white"
+              style={{
+                background:
+                  "linear-gradient(135deg, rgb(var(--ai)), rgb(var(--ml)) 55%, rgb(var(--systems)))",
+              }}
+            >
+              GD
+            </span>
+            <div>
+              <p className="text-lg font-semibold text-fg">At a glance</p>
+              <p className="text-sm text-muted">Who I am, in five lines</p>
+            </div>
+          </div>
+          <dl className="mt-5 space-y-4">
+            {GLANCE.map(({ icon: Icon, label, value, note }) => (
+              <div key={label} className="grid grid-cols-[2rem_1fr] gap-3">
+                <span className="grid h-8 w-8 place-items-center rounded-lg bg-fg/[0.06] text-fg">
+                  <Icon size={15} />
+                </span>
+                <div>
+                  <dt className="text-xs font-medium uppercase tracking-wider text-subtle">
+                    {label}
+                  </dt>
+                  <dd className="mt-0.5 text-[15px] font-medium leading-snug text-fg">
+                    {value}
+                  </dd>
+                  <dd className="text-sm text-muted">{note}</dd>
+                </div>
+              </div>
+            ))}
+          </dl>
+        </motion.aside>
+      </PageContainer>
     </section>
   );
 }
 
 const MARQUEE = [
-  "CUDA", "Apache TVM", "PyTorch", "MLX", "LangGraph", "Claude", "C++17", "MPI", "Triton",
-  "FastAPI", "React 19", "three.js", "Kubernetes", "Terraform", "DuckDB", "Kafka", "Convex", "Go",
+  "CUDA",
+  "Apache TVM",
+  "PyTorch",
+  "MLX",
+  "LangGraph",
+  "Claude",
+  "C++17",
+  "MPI",
+  "Triton",
+  "FastAPI",
+  "React 19",
+  "three.js",
+  "Kubernetes",
+  "Terraform",
+  "DuckDB",
+  "Kafka",
+  "Convex",
+  "Go",
 ];
 
 function Marquee() {
@@ -142,7 +261,10 @@ function Marquee() {
     <div className="relative overflow-hidden border-y hairline bg-surface/30 py-5 backdrop-blur-sm [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]">
       <div className="flex w-max animate-marquee gap-12 pr-12">
         {[...MARQUEE, ...MARQUEE].map((t, i) => (
-          <span key={i} className="flex items-center gap-12 font-mono text-sm text-subtle">
+          <span
+            key={i}
+            className="flex items-center gap-12 font-mono text-sm text-subtle"
+          >
             {t}
             <span className="h-1 w-1 rounded-full bg-line/20" />
           </span>
@@ -152,7 +274,17 @@ function Marquee() {
   );
 }
 
-function Counter({ to, decimals = 0, prefix = "", suffix = "" }: { to: number; decimals?: number; prefix?: string; suffix?: string }) {
+function Counter({
+  to,
+  decimals = 0,
+  prefix = "",
+  suffix = "",
+}: {
+  to: number;
+  decimals?: number;
+  prefix?: string;
+  suffix?: string;
+}) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
   const mv = useMotionValue(0);
@@ -167,19 +299,39 @@ function Counter({ to, decimals = 0, prefix = "", suffix = "" }: { to: number; d
 
 function Stats({ projectCount }: { projectCount: number }) {
   const stats = [
-    { node: <Counter to={4.14} decimals={2} />, label: "GPA at Carnegie Mellon", sub: "out of 4.33" },
-    { node: <Counter to={8} suffix="×" />, label: "Faster image sampling", sub: "NFE 320 → 40, FID improved" },
-    { node: <Counter to={50} prefix="~" suffix="%" />, label: "Agent runtime cut", sub: "n8n → LangGraph fan-out" },
-    { node: <Counter to={projectCount} />, label: "Projects shipped", sub: "across 4 domains" },
+    {
+      node: <Counter to={4.14} decimals={2} />,
+      label: "GPA at Carnegie Mellon",
+      sub: "out of 4.33",
+    },
+    {
+      node: <Counter to={8} suffix="×" />,
+      label: "Faster image sampling",
+      sub: "NFE 320 → 40, FID improved",
+    },
+    {
+      node: <Counter to={50} prefix="~" suffix="%" />,
+      label: "Agent runtime cut",
+      sub: "n8n → LangGraph fan-out",
+    },
+    {
+      node: <Counter to={projectCount} />,
+      label: "Projects shipped",
+      sub: "across 4 domains",
+    },
   ];
   return (
     <PageContainer className="py-14 md:py-20">
       <Reveal className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border hairline bg-line/[0.07] lg:grid-cols-4">
         {stats.map((s, i) => (
           <RevealItem key={i} className="bg-bg/85 p-6 backdrop-blur md:p-8">
-            <div className="text-4xl font-medium tracking-tight md:text-5xl">{s.node}</div>
+            <div className="text-4xl font-medium tracking-tight md:text-5xl">
+              {s.node}
+            </div>
             <div className="mt-3 text-sm text-fg/90">{s.label}</div>
-            <div className="mt-1 font-mono text-[11px] text-subtle">{s.sub}</div>
+            <div className="mt-1 font-mono text-[11px] text-subtle">
+              {s.sub}
+            </div>
           </RevealItem>
         ))}
       </Reveal>
@@ -189,14 +341,25 @@ function Stats({ projectCount }: { projectCount: number }) {
 
 function Domains({ projects }: { projects: Project[] }) {
   return (
-    <PageContainer className="py-12 md:py-20" >
+    <PageContainer className="py-12 md:py-20">
       <div id="work" className="scroll-mt-28" />
-      <SectionHeading index="01" eyebrow="Domains" title={<>Four ways <span className="font-serif italic text-muted">in.</span></>}>
-        Most projects live in more than one place. Pick a lens and every page reshapes the scene behind it.
+      <SectionHeading
+        index="01"
+        eyebrow="Domains"
+        title={
+          <>
+            Four ways <span className="font-serif italic text-muted">in.</span>
+          </>
+        }
+      >
+        Most projects live in more than one place. Pick a lens and every page
+        reshapes the scene behind it.
       </SectionHeading>
       <Reveal className="grid gap-4 sm:grid-cols-2">
         {GROUPS.map((g, i) => {
-          const inGroup = projects.filter((p) => projectGroups(p).includes(g.id));
+          const inGroup = projects.filter((p) =>
+            projectGroups(p).includes(g.id),
+          );
           const Icon = g.icon;
           return (
             <RevealItem key={g.id}>
@@ -220,16 +383,24 @@ function Domains({ projects }: { projects: Project[] }) {
                     <Icon size={20} />
                   </span>
                   <span className="font-mono text-[11px] text-subtle">
-                    0{i + 1} / {String(inGroup.length).padStart(2, "0")} projects
+                    0{i + 1} / {String(inGroup.length).padStart(2, "0")}{" "}
+                    projects
                   </span>
                 </div>
-                <h3 className="relative mt-8 text-2xl font-medium tracking-tight sm:text-3xl">{g.label}</h3>
+                <h3 className="relative mt-8 text-2xl font-medium tracking-tight sm:text-3xl">
+                  {g.label}
+                </h3>
                 <p className="relative mt-2 text-sm text-muted">{g.tagline}</p>
                 <ul className="relative mt-6 space-y-1.5 border-t hairline pt-5">
                   {inGroup.slice(0, 3).map((p) => (
-                    <li key={p._id} className="flex items-center justify-between gap-3 text-sm text-fg/80">
+                    <li
+                      key={p._id}
+                      className="flex items-center justify-between gap-3 text-sm text-fg/80"
+                    >
                       <span className="truncate">{p.title}</span>
-                      <span className="shrink-0 font-mono text-[11px] text-subtle">{p.startDate.slice(-4)}</span>
+                      <span className="shrink-0 font-mono text-[11px] text-subtle">
+                        {p.startDate.slice(-4)}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -237,8 +408,15 @@ function Domains({ projects }: { projects: Project[] }) {
                   className="relative mt-6 inline-flex items-center gap-1.5 text-sm font-medium"
                   style={{ color: `rgb(var(${g.cssVar}))` }}
                 >
-                  View {g.id === "ml" || g.id === "ai" ? g.id.toUpperCase() : g.label.toLowerCase()} work
-                  <ArrowRight size={15} className="transition-transform duration-300 group-hover:translate-x-1" />
+                  View{" "}
+                  {g.id === "ml" || g.id === "ai"
+                    ? g.id.toUpperCase()
+                    : g.label.toLowerCase()}{" "}
+                  work
+                  <ArrowRight
+                    size={15}
+                    className="transition-transform duration-300 group-hover:translate-x-1"
+                  />
                 </span>
               </Link>
             </RevealItem>
@@ -253,8 +431,18 @@ function Featured({ projects }: { projects: Project[] }) {
   const featured = projects.filter((p) => p.featured);
   return (
     <PageContainer className="py-12 md:py-20">
-      <SectionHeading index="02" eyebrow="Selected work" title={<>Things I'm <span className="font-serif italic text-muted">proud of.</span></>}>
-        Measured against a clear bar: cuBLAS, the leaderboard, the bill, or the FID score.
+      <SectionHeading
+        index="02"
+        eyebrow="Selected work"
+        title={
+          <>
+            Things I'm{" "}
+            <span className="font-serif italic text-muted">proud of.</span>
+          </>
+        }
+      >
+        Measured against a clear bar: cuBLAS, the leaderboard, the bill, or the
+        FID score.
       </SectionHeading>
       <motion.div
         initial="hidden"
@@ -265,9 +453,14 @@ function Featured({ projects }: { projects: Project[] }) {
       >
         {featured.map((p, i) => {
           // Two large cards up top, then rows of 3 (or 2 if 3 would leave an orphan)
-          const restSpan = (featured.length - 2) % 3 === 0 ? "md:col-span-2" : "md:col-span-3";
+          const restSpan =
+            (featured.length - 2) % 3 === 0 ? "md:col-span-2" : "md:col-span-3";
           return (
-            <motion.div key={p._id} variants={fadeUp} className={i < 2 ? "md:col-span-3" : restSpan}>
+            <motion.div
+              key={p._id}
+              variants={fadeUp}
+              className={i < 2 ? "md:col-span-3" : restSpan}
+            >
               <ProjectCard project={p} size={i < 2 ? "lg" : "md"} />
             </motion.div>
           );
@@ -277,14 +470,26 @@ function Featured({ projects }: { projects: Project[] }) {
   );
 }
 
-function SkillsAndEducation({ skills }: { skills: { category: string; name: string }[] }) {
+function SkillsAndEducation({
+  skills,
+}: {
+  skills: { category: string; name: string }[];
+}) {
   const byCat = skills.reduce<Record<string, string[]>>((acc, s) => {
     (acc[s.category] ??= []).push(s.name);
     return acc;
   }, {});
   return (
     <PageContainer className="py-12 md:py-20">
-      <SectionHeading index="04" eyebrow="Toolkit & education" title={<>The <span className="font-serif italic text-muted">toolkit.</span></>} />
+      <SectionHeading
+        index="04"
+        eyebrow="Toolkit & education"
+        title={
+          <>
+            The <span className="font-serif italic text-muted">toolkit.</span>
+          </>
+        }
+      />
       <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
         <Reveal className="card grid gap-px overflow-hidden !bg-line/[0.07] sm:grid-cols-2">
           {Object.entries(byCat).map(([cat, items]) => (
@@ -292,7 +497,11 @@ function SkillsAndEducation({ skills }: { skills: { category: string; name: stri
               <p className="eyebrow mb-4">{cat}</p>
               <div className="flex flex-wrap gap-1.5">
                 {items.map((s) => (
-                  <motion.span key={s} whileHover={{ y: -2 }} className="chip cursor-default !text-fg/80 hover:!text-fg">
+                  <motion.span
+                    key={s}
+                    whileHover={{ y: -2 }}
+                    className="chip cursor-default !text-fg/80 hover:!text-fg"
+                  >
                     {s}
                   </motion.span>
                 ))}
@@ -306,13 +515,15 @@ function SkillsAndEducation({ skills }: { skills: { category: string; name: stri
               school: "Carnegie Mellon University",
               degree: "Master of Software Engineering, Scalable Systems",
               meta: "Expected Dec 2026 · GPA 4.14 / 4.33",
-              detail: "ML Systems (15-642), Diffusion and Flow Matching (10-799, A+), Database Systems (15-645), ML with Large Datasets (10-805), Software Architectures, DevOps.",
+              detail:
+                "ML Systems (15-642), Diffusion and Flow Matching (10-799, A+), Database Systems (15-645), ML with Large Datasets (10-805), Software Architectures, DevOps.",
             },
             {
               school: "Thapar Institute of Engineering and Technology",
               degree: "B.E. Computer Engineering, Conversational AI",
               meta: "Jun 2023 · Patiala, India",
-              detail: "NLP, speech processing, data science, and machine learning.",
+              detail:
+                "NLP, speech processing, data science, and machine learning.",
             },
           ].map((e) => (
             <RevealItem key={e.school} className="card flex-1 p-6">
@@ -322,9 +533,13 @@ function SkillsAndEducation({ skills }: { skills: { category: string; name: stri
                 </span>
                 <p className="font-mono text-[11px] text-subtle">{e.meta}</p>
               </div>
-              <h3 className="mt-5 text-lg font-medium tracking-tight">{e.school}</h3>
+              <h3 className="mt-5 text-lg font-medium tracking-tight">
+                {e.school}
+              </h3>
               <p className="text-sm text-muted">{e.degree}</p>
-              <p className="mt-4 text-sm leading-relaxed text-fg/75">{e.detail}</p>
+              <p className="mt-4 text-sm leading-relaxed text-fg/90">
+                {e.detail}
+              </p>
             </RevealItem>
           ))}
         </Reveal>
@@ -342,18 +557,31 @@ function ContactCTA() {
           <p className="eyebrow">Currently</p>
           <h2 className="mx-auto mt-5 max-w-3xl text-4xl font-medium tracking-tight sm:text-5xl md:text-6xl">
             Looking for teams where performance is a{" "}
-            <span className="font-serif italic" style={{ color: "rgb(var(--accent))" }}>
+            <span
+              className="font-serif italic"
+              style={{ color: "rgb(var(--accent))" }}
+            >
               feature.
             </span>
           </h2>
           <p className="mx-auto mt-6 max-w-lg text-muted">
-            ML infrastructure, AI platform, LLM engineering, or backend roles. Graduating December 2026.
+            ML infrastructure, AI platform, LLM engineering, or backend roles.
+            Graduating December 2026.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-3">
             <a href="mailto:gdiwan@cs.cmu.edu" className="btn-primary group">
-              Email me <ArrowUpRight size={15} className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              Email me{" "}
+              <ArrowUpRight
+                size={15}
+                className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              />
             </a>
-            <a href="https://linkedin.com/in/gautamdiwan" target="_blank" rel="noreferrer" className="btn-ghost">
+            <a
+              href="https://linkedin.com/in/gautamdiwan"
+              target="_blank"
+              rel="noreferrer"
+              className="btn-ghost"
+            >
               <Linkedin size={15} /> Connect
             </a>
           </div>
@@ -382,8 +610,18 @@ export function HomePage() {
           <Domains projects={projects} />
           <Featured projects={projects} />
           <PageContainer className="py-12 md:py-20">
-            <SectionHeading index="03" eyebrow="Experience" title={<>Where I've <span className="font-serif italic text-muted">worked.</span></>}>
-              From 500k-user web delivery to RAG phone lines to agent pipelines and 360° video rendering.
+            <SectionHeading
+              index="03"
+              eyebrow="Experience"
+              title={
+                <>
+                  Where I've{" "}
+                  <span className="font-serif italic text-muted">worked.</span>
+                </>
+              }
+            >
+              From 500k-user web delivery to RAG phone lines to agent pipelines
+              and 360° video rendering.
             </SectionHeading>
             <ExperienceTimeline experiences={experiences} />
           </PageContainer>

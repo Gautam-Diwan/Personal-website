@@ -8,13 +8,18 @@ import { ease } from "../../lib/motion";
 
 const NAV = [
   { to: "/", label: "Home", color: "accent" },
-  ...GROUPS.map((g) => ({ to: g.path, label: g.id === "ml" ? "ML" : g.id === "ai" ? "AI" : g.label, color: g.id })),
+  ...GROUPS.map((g) => ({
+    to: g.path,
+    label: g.id === "ml" ? "ML" : g.id === "ai" ? "AI" : g.label,
+    color: g.id,
+  })),
   { to: "/blog", label: "Blog", color: "accent" },
 ] as const;
 
 function useActive() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  return (to: string) => (to === "/" ? pathname === "/" : pathname.startsWith(to));
+  return (to: string) =>
+    to === "/" ? pathname === "/" : pathname.startsWith(to);
 }
 
 export function Navbar() {
@@ -45,12 +50,18 @@ export function Navbar() {
             : "border-transparent bg-transparent"
         }`}
       >
-        <Link to="/" className="group flex items-center gap-2.5 pl-1" aria-label="Gautam Diwan, home">
+        <Link
+          to="/"
+          className="group flex items-center gap-2.5 pl-1"
+          aria-label="Gautam Diwan, home"
+        >
           <span className="relative grid h-8 w-8 place-items-center overflow-hidden rounded-full bg-fg font-mono text-[11px] font-medium text-bg">
             GD
             <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
           </span>
-          <span className="hidden text-sm font-medium tracking-tight sm:block">Gautam Diwan</span>
+          <span className="hidden text-sm font-medium tracking-tight sm:block">
+            Gautam Diwan
+          </span>
         </Link>
 
         <ul className="hidden items-center gap-0.5 md:flex">
@@ -63,9 +74,13 @@ export function Navbar() {
                 <Link
                   to={item.to}
                   className={`group/nav relative block rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
-                    tinted ? "" : active ? "text-fg" : "text-muted hover:text-fg"
+                    tinted
+                      ? ""
+                      : active
+                        ? "text-fg"
+                        : "text-muted hover:text-fg"
                   }`}
-                  style={tinted ? { color: c(active ? 1 : 0.78) } : undefined}
+                  style={tinted ? { color: c(1) } : undefined}
                 >
                   {active && (
                     <motion.span
@@ -74,9 +89,16 @@ export function Navbar() {
                       style={
                         tinted
                           ? { background: c(0.12), borderColor: c(0.35) }
-                          : { background: "rgb(var(--fg) / 0.06)", borderColor: "rgb(var(--line) / 0.1)" }
+                          : {
+                              background: "rgb(var(--fg) / 0.06)",
+                              borderColor: "rgb(var(--line) / 0.1)",
+                            }
                       }
-                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 380,
+                        damping: 32,
+                      }}
                     />
                   )}
                   {!active && tinted && (
@@ -119,7 +141,10 @@ export function Navbar() {
               </motion.span>
             </AnimatePresence>
           </button>
-          <a href="mailto:gdiwan@cs.cmu.edu" className="btn-primary hidden !px-4 !py-2 !text-[13px] sm:inline-flex">
+          <a
+            href="mailto:gdiwan@cs.cmu.edu"
+            className="btn-primary hidden !px-4 !py-2 !text-[13px] sm:inline-flex"
+          >
             Get in touch
           </a>
           <button
@@ -152,18 +177,28 @@ export function Navbar() {
                 <Link
                   to={item.to}
                   className={`flex items-center rounded-xl px-4 py-3 text-sm font-medium ${
-                    item.color === "accent" ? (isActive(item.to) ? "bg-fg/[0.06] text-fg" : "text-muted") : ""
+                    item.color === "accent"
+                      ? isActive(item.to)
+                        ? "bg-fg/[0.06] text-fg"
+                        : "text-muted"
+                      : ""
                   }`}
                   style={
                     item.color === "accent"
                       ? undefined
                       : {
                           color: `rgb(var(--${item.color}))`,
-                          background: isActive(item.to) ? `rgb(var(--${item.color}) / 0.12)` : undefined,
+                          background: isActive(item.to)
+                            ? `rgb(var(--${item.color}) / 0.12)`
+                            : undefined,
                         }
                   }
                 >
-                  {item.label === "ML" ? "Machine Learning" : item.label === "AI" ? "Artificial Intelligence" : item.label}
+                  {item.label === "ML"
+                    ? "Machine Learning"
+                    : item.label === "AI"
+                      ? "Artificial Intelligence"
+                      : item.label}
                 </Link>
               </motion.div>
             ))}

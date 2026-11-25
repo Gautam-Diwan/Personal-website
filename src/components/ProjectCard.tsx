@@ -14,11 +14,19 @@ import { projectGroups, type Project } from "../lib/content";
 import { GROUP_BY_ID } from "../lib/groups";
 import { ease, fadeUp } from "../lib/motion";
 
-function ProjectDetails({ project, onClose }: { project: Project; onClose: () => void }) {
+function ProjectDetails({
+  project,
+  onClose,
+}: {
+  project: Project;
+  onClose: () => void;
+}) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const groups = projectGroups(project);
   const primary = groups[0];
-  const color = primary ? `rgb(var(${GROUP_BY_ID[primary].cssVar}))` : "rgb(var(--accent))";
+  const color = primary
+    ? `rgb(var(${GROUP_BY_ID[primary].cssVar}))`
+    : "rgb(var(--accent))";
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -40,20 +48,25 @@ function ProjectDetails({ project, onClose }: { project: Project; onClose: () =>
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
     >
-      <div className="absolute inset-0 bg-bg/70 backdrop-blur-md" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-bg/70 backdrop-blur-md"
+        onClick={onClose}
+      />
       <motion.div
         role="dialog"
         aria-modal="true"
         aria-labelledby={`project-${project._id}`}
         initial={{ opacity: 0, y: 40, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 30, scale: 0.98 }}
+        exit={{ opacity: 0, y: 20, scale: 0.98, transition: { duration: 0.2 } }}
         transition={{ duration: 0.4, ease }}
         className="card relative max-h-[92svh] w-full max-w-3xl overflow-y-auto !bg-surface/95 p-6 shadow-2xl sm:p-9"
       >
         <div
           className="pointer-events-none absolute inset-x-0 top-0 h-px"
-          style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }}
+          style={{
+            background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
+          }}
         />
         <button
           ref={closeRef}
@@ -72,24 +85,41 @@ function ProjectDetails({ project, onClose }: { project: Project; onClose: () =>
         <p className="mt-6 font-mono text-xs" style={{ color }}>
           {project.context}
         </p>
-        <h2 id={`project-${project._id}`} className="mt-2 text-3xl font-medium tracking-tight sm:text-4xl">
+        <h2
+          id={`project-${project._id}`}
+          className="mt-2 text-3xl font-medium tracking-tight sm:text-4xl"
+        >
           {project.title}
         </h2>
-        <p className="mt-4 leading-relaxed text-muted">{project.longDescription}</p>
+        <p className="mt-4 leading-relaxed text-muted">
+          {project.longDescription}
+        </p>
 
         <div className="mt-6 flex flex-wrap items-center gap-2">
           <span className="chip gap-1.5">
             <Calendar size={12} />
             {project.startDate}
-            {project.endDate && project.endDate !== project.startDate ? ` → ${project.endDate}` : ""}
+            {project.endDate && project.endDate !== project.startDate
+              ? ` → ${project.endDate}`
+              : ""}
           </span>
           {project.githubUrl && (
-            <a href={project.githubUrl} target="_blank" rel="noreferrer" className="btn-ghost !px-3.5 !py-1.5 !text-[12px]">
+            <a
+              href={project.githubUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="btn-ghost !px-3.5 !py-1.5 !text-[12px]"
+            >
               <Github size={13} /> Source <ArrowUpRight size={12} />
             </a>
           )}
           {project.liveUrl && (
-            <a href={project.liveUrl} target="_blank" rel="noreferrer" className="btn-ghost !px-3.5 !py-1.5 !text-[12px]">
+            <a
+              href={project.liveUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="btn-ghost !px-3.5 !py-1.5 !text-[12px]"
+            >
               <Globe size={13} /> Live <ArrowUpRight size={12} />
             </a>
           )}
@@ -98,11 +128,16 @@ function ProjectDetails({ project, onClose }: { project: Project; onClose: () =>
         {project.metrics && project.metrics.length > 0 && (
           <div
             className="mt-7 grid grid-cols-2 gap-px overflow-hidden rounded-xl border hairline bg-line/[0.07]"
-            style={{ gridTemplateColumns: `repeat(${Math.min(project.metrics.length, 4)}, minmax(0, 1fr))` }}
+            style={{
+              gridTemplateColumns: `repeat(${Math.min(project.metrics.length, 4)}, minmax(0, 1fr))`,
+            }}
           >
             {project.metrics.map((m) => (
               <div key={m.label} className="bg-surface px-4 py-3.5">
-                <div className="font-mono text-base sm:text-lg" style={{ color }}>
+                <div
+                  className="font-mono text-base sm:text-lg"
+                  style={{ color }}
+                >
                   {m.value}
                 </div>
                 <div className="mt-0.5 text-[11px] text-subtle">{m.label}</div>
@@ -118,11 +153,22 @@ function ProjectDetails({ project, onClose }: { project: Project; onClose: () =>
               className="mt-4 space-y-2.5"
               initial="hidden"
               animate="show"
-              variants={{ show: { transition: { staggerChildren: 0.06, delayChildren: 0.15 } } }}
+              variants={{
+                show: {
+                  transition: { staggerChildren: 0.06, delayChildren: 0.15 },
+                },
+              }}
             >
               {project.highlights.map((h, i) => (
-                <motion.li key={i} variants={fadeUp} className="flex gap-4 text-sm leading-relaxed text-fg/85">
-                  <span className="font-mono text-xs leading-6" style={{ color }}>
+                <motion.li
+                  key={i}
+                  variants={fadeUp}
+                  className="flex gap-4 text-sm leading-relaxed text-fg/85"
+                >
+                  <span
+                    className="font-mono text-xs leading-6"
+                    style={{ color }}
+                  >
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span className="leading-6">{h}</span>
@@ -202,7 +248,9 @@ export function ProjectCard({
         />
         <div
           className="absolute inset-x-0 top-0 h-px opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-          style={{ background: `linear-gradient(90deg, transparent, rgb(var(--${primary}) / 0.7), transparent)` }}
+          style={{
+            background: `linear-gradient(90deg, transparent, rgb(var(--${primary}) / 0.7), transparent)`,
+          }}
         />
 
         {/* Whole-card button sits underneath interactive children */}
@@ -220,8 +268,13 @@ export function ProjectCard({
             ))}
           </div>
           <span className="font-mono text-[11px] text-subtle">
-            {index !== undefined ? String(index + 1).padStart(2, "0") + " · " : ""}
-            {project.startDate.replace(/ \d{4}$/, (y) => " '" + y.trim().slice(2))}
+            {index !== undefined
+              ? String(index + 1).padStart(2, "0") + " · "
+              : ""}
+            {project.startDate.replace(
+              / \d{4}$/,
+              (y) => " '" + y.trim().slice(2),
+            )}
           </span>
         </div>
 
@@ -229,18 +282,24 @@ export function ProjectCard({
           <p className="font-mono text-[11px] text-subtle">{project.context}</p>
           <h3
             className={`mt-2 font-medium tracking-tight ${
-              size === "lg" ? "text-2xl sm:text-[28px] sm:leading-tight" : "text-xl"
+              size === "lg"
+                ? "text-2xl sm:text-[28px] sm:leading-tight"
+                : "text-xl"
             }`}
           >
             {project.title}
           </h3>
-          <p className="mt-3 text-sm leading-relaxed text-muted">{project.description}</p>
+          <p className="mt-3 text-sm leading-relaxed text-muted">
+            {project.description}
+          </p>
         </div>
 
         {metrics.length > 0 && (
           <div
             className="pointer-events-none relative z-10 mt-6 grid gap-px overflow-hidden rounded-xl border hairline bg-line/[0.06]"
-            style={{ gridTemplateColumns: `repeat(${metrics.length}, minmax(0, 1fr))` }}
+            style={{
+              gridTemplateColumns: `repeat(${metrics.length}, minmax(0, 1fr))`,
+            }}
           >
             {metrics.map((m) => (
               <div key={m.label} className="bg-surface/90 px-3 py-2.5">
@@ -278,7 +337,9 @@ export function ProjectCard({
         </div>
       </motion.div>
 
-      <AnimatePresence>{open && <ProjectDetails project={project} onClose={close} />}</AnimatePresence>
+      <AnimatePresence>
+        {open && <ProjectDetails project={project} onClose={close} />}
+      </AnimatePresence>
     </div>
   );
 }

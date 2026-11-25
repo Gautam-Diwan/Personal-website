@@ -3,37 +3,41 @@
 @tailwind utilities;
 
 /* Tokens are RGB channels so Tailwind can apply alpha, e.g. bg-surface/60 */
+/*
+ * Contrast targets (WCAG 2.2): fg ≥ 15:1, muted ≥ 8:1, subtle ≥ 5.5:1 against bg and surface;
+ * group accents ≥ 4.5:1 in light mode and ≥ 7:1 in dark mode so they can carry text.
+ */
 :root {
-  --bg: 247 246 243;
+  --bg: 250 250 248;
   --surface: 255 255 255;
-  --elevated: 240 239 235;
-  --line: 15 17 22;
-  --fg: 12 14 19;
-  --muted: 82 87 102;
-  --subtle: 120 125 140;
-  --accent: 8 145 178;
-  --systems: 217 119 6;
-  --ml: 124 58 237;
-  --ai: 8 145 178;
-  --web: 5 150 105;
-  --line-alpha: 0.1;
+  --elevated: 241 241 238;
+  --line: 17 19 26;
+  --fg: 10 12 18; /* ~18.6:1 */
+  --muted: 55 61 75; /* ~10.4:1 */
+  --subtle: 82 89 105; /* ~6.9:1 */
+  --accent: 14 116 144; /* cyan-700 ~5.4:1 */
+  --systems: 180 83 9; /* amber-700 ~5.0:1 */
+  --ml: 109 40 217; /* violet-700 ~7.0:1 */
+  --ai: 14 116 144; /* cyan-700 ~5.4:1 */
+  --web: 4 120 87; /* emerald-700 ~5.3:1 */
+  --line-alpha: 0.16;
   color-scheme: light;
 }
 
 .dark {
-  --bg: 7 8 11;
-  --surface: 14 16 21;
-  --elevated: 21 24 31;
+  --bg: 8 9 13;
+  --surface: 17 19 26;
+  --elevated: 26 29 38;
   --line: 255 255 255;
-  --fg: 236 238 243;
-  --muted: 150 155 170;
-  --subtle: 104 109 124;
-  --accent: 34 211 238;
-  --systems: 251 176 59;
-  --ml: 167 139 250;
-  --ai: 34 211 238;
-  --web: 52 211 153;
-  --line-alpha: 0.08;
+  --fg: 244 245 249; /* ~18:1 */
+  --muted: 196 201 214; /* ~12:1 */
+  --subtle: 156 163 180; /* ~7.6:1 */
+  --accent: 56 220 245;
+  --systems: 255 189 61; /* ~11:1 */
+  --ml: 183 156 255; /* ~8.6:1 */
+  --ai: 56 220 245; /* ~12:1 */
+  --web: 74 230 167; /* ~12:1 */
+  --line-alpha: 0.14;
   color-scheme: dark;
 }
 
@@ -66,10 +70,10 @@
     border-color: rgb(var(--line) / var(--line-alpha));
   }
   .eyebrow {
-    @apply font-mono text-[11px] uppercase tracking-[0.18em] text-subtle;
+    @apply font-mono text-xs font-medium uppercase tracking-[0.14em] text-muted;
   }
   .chip {
-    @apply inline-flex items-center rounded-full border px-2.5 py-1 font-mono text-[11px] text-muted;
+    @apply inline-flex items-center rounded-full border bg-fg/[0.04] px-2.5 py-1 font-mono text-[11.5px] text-fg/90;
     border-color: rgb(var(--line) / var(--line-alpha));
   }
   .btn {
