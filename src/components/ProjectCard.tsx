@@ -187,7 +187,8 @@ export function ProjectCard({
   const tech = project.technologies.slice(0, size === "lg" ? 6 : 4);
 
   return (
-    <motion.div variants={fadeUp} layout style={{ perspective: 1000 }} className="h-full">
+    // No entrance animation here: the parent grid owns it, so filtered cards never get stuck hidden
+    <div style={{ perspective: 1000 }} className="h-full">
       <motion.div
         ref={ref}
         onMouseMove={onMove}
@@ -278,6 +279,6 @@ export function ProjectCard({
       </motion.div>
 
       <AnimatePresence>{open && <ProjectDetails project={project} onClose={close} />}</AnimatePresence>
-    </motion.div>
+    </div>
   );
 }

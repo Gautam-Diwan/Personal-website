@@ -267,9 +267,9 @@ function Featured({ projects }: { projects: Project[] }) {
           // Two large cards up top, then rows of 3 (or 2 if 3 would leave an orphan)
           const restSpan = (featured.length - 2) % 3 === 0 ? "md:col-span-2" : "md:col-span-3";
           return (
-            <div key={p._id} className={i < 2 ? "md:col-span-3" : restSpan}>
+            <motion.div key={p._id} variants={fadeUp} className={i < 2 ? "md:col-span-3" : restSpan}>
               <ProjectCard project={p} size={i < 2 ? "lg" : "md"} />
-            </div>
+            </motion.div>
           );
         })}
       </motion.div>

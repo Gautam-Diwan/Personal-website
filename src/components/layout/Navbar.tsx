@@ -56,30 +56,36 @@ export function Navbar() {
         <ul className="hidden items-center gap-0.5 md:flex">
           {NAV.map((item) => {
             const active = isActive(item.to);
+            const tinted = item.color !== "accent";
+            const c = (a: number) => `rgb(var(--${item.color}) / ${a})`;
             return (
               <li key={item.to}>
                 <Link
                   to={item.to}
-                  className={`relative block rounded-full px-3.5 py-1.5 text-[13px] transition-colors ${
-                    active ? "text-fg" : "text-muted hover:text-fg"
+                  className={`group/nav relative block rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
+                    tinted ? "" : active ? "text-fg" : "text-muted hover:text-fg"
                   }`}
+                  style={tinted ? { color: c(active ? 1 : 0.78) } : undefined}
                 >
                   {active && (
                     <motion.span
                       layoutId="nav-pill"
-                      className="absolute inset-0 rounded-full border border-line/10 bg-fg/[0.06]"
+                      className="absolute inset-0 rounded-full border"
+                      style={
+                        tinted
+                          ? { background: c(0.12), borderColor: c(0.35) }
+                          : { background: "rgb(var(--fg) / 0.06)", borderColor: "rgb(var(--line) / 0.1)" }
+                      }
                       transition={{ type: "spring", stiffness: 380, damping: 32 }}
                     />
                   )}
-                  <span className="relative flex items-center gap-1.5">
-                    {item.color !== "accent" && (
-                      <span
-                        className="h-1.5 w-1.5 rounded-full"
-                        style={{ background: `rgb(var(--${item.color}))` }}
-                      />
-                    )}
-                    {item.label}
-                  </span>
+                  {!active && tinted && (
+                    <span
+                      className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-200 group-hover/nav:opacity-100"
+                      style={{ background: c(0.08) }}
+                    />
+                  )}
+                  <span className="relative">{item.label}</span>
                 </Link>
               </li>
             );
@@ -145,14 +151,18 @@ export function Navbar() {
               >
                 <Link
                   to={item.to}
-                  className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm ${
-                    isActive(item.to) ? "bg-fg/[0.06] text-fg" : "text-muted"
+                  className={`flex items-center rounded-xl px-4 py-3 text-sm font-medium ${
+                    item.color === "accent" ? (isActive(item.to) ? "bg-fg/[0.06] text-fg" : "text-muted") : ""
                   }`}
+                  style={
+                    item.color === "accent"
+                      ? undefined
+                      : {
+                          color: `rgb(var(--${item.color}))`,
+                          background: isActive(item.to) ? `rgb(var(--${item.color}) / 0.12)` : undefined,
+                        }
+                  }
                 >
-                  <span
-                    className="h-2 w-2 rounded-full"
-                    style={{ background: `rgb(var(--${item.color}))` }}
-                  />
                   {item.label === "ML" ? "Machine Learning" : item.label === "AI" ? "Artificial Intelligence" : item.label}
                 </Link>
               </motion.div>

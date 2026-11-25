@@ -9,6 +9,33 @@ import { PageContainer, SectionHeading, Skeleton } from "../components/ui";
 import { ProjectCard } from "../components/ProjectCard";
 import { ExperienceTimeline } from "../components/ExperienceTimeline";
 import { DiffusionTerminal } from "../components/DiffusionTerminal";
+import { QueryPlanViz } from "../components/viz/QueryPlanViz";
+import { AutodiffViz } from "../components/viz/AutodiffViz";
+
+type Showcase = { eyebrow: string; title: string; body: string; node: React.ReactNode; wide?: boolean };
+
+const SHOWCASES: Partial<Record<GroupId, Showcase>> = {
+  systems: {
+    eyebrow: "Under the hood",
+    title: "From SQL to pages in memory.",
+    body: "The optimizer costs three candidate plans and picks an index nested-loop join. As the executor runs, every page request goes through a 4-frame buffer pool managed by ARC, the replacement policy I built for BusTub: one-touch scan pages cycle through T1 while hot index and customer pages get promoted to T2 and stay resident.",
+    node: <QueryPlanViz />,
+    wide: true,
+  },
+  ml: {
+    eyebrow: "Under the hood",
+    title: "Reverse-mode autodiff, one node at a time.",
+    body: "A forward pass evaluates the graph in topological order. The backward pass walks it in reverse, multiplying each upstream gradient by the local derivative on the edge (the chain rule). Drag the inputs, or take gradient steps on w and b and watch the loss fall.",
+    node: <AutodiffViz />,
+    wide: true,
+  },
+  ai: {
+    eyebrow: "Try it",
+    title: "Ask me something.",
+    body: "This answer renders like a masked text diffusion model: every token starts as noise and is refined in parallel over denoising steps, instead of being written left to right one token at a time.",
+    node: <DiffusionTerminal />,
+  },
+};
 
 export function GroupPage({ groupId }: { groupId: GroupId }) {
   const group = GROUP_BY_ID[groupId];
@@ -40,6 +67,7 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
   const crossover = inGroup.filter((p) => projectGroups(p).length > 1).length;
   const nextGroup = GROUPS[(GROUPS.findIndex((g) => g.id === groupId) + 1) % GROUPS.length];
   const color = (a = 1) => `rgb(var(${group.cssVar}) / ${a})`;
+  const showcase = SHOWCASES[groupId];
 
   return (
     <div key={groupId}>
@@ -119,26 +147,24 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
         </PageContainer>
       </section>
 
-      {groupId === "ai" && (
+      {showcase && (
         <PageContainer className="-mt-4 mb-20 md:-mt-8">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease, delay: 0.4 }}
-            className="grid items-center gap-8 lg:grid-cols-[1fr_1.4fr]"
+            className={
+              showcase.wide ? "space-y-6" : "grid items-center gap-8 lg:grid-cols-[1fr_1.4fr]"
+            }
           >
-            <div>
+            <div className={showcase.wide ? "max-w-2xl" : ""}>
               <p className="eyebrow" style={{ color: color() }}>
-                Try it
+                {showcase.eyebrow}
               </p>
-              <p className="mt-3 text-2xl font-medium tracking-tight">Ask me something.</p>
-              <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted">
-                This answer renders like a masked text diffusion model: every token starts as noise
-                and is refined in parallel over denoising steps, instead of being written left to
-                right one token at a time.
-              </p>
+              <p className="mt-3 text-2xl font-medium tracking-tight">{showcase.title}</p>
+              <p className="mt-3 text-sm leading-relaxed text-muted">{showcase.body}</p>
             </div>
-            <DiffusionTerminal />
+            {showcase.node}
           </motion.div>
         </PageContainer>
       )}
@@ -181,22 +207,22 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
               </div>
             )}
 
-            <motion.div layout className="grid gap-4 md:grid-cols-2" initial="hidden" animate="show" variants={stagger(0.06)}>
-              <AnimatePresence mode="popLayout">
+            <div className="grid gap-4 md:grid-cols-2">
+              <AnimatePresence mode="popLayout" initial={false}>
                 {shown.map((p, i) => (
                   <motion.div
                     key={p._id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.97 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.97 }}
-                    transition={{ duration: 0.35, ease }}
+                    layout="position"
+                    initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.2 } }}
+                    transition={{ duration: 0.4, ease, delay: Math.min(i, 8) * 0.04 }}
                   >
                     <ProjectCard project={p} index={i} />
                   </motion.div>
                 ))}
               </AnimatePresence>
-            </motion.div>
+            </div>
 
             {relatedExp.length > 0 && (
               <section className="mt-28">

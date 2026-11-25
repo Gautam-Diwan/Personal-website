@@ -15,9 +15,16 @@ Vite · React 19 · TanStack Router · Tailwind CSS · three.js (React Three Fib
 | `/blog` | Work-in-progress placeholder (the CMS in `src/components/Blog.tsx` is parked) |
 
 Project details open in an overlay on the card, not on their own route. Pin projects to the top of
-a domain page with `pinned` in `src/lib/groups.ts` (BusTub is pinned in Systems). The AI page has a
-simulated chat terminal that renders its answer like a masked text diffusion model
-(`src/components/DiffusionTerminal.tsx`).
+a domain page with `pinned` in `src/lib/groups.ts` (BusTub is pinned in Systems).
+
+Each domain page can show an interactive showcase (`SHOWCASES` in `src/pages/GroupPage.tsx`):
+
+- **Systems:** optimizer plan selection, then execution through an ARC buffer pool
+  (`src/components/viz/QueryPlanViz.tsx`, simulator in `viz/arc.ts`)
+- **ML:** reverse-mode autodiff over a computational graph with gradient steps
+  (`src/components/viz/AutodiffViz.tsx`)
+- **AI:** a chat terminal that renders its answer like a masked text diffusion model
+  (`src/components/DiffusionTerminal.tsx`)
 
 A single fixed three.js particle field sits behind every page and morphs to a shape per domain
 (`src/components/three/shapes.ts`).
