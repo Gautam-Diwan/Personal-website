@@ -33,8 +33,18 @@ const applicationTables = {
     featured: v.boolean(),
     startDate: v.string(),
     endDate: v.optional(v.string()),
-    category: v.string(), // "work", "personal", "academic"
+    category: v.string(), // "work", "personal", "academic", "open-source"
+    // v3 fields (optional so pre-v3 rows stay valid during migration)
+    slug: v.optional(v.string()),
+    context: v.optional(v.string()),
+    groups: v.optional(v.array(v.string())), // "systems" | "ml" | "ai" | "web"
+    highlights: v.optional(v.array(v.string())),
+    metrics: v.optional(
+      v.array(v.object({ label: v.string(), value: v.string() })),
+    ),
+    sortKey: v.optional(v.number()),
   })
+    .index("by_slug", ["slug"])
     .index("by_featured", ["featured"])
     .index("by_category", ["category"]),
 
@@ -46,7 +56,10 @@ const applicationTables = {
     endDate: v.optional(v.string()),
     description: v.array(v.string()),
     technologies: v.array(v.string()),
-    type: v.string(), // "work", "internship", "freelance"
+    type: v.string(), // "work", "internship", "practicum"
+    summary: v.optional(v.string()),
+    groups: v.optional(v.array(v.string())),
+    sortKey: v.optional(v.number()),
   }),
 
   skills: defineTable({

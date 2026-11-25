@@ -13,7 +13,7 @@ export function SignOutButton() {
 
   return (
     <button
-      className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-red-600 dark:bg-red-500 text-white font-semibold hover:bg-red-700 dark:hover:bg-red-600 transition-colors shadow-sm hover:shadow"
+      className="inline-flex items-center space-x-2 px-4 py-2 rounded-2xl bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors hover:shadow"
       onClick={() => void signOut()}
       title="Sign out of your account"
     >

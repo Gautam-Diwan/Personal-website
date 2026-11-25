@@ -7,23 +7,31 @@ interface DarkModeContextType {
 
 const DarkModeContext = createContext<DarkModeContextType | undefined>(undefined);
 
-export function DarkModeProvider({ children }: { children: React.ReactNode }) {
-  const [isDark, setIsDark] = useState(() => {
-    // Default to dark mode
+function readSaved(): boolean {
+  try {
     const saved = localStorage.getItem("darkMode");
-    return saved ? JSON.parse(saved) : true;
-  });
+    return saved ? JSON.parse(saved) : true; // dark by default
+  } catch {
+    return true;
+  }
+}
+
+export function DarkModeProvider({ children }: { children: React.ReactNode }) {
+  const [isDark, setIsDark] = useState(readSaved);
 
   useEffect(() => {
-    localStorage.setItem("darkMode", JSON.stringify(isDark));
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
+    try {
+      localStorage.setItem("darkMode", JSON.stringify(isDark));
+    } catch {
+      /* storage unavailable */
     }
+    document.documentElement.classList.toggle("dark", isDark);
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", isDark ? "#07080b" : "#f7f6f3");
   }, [isDark]);
 
-  const toggleDarkMode = () => setIsDark(!isDark);
+  const toggleDarkMode = () => setIsDark((d) => !d);
 
   return (
     <DarkModeContext.Provider value={{ isDark, toggleDarkMode }}>

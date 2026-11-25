@@ -2,55 +2,109 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Tokens are RGB channels so Tailwind can apply alpha, e.g. bg-surface/60 */
 :root {
-  --color-light: #ffffff;
-  --color-dark: #171717;
-}
-
-.accent-text {
-  @apply text-slate-600 dark:text-slate-300;
-}
-
-body {
-  font-family:
-    "Inter Variable",
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    "Helvetica Neue",
-    Arial,
-    "Noto Sans",
-    sans-serif,
-    "Apple Color Emoji",
-    "Segoe UI Emoji",
-    "Segoe UI Symbol",
-    "Noto Color Emoji";
-  color: var(--color-dark);
-  background: var(--color-light);
-}
-
-/* Dark mode styles */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-light: #0f172a;
-    --color-dark: #f8fafc;
-  }
+  --bg: 247 246 243;
+  --surface: 255 255 255;
+  --elevated: 240 239 235;
+  --line: 15 17 22;
+  --fg: 12 14 19;
+  --muted: 82 87 102;
+  --subtle: 120 125 140;
+  --accent: 8 145 178;
+  --systems: 217 119 6;
+  --ml: 124 58 237;
+  --ai: 8 145 178;
+  --web: 5 150 105;
+  --line-alpha: 0.1;
+  color-scheme: light;
 }
 
 .dark {
-  --color-light: #0f172a;
-  --color-dark: #f8fafc;
+  --bg: 7 8 11;
+  --surface: 14 16 21;
+  --elevated: 21 24 31;
+  --line: 255 255 255;
+  --fg: 236 238 243;
+  --muted: 150 155 170;
+  --subtle: 104 109 124;
+  --accent: 34 211 238;
+  --systems: 251 176 59;
+  --ml: 167 139 250;
+  --ai: 34 211 238;
+  --web: 52 211 153;
+  --line-alpha: 0.08;
+  color-scheme: dark;
 }
 
-/* only use this to update the style of the auth input fields. use a different class for all other input fields */
-.auth-input-field {
-  @apply w-full px-4 py-3 rounded-container bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow shadow-sm hover:shadow text-gray-900 dark:text-white;
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-bg font-sans text-fg;
+    transition: background-color 0.3s ease;
+  }
+  ::selection {
+    background: rgb(var(--accent) / 0.3);
+  }
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
 }
 
-/* only use this to update the style of the auth buttons. use the button class for all other buttons */
-.auth-button {
-  @apply w-full px-4 py-3 rounded bg-primary text-white font-semibold hover:bg-primary-hover transition-colors shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed;
+@layer components {
+  .hairline {
+    border-color: rgb(var(--line) / var(--line-alpha));
+  }
+  .card {
+    @apply relative rounded-2xl border bg-surface/70 backdrop-blur-md;
+    border-color: rgb(var(--line) / var(--line-alpha));
+  }
+  .eyebrow {
+    @apply font-mono text-[11px] uppercase tracking-[0.18em] text-subtle;
+  }
+  .chip {
+    @apply inline-flex items-center rounded-full border px-2.5 py-1 font-mono text-[11px] text-muted;
+    border-color: rgb(var(--line) / var(--line-alpha));
+  }
+  .btn {
+    @apply inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200;
+  }
+  .btn-primary {
+    @apply btn bg-fg text-bg hover:opacity-90;
+  }
+  .btn-ghost {
+    @apply btn border bg-surface/40 text-fg backdrop-blur hover:bg-fg/5;
+    border-color: rgb(var(--line) / 0.14);
+  }
+  .grid-bg {
+    background-image:
+      linear-gradient(rgb(var(--line) / 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--line) / 0.045) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse at 50% 0%, black 25%, transparent 70%);
+  }
+  /* legacy classes used by the blog sign-in form */
+  .auth-input-field {
+    @apply w-full rounded-xl border bg-surface px-4 py-3 text-fg outline-none transition-shadow focus:ring-1 focus:ring-accent;
+    border-color: rgb(var(--line) / 0.14);
+  }
+  .auth-button {
+    @apply w-full rounded-xl bg-fg px-4 py-3 font-semibold text-bg transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

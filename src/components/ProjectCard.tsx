@@ -1,121 +1,136 @@
-import { Calendar, Github, ExternalLink } from "lucide-react";
-import type { Doc } from "../../convex/_generated/dataModel";
+import { useRef } from "react";
+import { Link } from "@tanstack/react-router";
+import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
+import { ArrowUpRight, Github } from "lucide-react";
+import { GroupBadge } from "./ui";
+import { projectGroups, type Project } from "../lib/content";
+import { fadeUp } from "../lib/motion";
 
-interface ProjectCardProps {
-  project: Doc<"projects">;
-  featured?: boolean;
-}
+export function ProjectCard({
+  project,
+  size = "md",
+  index,
+}: {
+  project: Project;
+  size?: "md" | "lg";
+  index?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+  const mx = useMotionValue(-200);
+  const my = useMotionValue(-200);
+  const rx = useSpring(0, { stiffness: 200, damping: 20 });
+  const ry = useSpring(0, { stiffness: 200, damping: 20 });
+  const groups = projectGroups(project);
+  const primary = groups[0] ?? "ai";
+  const spotlight = useMotionTemplate`radial-gradient(420px circle at ${mx}px ${my}px, rgb(var(--${primary}) / 0.13), transparent 65%)`;
 
-export function ProjectCard({ project, featured = false }: ProjectCardProps) {
-  if (featured) {
-    return (
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
-        <div className="flex justify-between items-start mb-3">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-            {project.title}
-          </h3>
-          <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-full capitalize">
-            {project.category}
+  function onMove(e: React.MouseEvent) {
+    const r = ref.current?.getBoundingClientRect();
+    if (!r) return;
+    mx.set(e.clientX - r.left);
+    my.set(e.clientY - r.top);
+    if (!reduced) {
+      rx.set(((e.clientY - r.top) / r.height - 0.5) * -4);
+      ry.set(((e.clientX - r.left) / r.width - 0.5) * 4);
+    }
+  }
+  function onLeave() {
+    mx.set(-400);
+    my.set(-400);
+    rx.set(0);
+    ry.set(0);
+  }
+
+  const metrics = (project.metrics ?? []).slice(0, size === "lg" ? 3 : 2);
+  const tech = project.technologies.slice(0, size === "lg" ? 6 : 4);
+
+  return (
+    <motion.div variants={fadeUp} layout style={{ perspective: 1000 }} className="h-full">
+      <motion.div
+        ref={ref}
+        onMouseMove={onMove}
+        onMouseLeave={onLeave}
+        style={{ rotateX: rx, rotateY: ry }}
+        className="card group relative flex h-full flex-col overflow-hidden p-6 transition-colors duration-300 hover:border-line/20"
+      >
+        <motion.div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: spotlight }} />
+        <div
+          className="absolute inset-x-0 top-0 h-px opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          style={{ background: `linear-gradient(90deg, transparent, rgb(var(--${primary}) / 0.7), transparent)` }}
+        />
+
+        {/* Whole-card link sits underneath interactive children */}
+        <Link
+          to="/projects/$slug"
+          params={{ slug: project.slug ?? "" }}
+          className="absolute inset-0 z-0"
+          aria-label={`Read more about ${project.title}`}
+        />
+
+        <div className="pointer-events-none relative z-10 flex items-start justify-between gap-4">
+          <div className="flex flex-wrap gap-1.5 [&>*]:pointer-events-auto">
+            {groups.map((g) => (
+              <GroupBadge key={g} id={g} />
+            ))}
+          </div>
+          <span className="font-mono text-[11px] text-subtle">
+            {index !== undefined ? String(index + 1).padStart(2, "0") + " · " : ""}
+            {project.startDate.replace(/ \d{4}$/, (y) => " '" + y.trim().slice(2))}
           </span>
         </div>
-        <p className="text-gray-600 dark:text-gray-300 mb-4">{project.longDescription}</p>
-        <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
-          <div className="flex items-center">
-            <Calendar size={16} className="mr-1" />
-            <span>{project.startDate} - {project.endDate || "Present"}</span>
+
+        <div className="pointer-events-none relative z-10 mt-6 flex-1">
+          <p className="font-mono text-[11px] text-subtle">{project.context}</p>
+          <h3
+            className={`mt-2 font-medium tracking-tight transition-colors ${
+              size === "lg" ? "text-2xl sm:text-[28px] sm:leading-tight" : "text-xl"
+            }`}
+          >
+            {project.title}
+            <ArrowUpRight
+              size={18}
+              className="ml-1 inline-block -translate-x-1 translate-y-0.5 text-subtle opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:-translate-y-0 group-hover:text-fg group-hover:opacity-100"
+            />
+          </h3>
+          <p className="mt-3 text-sm leading-relaxed text-muted">{project.description}</p>
+        </div>
+
+        {metrics.length > 0 && (
+          <div
+            className="pointer-events-none relative z-10 mt-6 grid gap-px overflow-hidden rounded-xl border hairline bg-line/[0.06]"
+            style={{ gridTemplateColumns: `repeat(${metrics.length}, minmax(0, 1fr))` }}
+          >
+            {metrics.map((m) => (
+              <div key={m.label} className="bg-surface/90 px-3 py-2.5">
+                <div className="font-mono text-sm text-fg">{m.value}</div>
+                <div className="mt-0.5 text-[11px] text-subtle">{m.label}</div>
+              </div>
+            ))}
           </div>
-        </div>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {project.technologies.map((tech) => (
-            <span
-              key={tech}
-              className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full"
-            >
-              {tech}
-            </span>
-          ))}
-        </div>
-        <div className="flex gap-4">
+        )}
+
+        <div className="pointer-events-none relative z-10 mt-5 flex items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-1.5">
+            {tech.map((t) => (
+              <span key={t} className="chip !py-0.5">
+                {t}
+              </span>
+            ))}
+          </div>
           {project.githubUrl && (
             <a
               href={project.githubUrl}
               target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
+              rel="noreferrer"
+              className="pointer-events-auto grid h-8 w-8 shrink-0 place-items-center rounded-full border hairline text-muted transition-colors hover:text-fg"
+              aria-label={`${project.title} on GitHub`}
             >
-              <Github size={16} />
-              <span>GitHub</span>
-              <ExternalLink size={14} />
-            </a>
-          )}
-          {project.liveUrl && (
-            <a
-              href={project.liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
-            >
-              <ExternalLink size={16} />
-              <span>Live Demo</span>
+              <Github size={14} />
             </a>
           )}
         </div>
-      </div>
-    );
-  }
-
-  // Compact card for non-featured projects
-  return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow">
-      <div className="flex justify-between items-start mb-3">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          {project.title}
-        </h3>
-        <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs rounded-full capitalize">
-          {project.category}
-        </span>
-      </div>
-      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-        {project.description}
-      </p>
-      <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
-        <Calendar size={14} className="mr-1" />
-        <span>{project.startDate} - {project.endDate || "Present"}</span>
-      </div>
-      <div className="flex flex-wrap gap-1 mb-4">
-        {project.technologies.map((tech) => (
-          <span
-            key={tech}
-            className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full"
-          >
-            {tech}
-          </span>
-        ))}
-      </div>
-      <div className="flex gap-3 text-sm">
-        {project.githubUrl && (
-          <a
-            href={project.githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-          >
-            <Github size={14} />
-            <span>GitHub</span>
-          </a>
-        )}
-        {project.liveUrl && (
-          <a
-            href={project.liveUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center space-x-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-          >
-            <ExternalLink size={14} />
-            <span>Live Demo</span>
-          </a>
-        )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

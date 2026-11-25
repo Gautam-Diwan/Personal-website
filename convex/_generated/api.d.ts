@@ -10,6 +10,7 @@
 
 import type * as auth from "../auth.js";
 import type * as blog from "../blog.js";
+import type * as content from "../content.js";
 import type * as http from "../http.js";
 import type * as portfolio from "../portfolio.js";
 import type * as router from "../router.js";
@@ -23,6 +24,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   blog: typeof blog;
+  content: typeof content;
   http: typeof http;
   portfolio: typeof portfolio;
   router: typeof router;
