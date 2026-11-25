@@ -28,7 +28,7 @@ import { HOME, milesBetween, useVisitorGeo } from "../lib/geo";
 import { playPop } from "../lib/sound";
 import { PageContainer, Reveal, RevealItem, Skeleton } from "../components/ui";
 import { ExperienceTimeline } from "../components/ExperienceTimeline";
-import { ProjectDetails } from "../components/ProjectCard";
+import { FeaturedGrid } from "../components/FeaturedGrid";
 import { TechLogo } from "../components/TechLogo";
 import { useDarkMode } from "../contexts/DarkModeContext";
 import { brandColor, iconFor } from "../lib/techIcons";
@@ -506,87 +506,12 @@ function Domains({ projects }: { projects: Project[] }) {
 /* ---------- selected work as a numbered list ---------- */
 
 function Featured({ projects }: { projects: Project[] }) {
-  // Pinned projects (BusTub) lead, then the rest by recency
-  const pinnedSlugs = GROUPS.flatMap((g) => g.pinned ?? []);
-  const pinRank = (p: Project) => {
-    const i = pinnedSlugs.indexOf(p.slug ?? "");
-    return i === -1 ? pinnedSlugs.length : i;
-  };
-  const featured = projects
-    .filter((p) => p.featured)
-    .sort((a, b) => pinRank(a) - pinRank(b));
-  const [open, setOpen] = useState<Project | null>(null);
-  const close = useCallback(() => setOpen(null), []);
   return (
     <PageContainer className="py-14 md:py-20">
       <Heading kicker="Selected work" color="--ai">
         Things I&rsquo;m proud of
       </Heading>
-      <Reveal>
-        <ol className="border-t hairline">
-          {featured.map((p, i) => {
-            const g = GROUP_BY_ID[projectGroups(p)[0] ?? "ai"];
-            const metric = p.metrics?.[0];
-            return (
-              <RevealItem key={p._id}>
-                <button
-                  onClick={() => {
-                    playPop(1.05);
-                    setOpen(p);
-                  }}
-                  className="group grid w-full gap-3 border-b hairline py-7 text-left transition-colors md:grid-cols-[4rem_1fr_auto] md:gap-8 md:px-3 md:hover:bg-fg/[0.035]"
-                  aria-haspopup="dialog"
-                >
-                  <span
-                    className="text-4xl font-black leading-none"
-                    style={{ color: `rgb(var(${g.cssVar}))` }}
-                  >
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span>
-                    <span
-                      className="block text-sm font-bold"
-                      style={{ color: `rgb(var(${g.cssVar}))` }}
-                    >
-                      {p.context}
-                    </span>
-                    <span className="mt-1 block text-2xl font-black tracking-tight text-fg underline decoration-transparent decoration-2 underline-offset-4 transition-colors group-hover:decoration-current">
-                      {p.title}
-                    </span>
-                    <span className="mt-2 block max-w-2xl text-base leading-relaxed text-muted">
-                      {p.description}
-                    </span>
-                    <span className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
-                      {p.technologies.slice(0, 5).map((t) => (
-                        <span
-                          key={t}
-                          className="inline-flex items-center gap-1.5 text-sm font-semibold text-fg"
-                        >
-                          <TechLogo name={t} size={15} />
-                          {t}
-                        </span>
-                      ))}
-                    </span>
-                  </span>
-                  {metric && (
-                    <span className="md:text-right">
-                      <span className="block font-mono text-xl font-bold text-fg">
-                        {metric.value}
-                      </span>
-                      <span className="block text-sm text-muted">
-                        {metric.label}
-                      </span>
-                    </span>
-                  )}
-                </button>
-              </RevealItem>
-            );
-          })}
-        </ol>
-      </Reveal>
-      <AnimatePresence>
-        {open && <ProjectDetails project={open} onClose={close} />}
-      </AnimatePresence>
+      <FeaturedGrid projects={projects} />
     </PageContainer>
   );
 }

@@ -10,6 +10,7 @@ export default {
         bg: token("bg"),
         surface: token("surface"),
         elevated: token("elevated"),
+        tile: token("tile"),
         line: token("line"),
         fg: token("fg"),
         muted: token("muted"),
