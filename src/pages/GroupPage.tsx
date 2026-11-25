@@ -8,6 +8,7 @@ import { ease, fadeUp, stagger } from "../lib/motion";
 import { PageContainer, SectionHeading, Skeleton } from "../components/ui";
 import { ProjectCard } from "../components/ProjectCard";
 import { ExperienceTimeline } from "../components/ExperienceTimeline";
+import { DiffusionTerminal } from "../components/DiffusionTerminal";
 
 export function GroupPage({ groupId }: { groupId: GroupId }) {
   const group = GROUP_BY_ID[groupId];
@@ -15,10 +16,17 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
   const [filter, setFilter] = useState<string | null>(null);
   const Icon = group.icon;
 
-  const inGroup = useMemo(
-    () => (projects ?? []).filter((p) => projectGroups(p).includes(groupId)),
-    [projects, groupId],
-  );
+  const inGroup = useMemo(() => {
+    const pinned = group.pinned ?? [];
+    const rank = (slug?: string) => {
+      const i = pinned.indexOf(slug ?? "");
+      return i === -1 ? pinned.length : i;
+    };
+    // Stable sort keeps recency order for everything that is not pinned
+    return (projects ?? [])
+      .filter((p) => projectGroups(p).includes(groupId))
+      .sort((a, b) => rank(a.slug) - rank(b.slug));
+  }, [projects, groupId, group.pinned]);
   const topTech = useMemo(() => {
     const counts = new Map<string, number>();
     inGroup.forEach((p) => p.technologies.forEach((t) => counts.set(t, (counts.get(t) ?? 0) + 1)));
@@ -110,6 +118,30 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
           </motion.div>
         </PageContainer>
       </section>
+
+      {groupId === "ai" && (
+        <PageContainer className="-mt-4 mb-20 md:-mt-8">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease, delay: 0.4 }}
+            className="grid items-center gap-8 lg:grid-cols-[1fr_1.4fr]"
+          >
+            <div>
+              <p className="eyebrow" style={{ color: color() }}>
+                Try it
+              </p>
+              <p className="mt-3 text-2xl font-medium tracking-tight">Ask me something.</p>
+              <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted">
+                This answer renders like a masked text diffusion model: every token starts as noise
+                and is refined in parallel over denoising steps, instead of being written left to
+                right one token at a time.
+              </p>
+            </div>
+            <DiffusionTerminal />
+          </motion.div>
+        </PageContainer>
+      )}
 
       <PageContainer>
         {loading ? (

@@ -1,10 +1,149 @@
-import { useRef } from "react";
-import { Link } from "@tanstack/react-router";
-import { motion, useMotionTemplate, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
-import { ArrowUpRight, Github } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import {
+  AnimatePresence,
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+} from "framer-motion";
+import { ArrowUpRight, Calendar, Github, Globe, Plus, X } from "lucide-react";
 import { GroupBadge } from "./ui";
 import { projectGroups, type Project } from "../lib/content";
-import { fadeUp } from "../lib/motion";
+import { GROUP_BY_ID } from "../lib/groups";
+import { ease, fadeUp } from "../lib/motion";
+
+function ProjectDetails({ project, onClose }: { project: Project; onClose: () => void }) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const groups = projectGroups(project);
+  const primary = groups[0];
+  const color = primary ? `rgb(var(${GROUP_BY_ID[primary].cssVar}))` : "rgb(var(--accent))";
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  return createPortal(
+    <motion.div
+      className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+    >
+      <div className="absolute inset-0 bg-bg/70 backdrop-blur-md" onClick={onClose} />
+      <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={`project-${project._id}`}
+        initial={{ opacity: 0, y: 40, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 30, scale: 0.98 }}
+        transition={{ duration: 0.4, ease }}
+        className="card relative max-h-[92svh] w-full max-w-3xl overflow-y-auto !bg-surface/95 p-6 shadow-2xl sm:p-9"
+      >
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-px"
+          style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }}
+        />
+        <button
+          ref={closeRef}
+          onClick={onClose}
+          className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full border hairline text-muted transition-colors hover:text-fg"
+          aria-label="Close"
+        >
+          <X size={16} />
+        </button>
+
+        <div className="flex flex-wrap gap-1.5 pr-12">
+          {groups.map((g) => (
+            <GroupBadge key={g} id={g} />
+          ))}
+        </div>
+        <p className="mt-6 font-mono text-xs" style={{ color }}>
+          {project.context}
+        </p>
+        <h2 id={`project-${project._id}`} className="mt-2 text-3xl font-medium tracking-tight sm:text-4xl">
+          {project.title}
+        </h2>
+        <p className="mt-4 leading-relaxed text-muted">{project.longDescription}</p>
+
+        <div className="mt-6 flex flex-wrap items-center gap-2">
+          <span className="chip gap-1.5">
+            <Calendar size={12} />
+            {project.startDate}
+            {project.endDate && project.endDate !== project.startDate ? ` → ${project.endDate}` : ""}
+          </span>
+          {project.githubUrl && (
+            <a href={project.githubUrl} target="_blank" rel="noreferrer" className="btn-ghost !px-3.5 !py-1.5 !text-[12px]">
+              <Github size={13} /> Source <ArrowUpRight size={12} />
+            </a>
+          )}
+          {project.liveUrl && (
+            <a href={project.liveUrl} target="_blank" rel="noreferrer" className="btn-ghost !px-3.5 !py-1.5 !text-[12px]">
+              <Globe size={13} /> Live <ArrowUpRight size={12} />
+            </a>
+          )}
+        </div>
+
+        {project.metrics && project.metrics.length > 0 && (
+          <div
+            className="mt-7 grid grid-cols-2 gap-px overflow-hidden rounded-xl border hairline bg-line/[0.07]"
+            style={{ gridTemplateColumns: `repeat(${Math.min(project.metrics.length, 4)}, minmax(0, 1fr))` }}
+          >
+            {project.metrics.map((m) => (
+              <div key={m.label} className="bg-surface px-4 py-3.5">
+                <div className="font-mono text-base sm:text-lg" style={{ color }}>
+                  {m.value}
+                </div>
+                <div className="mt-0.5 text-[11px] text-subtle">{m.label}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {project.highlights && project.highlights.length > 0 && (
+          <>
+            <p className="eyebrow mt-8">What I built</p>
+            <motion.ol
+              className="mt-4 space-y-2.5"
+              initial="hidden"
+              animate="show"
+              variants={{ show: { transition: { staggerChildren: 0.06, delayChildren: 0.15 } } }}
+            >
+              {project.highlights.map((h, i) => (
+                <motion.li key={i} variants={fadeUp} className="flex gap-4 text-sm leading-relaxed text-fg/85">
+                  <span className="font-mono text-xs leading-6" style={{ color }}>
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="leading-6">{h}</span>
+                </motion.li>
+              ))}
+            </motion.ol>
+          </>
+        )}
+
+        <div className="mt-8 flex flex-wrap gap-1.5 border-t hairline pt-6">
+          {project.technologies.map((t) => (
+            <span key={t} className="chip !text-fg/80">
+              {t}
+            </span>
+          ))}
+        </div>
+      </motion.div>
+    </motion.div>,
+    document.body,
+  );
+}
 
 export function ProjectCard({
   project,
@@ -16,6 +155,8 @@ export function ProjectCard({
   index?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
+  const close = useCallback(() => setOpen(false), []);
   const reduced = useReducedMotion();
   const mx = useMotionValue(-200);
   const my = useMotionValue(-200);
@@ -54,18 +195,21 @@ export function ProjectCard({
         style={{ rotateX: rx, rotateY: ry }}
         className="card group relative flex h-full flex-col overflow-hidden p-6 transition-colors duration-300 hover:border-line/20"
       >
-        <motion.div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: spotlight }} />
+        <motion.div
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          style={{ background: spotlight }}
+        />
         <div
           className="absolute inset-x-0 top-0 h-px opacity-0 transition-opacity duration-500 group-hover:opacity-100"
           style={{ background: `linear-gradient(90deg, transparent, rgb(var(--${primary}) / 0.7), transparent)` }}
         />
 
-        {/* Whole-card link sits underneath interactive children */}
-        <Link
-          to="/projects/$slug"
-          params={{ slug: project.slug ?? "" }}
-          className="absolute inset-0 z-0"
-          aria-label={`Read more about ${project.title}`}
+        {/* Whole-card button sits underneath interactive children */}
+        <button
+          onClick={() => setOpen(true)}
+          className="absolute inset-0 z-0 rounded-2xl"
+          aria-label={`Show details for ${project.title}`}
+          aria-haspopup="dialog"
         />
 
         <div className="pointer-events-none relative z-10 flex items-start justify-between gap-4">
@@ -83,15 +227,11 @@ export function ProjectCard({
         <div className="pointer-events-none relative z-10 mt-6 flex-1">
           <p className="font-mono text-[11px] text-subtle">{project.context}</p>
           <h3
-            className={`mt-2 font-medium tracking-tight transition-colors ${
+            className={`mt-2 font-medium tracking-tight ${
               size === "lg" ? "text-2xl sm:text-[28px] sm:leading-tight" : "text-xl"
             }`}
           >
             {project.title}
-            <ArrowUpRight
-              size={18}
-              className="ml-1 inline-block -translate-x-1 translate-y-0.5 text-subtle opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:-translate-y-0 group-hover:text-fg group-hover:opacity-100"
-            />
           </h3>
           <p className="mt-3 text-sm leading-relaxed text-muted">{project.description}</p>
         </div>
@@ -118,19 +258,26 @@ export function ProjectCard({
               </span>
             ))}
           </div>
-          {project.githubUrl && (
-            <a
-              href={project.githubUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="pointer-events-auto grid h-8 w-8 shrink-0 place-items-center rounded-full border hairline text-muted transition-colors hover:text-fg"
-              aria-label={`${project.title} on GitHub`}
-            >
-              <Github size={14} />
-            </a>
-          )}
+          <div className="flex shrink-0 items-center gap-1.5">
+            {project.githubUrl && (
+              <a
+                href={project.githubUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="pointer-events-auto grid h-8 w-8 place-items-center rounded-full border hairline text-muted transition-colors hover:text-fg"
+                aria-label={`${project.title} on GitHub`}
+              >
+                <Github size={14} />
+              </a>
+            )}
+            <span className="grid h-8 w-8 place-items-center rounded-full border hairline text-muted transition-all duration-300 group-hover:rotate-90 group-hover:text-fg">
+              <Plus size={14} />
+            </span>
+          </div>
         </div>
       </motion.div>
+
+      <AnimatePresence>{open && <ProjectDetails project={project} onClose={close} />}</AnimatePresence>
     </motion.div>
   );
 }

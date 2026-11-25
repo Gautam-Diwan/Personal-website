@@ -39,16 +39,6 @@ export const getProjects = query({
   },
 });
 
-export const getProjectBySlug = query({
-  args: { slug: v.string() },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("projects")
-      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
-      .unique();
-  },
-});
-
 export const getExperiences = query({
   args: {},
   handler: async (ctx) => {

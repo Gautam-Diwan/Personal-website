@@ -15,6 +15,8 @@ export type GroupMeta = {
   hex: [string, string];
   tagline: string;
   description: string;
+  /** Project slugs always listed first on this group's page, in this order */
+  pinned?: string[];
 };
 
 export const GROUPS: GroupMeta[] = [
@@ -26,6 +28,7 @@ export const GROUPS: GroupMeta[] = [
     icon: Cpu,
     cssVar: "--systems",
     hex: ["#fbb03b", "#d97706"],
+    pinned: ["bustub"],
     tagline: "Kernels, storage engines, and distributed infrastructure.",
     description:
       "Performance from first principles: GPU kernels measured against cuBLAS, concurrent database internals, collective communication for distributed training, and the cloud infrastructure that keeps it all running.",

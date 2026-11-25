@@ -12,8 +12,12 @@ Vite · React 19 · TanStack Router · Tailwind CSS · three.js (React Three Fib
 | --- | --- |
 | `/` | Main page: hero, domains, selected work, experience, toolkit |
 | `/systems`, `/ml`, `/ai`, `/web` | Domain pages, filtered by each project's `groups` |
-| `/projects/:slug` | Project detail |
-| `/blog` | Blog with admin-only post management |
+| `/blog` | Work-in-progress placeholder (the CMS in `src/components/Blog.tsx` is parked) |
+
+Project details open in an overlay on the card, not on their own route. Pin projects to the top of
+a domain page with `pinned` in `src/lib/groups.ts` (BusTub is pinned in Systems). The AI page has a
+simulated chat terminal that renders its answer like a masked text diffusion model
+(`src/components/DiffusionTerminal.tsx`).
 
 A single fixed three.js particle field sits behind every page and morphs to a shape per domain
 (`src/components/three/shapes.ts`).

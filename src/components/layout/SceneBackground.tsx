@@ -2,7 +2,6 @@ import { lazy, Suspense, useMemo } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { useRouterState } from "@tanstack/react-router";
 import { useDarkMode } from "../../contexts/DarkModeContext";
-import { useSceneOverride } from "../../contexts/SceneContext";
 import { isGroupId, type SceneShape } from "../../lib/groups";
 
 const ParticleField = lazy(() => import("../three/ParticleField"));
@@ -18,8 +17,6 @@ function hasWebGL() {
 
 function useRouteShape(): SceneShape {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const override = useSceneOverride();
-  if (override) return override;
   const seg = pathname.split("/").filter(Boolean)[0] ?? "";
   return isGroupId(seg) ? seg : "home";
 }

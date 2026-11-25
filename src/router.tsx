@@ -6,42 +6,36 @@ import {
   Outlet,
   useRouterState,
 } from "@tanstack/react-router";
-import { lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 import { Toaster } from "sonner";
 import { DarkModeProvider } from "./contexts/DarkModeContext";
-import { SceneProvider } from "./contexts/SceneContext";
 import { SceneBackground } from "./components/layout/SceneBackground";
 import { Navbar } from "./components/layout/Navbar";
 import { Footer } from "./components/layout/Footer";
 import { HomePage } from "./pages/HomePage";
 import { GroupPage } from "./pages/GroupPage";
-import { ProjectPage } from "./pages/ProjectPage";
+import { WorkInProgress } from "./pages/WorkInProgress";
 import { PageContainer } from "./components/ui";
 import { GROUPS } from "./lib/groups";
 import { ease } from "./lib/motion";
-
-const Blog = lazy(() => import("./components/Blog").then((m) => ({ default: m.Blog })));
 
 function RootLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
     <DarkModeProvider>
-      <SceneProvider>
-        <SceneBackground />
-        <Navbar />
-        <motion.main
-          key={pathname}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease }}
-          className="min-h-screen"
-        >
-          <Outlet />
-        </motion.main>
-        <Footer />
-        <Toaster theme="system" />
-      </SceneProvider>
+      <SceneBackground />
+      <Navbar />
+      <motion.main
+        key={pathname}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease }}
+        className="min-h-screen"
+      >
+        <Outlet />
+      </motion.main>
+      <Footer />
+      <Toaster theme="system" />
     </DarkModeProvider>
   );
 }
@@ -70,25 +64,14 @@ const groupRoutes = GROUPS.map((g) =>
   }),
 );
 
-const projectRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/projects/$slug",
-  component: ProjectPage,
-});
-
+// The blog CMS (components/Blog.tsx) is parked until there are posts to show.
 const blogRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/blog",
-  component: () => (
-    <PageContainer className="pt-28">
-      <Suspense fallback={null}>
-        <Blog />
-      </Suspense>
-    </PageContainer>
-  ),
+  component: WorkInProgress,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, ...groupRoutes, projectRoute, blogRoute]);
+const routeTree = rootRoute.addChildren([indexRoute, ...groupRoutes, blogRoute]);
 
 export const router = createRouter({
   routeTree,
