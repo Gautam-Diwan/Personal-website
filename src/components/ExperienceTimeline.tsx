@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
 import { ChevronDown, MapPin } from "lucide-react";
 import type { Experience } from "../lib/content";
 import { GroupBadge } from "./ui";
+import { TechPill } from "./TechLogo";
 import type { GroupId } from "../lib/groups";
 import { ease, fadeUp, stagger } from "../lib/motion";
 
@@ -125,7 +126,7 @@ export function ExperienceTimeline({
                             </motion.li>
                           ))}
                         </ul>
-                        <div className="mt-4 flex flex-wrap items-center gap-1.5">
+                        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
                           <span className="mr-2 inline-flex items-center gap-1 font-mono text-[11px] text-subtle">
                             <MapPin size={11} /> {exp.location}
                           </span>
@@ -137,9 +138,7 @@ export function ExperienceTimeline({
                             />
                           ))}
                           {exp.technologies.map((t) => (
-                            <span key={t} className="chip !py-0.5">
-                              {t}
-                            </span>
+                            <TechPill key={t} name={t} size="sm" />
                           ))}
                         </div>
                       </motion.div>

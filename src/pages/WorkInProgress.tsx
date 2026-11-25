@@ -1,40 +1,87 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ArrowLeft, PenLine } from "lucide-react";
+import { ArrowLeft, Mail } from "lucide-react";
 import { PageContainer } from "../components/ui";
 import { fadeUp, stagger } from "../lib/motion";
+import { GROUPS } from "../lib/groups";
+import { playPop } from "../lib/sound";
 
+/** Blog placeholder, written in the home page's voice and layout. */
 export function WorkInProgress() {
   return (
-    <PageContainer className="flex min-h-[80svh] items-center pb-16 pt-32">
-      <motion.div initial="hidden" animate="show" variants={stagger(0.09, 0.1)} className="max-w-2xl">
-        <motion.div
+    <PageContainer className="flex min-h-[80svh] items-center pb-16 pt-28 md:pt-36">
+      <motion.div
+        initial="hidden"
+        animate="show"
+        variants={stagger(0.08, 0.05)}
+        className="max-w-[44rem]"
+      >
+        <motion.p
           variants={fadeUp}
-          className="inline-flex items-center gap-2.5 rounded-full border hairline bg-surface/50 py-1.5 pl-2 pr-4 backdrop-blur"
+          className="flex items-center gap-2 text-sm font-extrabold uppercase tracking-[0.14em]"
+          style={{ color: "rgb(var(--systems))" }}
         >
-          <span className="relative flex h-2 w-2">
+          <span className="relative flex h-2.5 w-2.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-systems opacity-60" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-systems" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-systems" />
           </span>
-          <span className="text-xs text-muted">Work in progress</span>
-        </motion.div>
+          Work in progress
+        </motion.p>
         <motion.h1
           variants={fadeUp}
-          className="mt-8 text-[clamp(2.6rem,7vw,5rem)] font-black leading-[1.02] tracking-[-0.035em]"
+          className="mt-3 text-[clamp(2.8rem,7vw,5.2rem)] font-black leading-[1.02] tracking-[-0.03em] text-fg"
         >
-          The blog is <span style={{ color: "rgb(var(--accent))" }}>still compiling.</span>
+          The blog is{" "}
+          <span style={{ color: "rgb(var(--accent))" }}>still compiling</span>.
         </motion.h1>
-        <motion.p variants={fadeUp} className="mt-6 max-w-lg leading-relaxed text-muted">
-          Writing on ML systems, GPU kernels, and building agents that survive production is on the
-          way. Until then, the projects say most of it.
-        </motion.p>
-        <motion.div variants={fadeUp} className="mt-10 flex flex-wrap gap-3">
-          <Link to="/" className="btn-primary group">
-            <ArrowLeft size={15} className="transition-transform group-hover:-translate-x-0.5" />
-            Back to projects
+        <motion.div
+          variants={fadeUp}
+          className="mt-7 space-y-5 text-lg leading-relaxed text-fg/90 sm:text-xl sm:leading-relaxed"
+        >
+          <p>
+            I&rsquo;m writing about the things I spend my time on: GPU kernels
+            that chase cuBLAS, buffer pools that survive concurrency, and LLM
+            agents that don&rsquo;t fall over halfway through a long run.
+          </p>
+          <p className="text-muted">
+            Until the first post ships, the projects say most of it. Pick a
+            lens:{" "}
+            {GROUPS.map((g, i) => (
+              <span key={g.id}>
+                <Link
+                  to={g.path}
+                  onClick={() => playPop(0.9 + i * 0.08)}
+                  className="font-bold underline decoration-2 underline-offset-4"
+                  style={{
+                    color: `rgb(var(${g.cssVar}))`,
+                    textDecorationColor: `rgb(var(${g.cssVar}) / 0.45)`,
+                  }}
+                >
+                  {g.id === "ml" || g.id === "ai"
+                    ? g.id.toUpperCase()
+                    : g.label}
+                </Link>
+                {i < GROUPS.length - 2
+                  ? ", "
+                  : i === GROUPS.length - 2
+                    ? ", or "
+                    : "."}
+              </span>
+            ))}
+          </p>
+        </motion.div>
+        <motion.div
+          variants={fadeUp}
+          className="mt-9 flex flex-wrap items-center gap-6"
+        >
+          <Link to="/" onClick={() => playPop(0.9)} className="btn-primary">
+            <ArrowLeft size={18} /> Back home
           </Link>
-          <a href="mailto:gdiwan@cs.cmu.edu" className="btn-ghost">
-            <PenLine size={15} /> Suggest a topic
+          <a
+            href="mailto:gdiwan@cs.cmu.edu?subject=Blog%20topic%20idea"
+            className="btn-ghost"
+          >
+            <Mail size={18} /> Suggest a topic
           </a>
         </motion.div>
       </motion.div>

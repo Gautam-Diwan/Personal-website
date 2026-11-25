@@ -8,7 +8,9 @@ const STEPS = 14;
 const NOISE = "▖▗▘▙▚▛▜▝▞▟░▒▓#%&@$*+=?<>~";
 
 /** Words, punctuation, and digits as separate tokens, each keeping its trailing space. */
-const TOKENS = ANSWER.match(/[A-Za-z]+(?:-[A-Za-z]+)*\s*|\d+\s*|[^\sA-Za-z\d]\s*/g) ?? [ANSWER];
+const TOKENS = ANSWER.match(
+  /[A-Za-z]+(?:-[A-Za-z]+)*\s*|\d+\s*|[^\sA-Za-z\d]\s*/g,
+) ?? [ANSWER];
 
 /** Deterministic shuffle so each replay unmasks in a scattered (non left-to-right) order. */
 function unmaskOrder(n: number, seed: number) {
@@ -23,7 +25,10 @@ function unmaskOrder(n: number, seed: number) {
 }
 
 const noise = (len: number) =>
-  Array.from({ length: len }, () => NOISE[Math.floor(Math.random() * NOISE.length)]).join("");
+  Array.from(
+    { length: len },
+    () => NOISE[Math.floor(Math.random() * NOISE.length)],
+  ).join("");
 
 type Phase = "idle" | "typing" | "thinking" | "denoising" | "done";
 
@@ -39,8 +44,13 @@ export function DiffusionTerminal() {
   const order = useMemo(() => unmaskOrder(TOKENS.length, 17 + run * 31), [run]);
 
   // Cosine schedule: few tokens commit early, most commit in the middle steps
-  const revealedCount = Math.round(TOKENS.length * (1 - Math.cos((Math.PI / 2) * (step / STEPS))));
-  const revealed = useMemo(() => new Set(order.slice(0, revealedCount)), [order, revealedCount]);
+  const revealedCount = Math.round(
+    TOKENS.length * (1 - Math.cos((Math.PI / 2) * (step / STEPS))),
+  );
+  const revealed = useMemo(
+    () => new Set(order.slice(0, revealedCount)),
+    [order, revealedCount],
+  );
 
   useEffect(() => {
     if (!inView) return;
@@ -52,7 +62,8 @@ export function DiffusionTerminal() {
     }
     let cancelled = false;
     const timers: number[] = [];
-    const wait = (ms: number) => new Promise<void>((r) => timers.push(window.setTimeout(r, ms)));
+    const wait = (ms: number) =>
+      new Promise<void>((r) => timers.push(window.setTimeout(r, ms)));
 
     (async () => {
       setPhase("typing");
@@ -90,13 +101,18 @@ export function DiffusionTerminal() {
   const showAnswer = phase === "denoising" || phase === "done";
 
   return (
-    <div ref={ref} className="card overflow-hidden !bg-surface/85 font-mono text-[13px] shadow-[0_20px_80px_-20px_rgb(var(--ai)/0.25)]">
+    <div
+      ref={ref}
+      className="card overflow-hidden font-mono text-[13px] shadow-[0_20px_80px_-20px_rgb(var(--ai)/0.25)]"
+    >
       <div className="flex items-center justify-between border-b hairline px-4 py-3">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-          <span className="ml-3 text-[11px] text-subtle">ask-gautam · masked text diffusion</span>
+          <span className="ml-3 text-[11px] text-subtle">
+            ask-gautam · masked text diffusion
+          </span>
         </div>
         <button
           onClick={() => setRun((r) => r + 1)}
@@ -112,29 +128,44 @@ export function DiffusionTerminal() {
           <span className="shrink-0 text-web">you ›</span>
           <span className="text-fg">
             {typed}
-            {phase === "typing" && <span className="ml-0.5 inline-block h-4 w-2 translate-y-0.5 animate-pulse bg-fg/70" />}
+            {phase === "typing" && (
+              <span className="ml-0.5 inline-block h-4 w-2 translate-y-0.5 animate-pulse bg-fg/70" />
+            )}
           </span>
         </div>
 
         {phase === "thinking" && (
           <div className="flex gap-3 text-subtle">
             <span className="shrink-0 text-ai">gd ›</span>
-            <span className="animate-pulse">sampling {TOKENS.length} masked tokens…</span>
+            <span className="animate-pulse">
+              sampling {TOKENS.length} masked tokens…
+            </span>
           </div>
         )}
 
         {showAnswer && (
           <div className="flex gap-3">
             <span className="shrink-0 text-ai">gd ›</span>
-            <p className="leading-7 text-fg" aria-label={phase === "done" ? ANSWER : undefined}>
+            <p
+              className="leading-7 text-fg"
+              aria-label={phase === "done" ? ANSWER : undefined}
+            >
               {TOKENS.map((tok, i) => {
                 const word = tok.trimEnd();
                 const space = tok.slice(word.length);
                 return revealed.has(i) ? (
                   <motion.span
                     key={`r${run}-${i}`}
-                    initial={{ color: "rgb(var(--ai))", filter: "blur(3px)", opacity: 0.4 }}
-                    animate={{ color: "rgb(var(--fg))", filter: "blur(0px)", opacity: 1 }}
+                    initial={{
+                      color: "rgb(var(--ai))",
+                      filter: "blur(3px)",
+                      opacity: 0.4,
+                    }}
+                    animate={{
+                      color: "rgb(var(--fg))",
+                      filter: "blur(0px)",
+                      opacity: 1,
+                    }}
                     transition={{ duration: 0.6 }}
                   >
                     {word}
@@ -142,7 +173,9 @@ export function DiffusionTerminal() {
                   </motion.span>
                 ) : (
                   <span key={`m${run}-${i}`}>
-                    <span className="rounded-sm bg-ai/10 text-ai/60">{noise(word.length)}</span>
+                    <span className="rounded-sm bg-ai/10 text-ai/60">
+                      {noise(word.length)}
+                    </span>
                     {space}
                   </span>
                 );

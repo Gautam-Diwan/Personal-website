@@ -37,29 +37,25 @@ export function TechPill({
   name: string;
   size?: "sm" | "md" | "lg";
 }) {
-  const { isDark } = useDarkMode();
-  const icon = iconFor(name);
-  const color = icon ? brandColor(icon, isDark) : "rgb(var(--muted))";
-  const pad =
+  // Plain brand mark + name (no pill), as on the home page; a small dot stands in when
+  // there is no known logo so items still line up.
+  const text =
     size === "lg"
-      ? "px-4 py-2 text-sm gap-2.5"
+      ? "text-base gap-2"
       : size === "sm"
-        ? "px-2 py-0.5 text-[11.5px] gap-1.5"
-        : "px-3 py-1 text-[12.5px] gap-2";
+        ? "text-[13px] gap-1.5"
+        : "text-sm gap-1.5";
+  const px = size === "lg" ? 18 : size === "sm" ? 14 : 15;
   return (
-    <span
-      className={`inline-flex items-center rounded-full border font-medium text-fg ${pad}`}
-      style={{
-        borderColor: icon
-          ? `${color}66`
-          : "rgb(var(--line) / var(--line-alpha))",
-        background: icon ? `${color}1A` : "rgb(var(--fg) / 0.04)",
-      }}
-    >
-      <TechLogo
-        name={name}
-        size={size === "lg" ? 18 : size === "sm" ? 12 : 14}
-      />
+    <span className={`inline-flex items-center font-semibold text-fg ${text}`}>
+      {iconFor(name) ? (
+        <TechLogo name={name} size={px} />
+      ) : (
+        <span
+          className="mx-[4px] h-1.5 w-1.5 rounded-full bg-subtle"
+          aria-hidden="true"
+        />
+      )}
       {name}
     </span>
   );

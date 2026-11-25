@@ -1,20 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import {
-  AnimatePresence,
-  motion,
-  useMotionTemplate,
-  useMotionValue,
-  useReducedMotion,
-  useSpring,
-} from "framer-motion";
-import { ArrowUpRight, Calendar, Github, Globe, Plus, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, ArrowUpRight, Globe, X } from "lucide-react";
 import { GroupBadge } from "./ui";
-import { TechPill } from "./TechLogo";
+import { TechLogo, TechPill } from "./TechLogo";
 import { projectGroups, type Project } from "../lib/content";
 import { GROUP_BY_ID } from "../lib/groups";
 import { ease, fadeUp } from "../lib/motion";
+import { playPop } from "../lib/sound";
 
+const dateRange = (p: Project) =>
+  p.endDate && p.endDate !== p.startDate
+    ? `${p.startDate} – ${p.endDate}`
+    : p.startDate;
+
+/** Full project write-up in a modal panel (no route change). */
 export function ProjectDetails({
   project,
   onClose,
@@ -50,7 +50,7 @@ export function ProjectDetails({
       transition={{ duration: 0.25 }}
     >
       <div
-        className="absolute inset-0 bg-bg/70 backdrop-blur-md"
+        className="absolute inset-0 bg-bg/75 backdrop-blur-md"
         onClick={onClose}
       />
       <motion.div
@@ -61,87 +61,48 @@ export function ProjectDetails({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.98, transition: { duration: 0.2 } }}
         transition={{ duration: 0.4, ease }}
-        className="card relative max-h-[92svh] w-full max-w-3xl overflow-y-auto !bg-surface/95 p-6 shadow-2xl sm:p-9"
+        className="relative max-h-[92svh] w-full max-w-3xl overflow-y-auto rounded-t-[20px] bg-tile p-7 shadow-2xl sm:rounded-[20px] sm:p-10"
       >
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-px"
-          style={{
-            background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
-          }}
-        />
         <button
           ref={closeRef}
           onClick={onClose}
-          className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full border hairline text-muted transition-colors hover:text-fg"
+          className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-lg text-fg transition-colors hover:bg-fg/[0.07]"
           aria-label="Close"
         >
-          <X size={16} />
+          <X size={20} />
         </button>
 
-        <div className="flex flex-wrap gap-1.5 pr-12">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 pr-12">
           {groups.map((g) => (
             <GroupBadge key={g} id={g} />
           ))}
         </div>
-        <p className="mt-6 font-mono text-xs" style={{ color }}>
-          {project.context}
+        <p className="mt-6 text-sm font-bold" style={{ color }}>
+          {project.context} · {dateRange(project)}
         </p>
         <h2
           id={`project-${project._id}`}
-          className="mt-2 text-3xl font-medium tracking-tight sm:text-4xl"
+          className="mt-2 text-3xl font-black tracking-tight text-fg sm:text-4xl"
         >
           {project.title}
         </h2>
-        <p className="mt-4 leading-relaxed text-muted">
+        <p className="mt-4 text-lg leading-relaxed text-fg/90">
           {project.longDescription}
         </p>
 
-        <div className="mt-6 flex flex-wrap items-center gap-2">
-          <span className="chip gap-1.5">
-            <Calendar size={12} />
-            {project.startDate}
-            {project.endDate && project.endDate !== project.startDate
-              ? ` → ${project.endDate}`
-              : ""}
-          </span>
-          {project.githubUrl && (
-            <a
-              href={project.githubUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="btn-ghost !px-3.5 !py-1.5 !text-[12px]"
-            >
-              <Github size={13} /> Source <ArrowUpRight size={12} />
-            </a>
-          )}
-          {project.liveUrl && (
-            <a
-              href={project.liveUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="btn-ghost !px-3.5 !py-1.5 !text-[12px]"
-            >
-              <Globe size={13} /> Live <ArrowUpRight size={12} />
-            </a>
-          )}
-        </div>
-
         {project.metrics && project.metrics.length > 0 && (
-          <div
-            className="mt-7 grid grid-cols-2 gap-px overflow-hidden rounded-xl border hairline bg-line/[0.07]"
-            style={{
-              gridTemplateColumns: `repeat(${Math.min(project.metrics.length, 4)}, minmax(0, 1fr))`,
-            }}
-          >
-            {project.metrics.map((m) => (
-              <div key={m.label} className="bg-surface px-4 py-3.5">
-                <div
-                  className="font-mono text-base sm:text-lg"
-                  style={{ color }}
-                >
+          <div className="mt-8 flex flex-wrap gap-y-6">
+            {project.metrics.map((m, i) => (
+              <div
+                key={m.label}
+                className={`pr-6 ${i > 0 ? "border-l hairline pl-6" : ""}`}
+              >
+                <div className="font-mono text-2xl font-bold" style={{ color }}>
                   {m.value}
                 </div>
-                <div className="mt-0.5 text-[11px] text-subtle">{m.label}</div>
+                <div className="mt-1 text-sm font-semibold text-muted">
+                  {m.label}
+                </div>
               </div>
             ))}
           </div>
@@ -149,9 +110,14 @@ export function ProjectDetails({
 
         {project.highlights && project.highlights.length > 0 && (
           <>
-            <p className="eyebrow mt-8">What I built</p>
+            <p
+              className="mt-10 text-sm font-extrabold uppercase tracking-[0.14em]"
+              style={{ color }}
+            >
+              What I built
+            </p>
             <motion.ol
-              className="mt-4 space-y-2.5"
+              className="mt-4 border-t hairline"
               initial="hidden"
               animate="show"
               variants={{
@@ -164,175 +130,163 @@ export function ProjectDetails({
                 <motion.li
                   key={i}
                   variants={fadeUp}
-                  className="flex gap-4 text-sm leading-relaxed text-fg/85"
+                  className="flex gap-4 border-b hairline py-4 text-base leading-relaxed text-fg/90"
                 >
                   <span
-                    className="font-mono text-xs leading-6"
+                    className="text-xl font-black leading-6"
                     style={{ color }}
                   >
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <span className="leading-6">{h}</span>
+                  <span>{h}</span>
                 </motion.li>
               ))}
             </motion.ol>
           </>
         )}
 
-        <div className="mt-8 flex flex-wrap gap-1.5 border-t hairline pt-6">
+        <p className="mt-10 text-sm font-extrabold uppercase tracking-[0.14em] text-muted">
+          Built with
+        </p>
+        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2.5">
           {project.technologies.map((t) => (
             <TechPill key={t} name={t} size="md" />
           ))}
         </div>
+
+        {(project.githubUrl || project.liveUrl) && (
+          <div className="mt-10 flex flex-wrap items-center gap-6">
+            {project.githubUrl && (
+              <a
+                href={project.githubUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="btn-primary"
+                onClick={() => playPop(1.1)}
+              >
+                View source on GitHub <ArrowUpRight size={16} />
+              </a>
+            )}
+            {project.liveUrl && (
+              <a
+                href={project.liveUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="btn-ghost"
+              >
+                <Globe size={17} /> Visit live site
+              </a>
+            )}
+          </div>
+        )}
       </motion.div>
     </motion.div>,
     document.body,
   );
 }
 
+/** Project tile in the home page's design language: borderless, bold, plain labels. */
 export function ProjectCard({
   project,
-  size = "md",
   index,
 }: {
   project: Project;
   size?: "md" | "lg";
   index?: number;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const close = useCallback(() => setOpen(false), []);
-  const reduced = useReducedMotion();
-  const mx = useMotionValue(-200);
-  const my = useMotionValue(-200);
-  const rx = useSpring(0, { stiffness: 200, damping: 20 });
-  const ry = useSpring(0, { stiffness: 200, damping: 20 });
   const groups = projectGroups(project);
   const primary = groups[0] ?? "ai";
-  const spotlight = useMotionTemplate`radial-gradient(420px circle at ${mx}px ${my}px, rgb(var(--${primary}) / 0.13), transparent 65%)`;
-
-  function onMove(e: React.MouseEvent) {
-    const r = ref.current?.getBoundingClientRect();
-    if (!r) return;
-    mx.set(e.clientX - r.left);
-    my.set(e.clientY - r.top);
-    if (!reduced) {
-      rx.set(((e.clientY - r.top) / r.height - 0.5) * -4);
-      ry.set(((e.clientX - r.left) / r.width - 0.5) * 4);
-    }
-  }
-  function onLeave() {
-    mx.set(-400);
-    my.set(-400);
-    rx.set(0);
-    ry.set(0);
-  }
-
-  const metrics = (project.metrics ?? []).slice(0, size === "lg" ? 3 : 2);
-  const tech = project.technologies.slice(0, size === "lg" ? 6 : 4);
+  const color = `rgb(var(${GROUP_BY_ID[primary].cssVar}))`;
+  const metrics = (project.metrics ?? []).slice(0, 2);
+  const tech = project.technologies.slice(0, 4);
 
   return (
-    // No entrance animation here: the parent grid owns it, so filtered cards never get stuck hidden
-    <div style={{ perspective: 1000 }} className="h-full">
-      <motion.div
-        ref={ref}
-        onMouseMove={onMove}
-        onMouseLeave={onLeave}
-        style={{ rotateX: rx, rotateY: ry }}
-        className="card group relative flex h-full flex-col overflow-hidden p-6 transition-colors duration-300 hover:border-line/20"
-      >
-        <motion.div
-          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-          style={{ background: spotlight }}
-        />
-        <div
-          className="absolute inset-x-0 top-0 h-px opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-          style={{
-            background: `linear-gradient(90deg, transparent, rgb(var(--${primary}) / 0.7), transparent)`,
-          }}
-        />
-
-        {/* Whole-card button sits underneath interactive children */}
+    <div className="h-full">
+      <div className="card group relative flex h-full flex-col p-7 transition-transform duration-300 hover:-translate-y-1 sm:p-8">
+        {/* Whole-tile button sits underneath the interactive children */}
         <button
-          onClick={() => setOpen(true)}
-          className="absolute inset-0 z-0 rounded-2xl"
+          onClick={() => {
+            playPop(1.05);
+            setOpen(true);
+          }}
+          className="absolute inset-0 z-0 rounded-[20px]"
           aria-label={`Show details for ${project.title}`}
           aria-haspopup="dialog"
         />
 
         <div className="pointer-events-none relative z-10 flex items-start justify-between gap-4">
-          <div className="flex flex-wrap gap-1.5 [&>*]:pointer-events-auto">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 [&>*]:pointer-events-auto">
             {groups.map((g) => (
               <GroupBadge key={g} id={g} />
             ))}
           </div>
-          <span className="font-mono text-[11px] text-subtle">
-            {index !== undefined
-              ? String(index + 1).padStart(2, "0") + " · "
-              : ""}
-            {project.startDate.replace(
-              / \d{4}$/,
-              (y) => " '" + y.trim().slice(2),
+          <span className="shrink-0 text-sm font-semibold text-muted">
+            {index !== undefined && (
+              <span className="font-black" style={{ color }}>
+                {String(index + 1).padStart(2, "0")} ·{" "}
+              </span>
             )}
+            {project.startDate}
           </span>
         </div>
 
         <div className="pointer-events-none relative z-10 mt-6 flex-1">
-          <p className="font-mono text-[11px] text-subtle">{project.context}</p>
-          <h3
-            className={`mt-2 font-medium tracking-tight ${
-              size === "lg"
-                ? "text-2xl sm:text-[28px] sm:leading-tight"
-                : "text-xl"
-            }`}
-          >
+          <p className="text-sm font-bold" style={{ color }}>
+            {project.context}
+          </p>
+          <h3 className="mt-1.5 text-2xl font-black leading-tight tracking-tight text-fg">
             {project.title}
           </h3>
-          <p className="mt-3 text-sm leading-relaxed text-muted">
+          <p className="mt-3 text-base leading-relaxed text-muted">
             {project.description}
           </p>
         </div>
 
         {metrics.length > 0 && (
-          <div
-            className="pointer-events-none relative z-10 mt-6 grid gap-px overflow-hidden rounded-xl border hairline bg-line/[0.06]"
-            style={{
-              gridTemplateColumns: `repeat(${metrics.length}, minmax(0, 1fr))`,
-            }}
-          >
-            {metrics.map((m) => (
-              <div key={m.label} className="bg-surface/90 px-3 py-2.5">
-                <div className="font-mono text-sm text-fg">{m.value}</div>
-                <div className="mt-0.5 text-[11px] text-subtle">{m.label}</div>
+          <div className="pointer-events-none relative z-10 mt-6 flex flex-wrap gap-y-4">
+            {metrics.map((m, i) => (
+              <div
+                key={m.label}
+                className={`pr-6 ${i > 0 ? "border-l hairline pl-6" : ""}`}
+              >
+                <div className="font-mono text-xl font-bold text-fg">
+                  {m.value}
+                </div>
+                <div className="mt-0.5 text-sm text-muted">{m.label}</div>
               </div>
             ))}
           </div>
         )}
 
-        <div className="pointer-events-none relative z-10 mt-5 flex items-center justify-between gap-3">
-          <div className="flex flex-wrap gap-1.5">
-            {tech.map((t) => (
-              <TechPill key={t} name={t} size="sm" />
-            ))}
-          </div>
-          <div className="flex shrink-0 items-center gap-1.5">
-            {project.githubUrl && (
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="pointer-events-auto grid h-8 w-8 place-items-center rounded-full border hairline text-muted transition-colors hover:text-fg"
-                aria-label={`${project.title} on GitHub`}
-              >
-                <Github size={14} />
-              </a>
-            )}
-            <span className="grid h-8 w-8 place-items-center rounded-full border hairline text-muted transition-all duration-300 group-hover:rotate-90 group-hover:text-fg">
-              <Plus size={14} />
-            </span>
-          </div>
+        <div className="pointer-events-none relative z-10 mt-6 flex flex-wrap gap-x-4 gap-y-2">
+          {tech.map((t) => (
+            <TechPill key={t} name={t} size="sm" />
+          ))}
         </div>
-      </motion.div>
+
+        <div className="pointer-events-none relative z-10 mt-6 flex items-center justify-between gap-3">
+          <span className="inline-flex items-center gap-1.5 text-base font-bold text-fg underline decoration-fg/30 decoration-2 underline-offset-4 transition-colors group-hover:decoration-fg">
+            Read more{" "}
+            <ArrowRight
+              size={16}
+              className="transition-transform group-hover:translate-x-0.5"
+            />
+          </span>
+          {project.githubUrl && (
+            <a
+              href={project.githubUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="pointer-events-auto inline-flex items-center gap-1.5 text-sm font-bold text-fg underline decoration-fg/30 decoration-2 underline-offset-4 hover:decoration-fg"
+              aria-label={`${project.title} on GitHub`}
+            >
+              <TechLogo name="GitHub" size={16} /> Source
+            </a>
+          )}
+        </div>
+      </div>
 
       <AnimatePresence>
         {open && <ProjectDetails project={project} onClose={close} />}

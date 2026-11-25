@@ -253,7 +253,7 @@ export function QueryPlanViz() {
         ref={ref}
         layout
         transition={{ layout: { duration: 0.7, ease } }}
-        className={`card mx-auto overflow-hidden !bg-surface/95 ${expanded ? "w-full" : "w-full max-w-2xl"}`}
+        className={`card mx-auto overflow-hidden ${expanded ? "w-full" : "w-full max-w-2xl"}`}
       >
         {/* Header */}
         <motion.div

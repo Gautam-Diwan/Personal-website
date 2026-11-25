@@ -1,14 +1,23 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
-import { ArrowRight, Layers } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
 import { usePortfolio, projectGroups, projectsInGroup } from "../lib/content";
 import { GROUPS, GROUP_BY_ID, type GroupId } from "../lib/groups";
 import { ease, fadeUp, stagger } from "../lib/motion";
-import { PageContainer, SectionHeading, Skeleton } from "../components/ui";
+import { playPop } from "../lib/sound";
+import {
+  Heading,
+  PageContainer,
+  Reveal,
+  RevealItem,
+  Skeleton,
+} from "../components/ui";
 import { ProjectCard } from "../components/ProjectCard";
 import { ExperienceTimeline } from "../components/ExperienceTimeline";
 import { DiffusionTerminal } from "../components/DiffusionTerminal";
+import { TechLogo } from "../components/TechLogo";
+import { iconFor } from "../lib/techIcons";
 import { QueryPlanViz } from "../components/viz/QueryPlanViz";
 import { RecommenderGate } from "../components/viz/RecommenderGate";
 import { RequestFlowViz } from "../components/viz/RequestFlowViz";
@@ -51,13 +60,51 @@ const SHOWCASES: Partial<Record<GroupId, Showcase>> = {
   },
 };
 
+/** Bold colored links between the four domains, with a sliding underline on the current one. */
+function DomainSwitcher({ current }: { current: GroupId }) {
+  return (
+    <nav aria-label="Domains" className="flex flex-wrap gap-x-6 gap-y-2">
+      {GROUPS.map((g, i) => {
+        const active = g.id === current;
+        return (
+          <Link
+            key={g.id}
+            to={g.path}
+            onClick={() => playPop(0.9 + i * 0.08)}
+            aria-current={active ? "page" : undefined}
+            className="relative pb-1 text-base font-extrabold transition-opacity hover:opacity-100"
+            style={{
+              color: `rgb(var(${g.cssVar}))`,
+              opacity: active ? 1 : 0.85,
+            }}
+          >
+            {g.label}
+            {active && (
+              <motion.span
+                layoutId="domain-underline"
+                className="absolute inset-x-0 -bottom-0.5 h-[3px] rounded-full"
+                style={{ background: `rgb(var(${g.cssVar}))` }}
+                transition={{ type: "spring", stiffness: 420, damping: 32 }}
+              />
+            )}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
 export function GroupPage({ groupId }: { groupId: GroupId }) {
   const group = GROUP_BY_ID[groupId];
   const { projects, experiences, loading } = usePortfolio();
   const [filter, setFilter] = useState<string | null>(null);
   const Icon = group.icon;
+  const groupIndex = GROUPS.findIndex((g) => g.id === groupId);
 
-  const inGroup = useMemo(() => projectsInGroup(projects ?? [], groupId), [projects, groupId]);
+  const inGroup = useMemo(
+    () => projectsInGroup(projects ?? [], groupId),
+    [projects, groupId],
+  );
   const topTech = useMemo(() => {
     const counts = new Map<string, number>();
     inGroup.forEach((p) =>
@@ -75,266 +122,273 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
     (e.groups ?? []).includes(groupId),
   );
   const crossover = inGroup.filter((p) => projectGroups(p).length > 1).length;
-  const nextGroup =
-    GROUPS[(GROUPS.findIndex((g) => g.id === groupId) + 1) % GROUPS.length];
+  const nextGroup = GROUPS[(groupIndex + 1) % GROUPS.length];
   const color = (a = 1) => `rgb(var(${group.cssVar}) / ${a})`;
   const showcase = SHOWCASES[groupId];
 
+  const stats = [
+    { value: inGroup.length, label: "projects" },
+    { value: crossover, label: "cross-domain" },
+    {
+      value: relatedExp.length,
+      label: relatedExp.length === 1 ? "related role" : "related roles",
+    },
+  ].filter((s) => s.value > 0);
+
   return (
     <div key={groupId}>
-      <section className="relative pb-16 pt-36 md:pb-24 md:pt-44">
+      {/* ---------- intro ---------- */}
+      <section className="pb-14 pt-28 md:pb-20 md:pt-36">
         <PageContainer>
           <motion.div
             initial="hidden"
             animate="show"
-            variants={stagger(0.08, 0.1)}
-            className="max-w-3xl"
+            variants={stagger(0.08, 0.05)}
+            className="max-w-[46rem]"
           >
-            <motion.nav
-              variants={fadeUp}
-              className="mb-10 flex flex-wrap gap-2"
-              aria-label="Domains"
-            >
-              <LayoutGroup id="group-switch">
-                {GROUPS.map((g) => {
-                  const active = g.id === groupId;
-                  return (
-                    <Link
-                      key={g.id}
-                      to={g.path}
-                      className={`relative rounded-full border px-3.5 py-1.5 text-[13px] transition-colors ${
-                        active
-                          ? "border-transparent"
-                          : "hairline text-muted hover:text-fg"
-                      }`}
-                      style={
-                        active ? { color: `rgb(var(${g.cssVar}))` } : undefined
-                      }
-                    >
-                      {active && (
-                        <motion.span
-                          layoutId="group-pill"
-                          className="absolute inset-0 rounded-full border"
-                          style={{
-                            borderColor: `rgb(var(${g.cssVar}) / 0.4)`,
-                            background: `rgb(var(${g.cssVar}) / 0.1)`,
-                          }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 400,
-                            damping: 34,
-                          }}
-                        />
-                      )}
-                      <span className="relative">{g.label}</span>
-                    </Link>
-                  );
-                })}
-              </LayoutGroup>
-            </motion.nav>
-
-            <motion.div variants={fadeUp} className="flex items-center gap-3">
-              <span
-                className="grid h-10 w-10 place-items-center rounded-xl border"
-                style={{
-                  color: color(),
-                  borderColor: color(0.3),
-                  background: color(0.08),
-                }}
-              >
-                <Icon size={19} />
-              </span>
-              <span className="eyebrow" style={{ color: color() }}>
-                {group.short} · {inGroup.length || "··"} projects
-              </span>
+            <motion.div variants={fadeUp}>
+              <DomainSwitcher current={groupId} />
             </motion.div>
+
+            <motion.p
+              variants={fadeUp}
+              className="mt-10 flex items-center gap-2 text-sm font-extrabold uppercase tracking-[0.14em]"
+              style={{ color: color() }}
+            >
+              <Icon size={16} strokeWidth={2.5} /> Domain 0{groupIndex + 1} of
+              04
+            </motion.p>
             <motion.h1
               variants={fadeUp}
-              className="mt-6 text-[clamp(2.6rem,7vw,5.2rem)] font-black leading-[1.02] tracking-[-0.035em]"
+              className="mt-3 text-[clamp(2.8rem,7vw,5.2rem)] font-black leading-[1.02] tracking-[-0.03em]"
+              style={{ color: color() }}
             >
               {group.label}
             </motion.h1>
             <motion.p
               variants={fadeUp}
-              className="mt-4 text-2xl font-bold text-muted sm:text-3xl"
+              className="mt-5 text-2xl font-bold leading-snug text-fg sm:text-[1.75rem]"
             >
               {group.tagline}
             </motion.p>
             <motion.p
               variants={fadeUp}
-              className="mt-6 max-w-2xl leading-relaxed text-muted"
+              className="mt-5 text-lg leading-relaxed text-fg/90 sm:text-xl sm:leading-relaxed"
             >
               {group.description}
             </motion.p>
-            {!loading && (
-              <motion.div
-                variants={fadeUp}
-                className="mt-8 flex flex-wrap gap-6 font-mono text-[12px] text-subtle"
-              >
-                <span>
-                  <span className="text-fg">{inGroup.length}</span> projects
-                </span>
-                {crossover > 0 && (
-                  <span>
-                    <span className="text-fg">{crossover}</span> cross-domain
-                  </span>
-                )}
-                {relatedExp.length > 0 && (
-                  <span>
-                    <span className="text-fg">{relatedExp.length}</span> related{" "}
-                    {relatedExp.length === 1 ? "role" : "roles"}
-                  </span>
-                )}
-              </motion.div>
-            )}
           </motion.div>
+
+          {!loading && stats.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease, delay: 0.4 }}
+              className="mt-12 grid max-w-xl"
+              style={{
+                gridTemplateColumns: `repeat(${stats.length}, minmax(0, 1fr))`,
+              }}
+            >
+              {stats.map((s, i) => (
+                <div
+                  key={s.label}
+                  className={i > 0 ? "border-l hairline pl-4 sm:pl-8" : "pr-4"}
+                >
+                  <div
+                    className="text-4xl font-black tracking-tight sm:text-5xl"
+                    style={{ color: color() }}
+                  >
+                    {s.value}
+                  </div>
+                  <div className="mt-1 text-sm font-semibold text-fg sm:text-base">
+                    {s.label}
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          )}
         </PageContainer>
       </section>
 
+      {/* ---------- interactive showcase ---------- */}
       {showcase && (
-        <PageContainer className="-mt-4 mb-20 md:-mt-8">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease, delay: 0.4 }}
-            className={
-              showcase.wide
-                ? "space-y-6"
-                : "grid items-center gap-8 lg:grid-cols-[1fr_1.4fr]"
-            }
-          >
-            <div className={showcase.wide ? "max-w-2xl" : ""}>
-              <p className="eyebrow" style={{ color: color() }}>
-                {showcase.eyebrow}
-              </p>
-              <p className="mt-3 text-2xl font-black tracking-tight">
-                {showcase.title}
-              </p>
-              <p className="mt-3 text-sm leading-relaxed text-muted">
-                {showcase.body}
-              </p>
-            </div>
-            {showcase.node}
-          </motion.div>
-        </PageContainer>
+        <section className="py-10 md:py-14">
+          <PageContainer>
+            {showcase.wide ? (
+              <>
+                <Heading
+                  kicker={showcase.eyebrow}
+                  color={group.cssVar}
+                  lead={showcase.body}
+                >
+                  {showcase.title}
+                </Heading>
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.7, ease }}
+                >
+                  {showcase.node}
+                </motion.div>
+              </>
+            ) : (
+              <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.4fr]">
+                <Heading
+                  kicker={showcase.eyebrow}
+                  color={group.cssVar}
+                  lead={showcase.body}
+                >
+                  {showcase.title}
+                </Heading>
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.7, ease }}
+                >
+                  {showcase.node}
+                </motion.div>
+              </div>
+            )}
+          </PageContainer>
+        </section>
       )}
 
-      <PageContainer>
-        {loading ? (
-          <div className="grid gap-4 md:grid-cols-2">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-80" />
-            ))}
-          </div>
-        ) : (
-          <>
-            {topTech.length > 0 && (
-              <div className="sticky top-20 z-30 -mx-4 mb-8 px-4 py-3 sm:-mx-6 sm:px-6">
-                <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
-                  {[null, ...topTech].map((t) => {
-                    const active = filter === t;
-                    return (
-                      <button
-                        key={t ?? "all"}
-                        onClick={() => setFilter(t)}
-                        className={`relative shrink-0 rounded-full border px-3 py-1.5 font-mono text-[11px] backdrop-blur-md transition-colors ${
-                          active
-                            ? "border-transparent text-bg"
-                            : "hairline bg-bg/60 text-muted hover:text-fg"
-                        }`}
-                      >
-                        {active && (
-                          <motion.span
-                            layoutId="tech-filter"
-                            className="absolute inset-0 rounded-full"
-                            style={{ background: color() }}
-                            transition={{
-                              type: "spring",
-                              stiffness: 400,
-                              damping: 34,
-                            }}
-                          />
-                        )}
-                        <span className="relative">
-                          {t ?? `All (${inGroup.length})`}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+      {/* ---------- projects ---------- */}
+      <section className="py-14 md:py-20">
+        <PageContainer>
+          <Heading kicker="Projects" color={group.cssVar}>
+            Everything in{" "}
+            {group.id === "ml"
+              ? "machine learning"
+              : group.id === "ai"
+                ? "AI"
+                : group.label.toLowerCase()}
+          </Heading>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <AnimatePresence mode="popLayout" initial={false}>
-                {shown.map((p, i) => (
-                  <motion.div
-                    key={p._id}
-                    layout="position"
-                    initial={{ opacity: 0, y: 16, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{
-                      opacity: 0,
-                      scale: 0.96,
-                      transition: { duration: 0.2 },
-                    }}
-                    transition={{
-                      duration: 0.4,
-                      ease,
-                      delay: Math.min(i, 8) * 0.04,
-                    }}
-                  >
-                    <ProjectCard project={p} index={i} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+          {loading ? (
+            <div className="grid gap-5 md:grid-cols-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-80" />
+              ))}
             </div>
+          ) : (
+            <>
+              {topTech.length > 0 && (
+                <div className="sticky top-[68px] z-30 -mx-4 mb-8 border-b hairline bg-bg/90 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6">
+                  <div
+                    className="flex items-center gap-x-6 gap-y-2 overflow-x-auto pb-1 [scrollbar-width:none]"
+                    role="toolbar"
+                    aria-label="Filter projects by technology"
+                  >
+                    <span className="shrink-0 text-sm font-extrabold uppercase tracking-[0.14em] text-muted">
+                      Filter
+                    </span>
+                    {[null, ...topTech].map((t) => {
+                      const active = filter === t;
+                      return (
+                        <button
+                          key={t ?? "all"}
+                          onClick={() => {
+                            playPop(active ? 0.9 : 1.1);
+                            setFilter(t);
+                          }}
+                          aria-pressed={active}
+                          className="relative flex shrink-0 items-center gap-1.5 pb-1 text-base font-bold transition-colors"
+                          style={{ color: active ? color() : "rgb(var(--fg))" }}
+                        >
+                          {t && iconFor(t) && <TechLogo name={t} size={16} />}
+                          {t ?? `All ${inGroup.length}`}
+                          {active && (
+                            <motion.span
+                              layoutId="tech-filter-underline"
+                              className="absolute inset-x-0 -bottom-0.5 h-[3px] rounded-full"
+                              style={{ background: color() }}
+                              transition={{
+                                type: "spring",
+                                stiffness: 420,
+                                damping: 32,
+                              }}
+                            />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
-            {relatedExp.length > 0 && (
-              <section className="mt-28">
-                <SectionHeading
-                  eyebrow="In industry"
-                  title={
-                    <>
-                      Related{" "}
-                      <span style={{ color: color() }}>
-                        experience.
-                      </span>
-                    </>
-                  }
-                >
-                  Roles where {group.label.toLowerCase()} work was part of the
-                  job.
-                </SectionHeading>
-                <ExperienceTimeline experiences={relatedExp} compact />
-              </section>
-            )}
+              <div className="grid gap-5 md:grid-cols-2">
+                <AnimatePresence mode="popLayout" initial={false}>
+                  {shown.map((p, i) => (
+                    <motion.div
+                      key={p._id}
+                      layout="position"
+                      initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{
+                        opacity: 0,
+                        scale: 0.96,
+                        transition: { duration: 0.2 },
+                      }}
+                      transition={{
+                        duration: 0.4,
+                        ease,
+                        delay: Math.min(i, 8) * 0.04,
+                      }}
+                    >
+                      <ProjectCard project={p} index={i} />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            </>
+          )}
+        </PageContainer>
+      </section>
 
+      {/* ---------- related experience ---------- */}
+      {!loading && relatedExp.length > 0 && (
+        <section className="py-14 md:py-20">
+          <PageContainer>
+            <Heading kicker="In industry" color={group.cssVar}>
+              Where I did this at work
+            </Heading>
+            <ExperienceTimeline experiences={relatedExp} compact />
+          </PageContainer>
+        </section>
+      )}
+
+      {/* ---------- next domain ---------- */}
+      <PageContainer className="pb-8 pt-10">
+        <Reveal>
+          <RevealItem>
             <Link
               to={nextGroup.path}
-              className="card group mt-28 flex items-center justify-between gap-6 overflow-hidden p-8 transition-colors hover:border-line/20 md:p-10"
+              onClick={() => playPop(1)}
+              className="group grid gap-2 border-y hairline py-10 transition-colors md:grid-cols-[1fr_auto] md:items-center md:px-3 md:hover:bg-fg/[0.035]"
             >
               <div>
-                <p className="eyebrow flex items-center gap-2">
-                  <Layers size={12} /> Next domain
+                <p className="text-sm font-extrabold uppercase tracking-[0.14em] text-muted">
+                  Next up
                 </p>
-                <p className="mt-3 text-3xl font-black tracking-tight md:text-4xl">
+                <p
+                  className="mt-2 text-4xl font-black tracking-tight md:text-5xl"
+                  style={{ color: `rgb(var(${nextGroup.cssVar}))` }}
+                >
                   {nextGroup.label}
                 </p>
-                <p className="mt-1 text-sm text-muted">{nextGroup.tagline}</p>
+                <p className="mt-2 text-lg text-muted">{nextGroup.tagline}</p>
               </div>
-              <span
-                className="grid h-14 w-14 shrink-0 place-items-center rounded-full border transition-transform duration-500 group-hover:translate-x-1 group-hover:-rotate-45"
-                style={{
-                  color: `rgb(var(${nextGroup.cssVar}))`,
-                  borderColor: `rgb(var(${nextGroup.cssVar}) / 0.35)`,
-                }}
-              >
-                <ArrowRight size={20} />
-              </span>
+              <ArrowRight
+                size={36}
+                className="text-fg transition-transform duration-300 group-hover:translate-x-2"
+                aria-hidden="true"
+              />
             </Link>
-          </>
-        )}
+          </RevealItem>
+        </Reveal>
       </PageContainer>
     </div>
   );

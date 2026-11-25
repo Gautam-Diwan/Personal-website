@@ -42,19 +42,45 @@ function RootLayout() {
 
 function NotFound() {
   return (
-    <PageContainer className="pb-20 pt-44 text-center">
-      <p className="eyebrow">404</p>
-      <h1 className="mt-4 text-4xl font-medium tracking-tight">This page drifted off.</h1>
-      <Link to="/" className="btn-ghost mt-8">
-        Back home
-      </Link>
+    <PageContainer className="flex min-h-[70svh] items-center pb-20 pt-32">
+      <div className="max-w-[40rem]">
+        <p
+          className="text-sm font-extrabold uppercase tracking-[0.14em]"
+          style={{ color: "rgb(var(--ai))" }}
+        >
+          Error 404
+        </p>
+        <h1 className="mt-3 text-[clamp(2.6rem,7vw,4.8rem)] font-black leading-[1.02] tracking-[-0.03em] text-fg">
+          This page{" "}
+          <span style={{ color: "rgb(var(--accent))" }}>drifted off</span>.
+        </h1>
+        <p className="mt-6 text-lg leading-relaxed text-muted sm:text-xl">
+          The link might be old (project pages now open as panels on each domain
+          page) or mistyped.
+        </p>
+        <div className="mt-9 flex flex-wrap items-center gap-6">
+          <Link to="/" className="btn-primary">
+            Back home
+          </Link>
+          <Link to="/systems" className="btn-ghost">
+            Browse projects
+          </Link>
+        </div>
+      </div>
     </PageContainer>
   );
 }
 
-const rootRoute = createRootRoute({ component: RootLayout, notFoundComponent: NotFound });
+const rootRoute = createRootRoute({
+  component: RootLayout,
+  notFoundComponent: NotFound,
+});
 
-const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: "/", component: HomePage });
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/",
+  component: HomePage,
+});
 
 const groupRoutes = GROUPS.map((g) =>
   createRoute({
@@ -71,7 +97,11 @@ const blogRoute = createRoute({
   component: WorkInProgress,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, ...groupRoutes, blogRoute]);
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  ...groupRoutes,
+  blogRoute,
+]);
 
 export const router = createRouter({
   routeTree,

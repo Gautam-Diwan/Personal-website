@@ -134,7 +134,7 @@ export function RecommenderGate() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8, transition: { duration: 0.2 } }}
           transition={{ duration: 0.4, ease }}
-          className="card mx-auto flex max-w-3xl flex-col items-center gap-6 !bg-surface/95 px-6 py-10 text-center sm:px-10"
+          className="card mx-auto flex max-w-3xl flex-col items-center gap-6 px-6 py-10 text-center sm:px-10"
         >
           <motion.div
             animate={reduced ? undefined : { y: [0, -6, 0] }}

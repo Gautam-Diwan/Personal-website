@@ -26,7 +26,13 @@ import { GROUPS, GROUP_BY_ID, type GroupId } from "../lib/groups";
 import { ease, fadeUp, stagger } from "../lib/motion";
 import { HOME, milesBetween, useVisitorGeo } from "../lib/geo";
 import { playPop } from "../lib/sound";
-import { PageContainer, Reveal, RevealItem, Skeleton } from "../components/ui";
+import {
+  Heading,
+  PageContainer,
+  Reveal,
+  RevealItem,
+  Skeleton,
+} from "../components/ui";
 import { ExperienceTimeline } from "../components/ExperienceTimeline";
 import { FeaturedGrid } from "../components/FeaturedGrid";
 import { TechLogo } from "../components/TechLogo";
@@ -58,34 +64,6 @@ function DomainLink({
     >
       {children}
     </Link>
-  );
-}
-
-function Heading({
-  kicker,
-  children,
-  color = "--accent",
-}: {
-  kicker: string;
-  children: React.ReactNode;
-  color?: string;
-}) {
-  return (
-    <Reveal className="mb-8 md:mb-10">
-      <RevealItem>
-        <p
-          className="text-sm font-extrabold uppercase tracking-[0.14em]"
-          style={{ color: `rgb(var(${color}))` }}
-        >
-          {kicker}
-        </p>
-      </RevealItem>
-      <RevealItem>
-        <h2 className="mt-2 text-3xl font-black tracking-tight text-fg sm:text-[2.6rem] sm:leading-[1.1]">
-          {children}
-        </h2>
-      </RevealItem>
-    </Reveal>
   );
 }
 

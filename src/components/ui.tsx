@@ -101,26 +101,21 @@ export function GroupBadge({
   link?: boolean;
 }) {
   const g = GROUP_BY_ID[id];
+  // Plain colored label (no pill), matching the home page's kicker style
   const cls =
-    "relative z-10 inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider transition-colors";
-  const style = {
-    color: `rgb(var(${g.cssVar}))`,
-    borderColor: `rgb(var(${g.cssVar}) / 0.3)`,
-    background: `rgb(var(${g.cssVar}) / 0.08)`,
-  };
+    "relative z-10 inline-flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-[0.12em] transition-opacity";
+  const style = { color: `rgb(var(${g.cssVar}))` };
+  const Icon = g.icon;
   const inner = (
     <>
-      <span
-        className="h-1 w-1 rounded-full"
-        style={{ background: "currentColor" }}
-      />
+      <Icon size={13} strokeWidth={2.5} />
       {g.short}
     </>
   );
   return link ? (
     <Link
       to={g.path}
-      className={cls + " hover:brightness-125"}
+      className={cls + " underline-offset-4 hover:underline"}
       style={style}
       onClick={(e) => e.stopPropagation()}
     >
@@ -130,6 +125,47 @@ export function GroupBadge({
     <span className={cls} style={style}>
       {inner}
     </span>
+  );
+}
+
+/**
+ * Section opener used across the site: an uppercase colored kicker over a heavy headline,
+ * with optional lead paragraph. `color` is a CSS variable name such as "--accent" or "--ml".
+ */
+export function Heading({
+  kicker,
+  children,
+  color = "--accent",
+  lead,
+}: {
+  kicker: string;
+  children: React.ReactNode;
+  color?: string;
+  lead?: React.ReactNode;
+}) {
+  return (
+    <Reveal className="mb-8 md:mb-10">
+      <RevealItem>
+        <p
+          className="text-sm font-extrabold uppercase tracking-[0.14em]"
+          style={{ color: `rgb(var(${color}))` }}
+        >
+          {kicker}
+        </p>
+      </RevealItem>
+      <RevealItem>
+        <h2 className="mt-2 text-3xl font-black tracking-tight text-fg sm:text-[2.6rem] sm:leading-[1.1]">
+          {children}
+        </h2>
+      </RevealItem>
+      {lead && (
+        <RevealItem>
+          <p className="mt-4 max-w-[44rem] text-lg leading-relaxed text-muted">
+            {lead}
+          </p>
+        </RevealItem>
+      )}
+    </Reveal>
   );
 }
 

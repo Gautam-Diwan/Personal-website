@@ -69,26 +69,31 @@
   .hairline {
     border-color: rgb(var(--line) / var(--line-alpha));
   }
+  /* Shared design language (matches the home page): borderless tiles, bold kickers,
+     plain logo + name labels, solid accent buttons, underlined text links. */
   .card {
-    @apply relative rounded-2xl border bg-surface/70 backdrop-blur-md;
-    border-color: rgb(var(--line) / var(--line-alpha));
+    @apply relative rounded-[20px] bg-tile;
   }
   .eyebrow {
-    @apply font-mono text-xs font-medium uppercase tracking-[0.14em] text-muted;
+    @apply text-sm font-extrabold uppercase tracking-[0.14em] text-muted;
   }
   .chip {
-    @apply inline-flex items-center rounded-full border bg-fg/[0.04] px-2.5 py-1 font-mono text-[11.5px] text-fg/90;
-    border-color: rgb(var(--line) / var(--line-alpha));
+    @apply inline-flex items-center gap-1.5 text-sm font-semibold text-fg;
   }
   .btn {
-    @apply inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-all duration-200;
+    @apply inline-flex items-center gap-2 rounded-lg px-5 py-3 text-base font-extrabold transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0;
   }
   .btn-primary {
-    @apply btn bg-fg text-bg hover:opacity-90;
+    @apply btn;
+    background: rgb(var(--accent));
+    color: rgb(var(--bg));
   }
   .btn-ghost {
-    @apply btn border bg-surface/40 text-fg backdrop-blur hover:bg-fg/5;
-    border-color: rgb(var(--line) / 0.14);
+    @apply inline-flex items-center gap-2 text-base font-bold text-fg underline decoration-2 underline-offset-4 transition-colors;
+    text-decoration-color: rgb(var(--fg) / 0.3);
+  }
+  .btn-ghost:hover {
+    text-decoration-color: rgb(var(--fg));
   }
   .grid-bg {
     background-image:
