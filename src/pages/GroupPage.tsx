@@ -32,7 +32,7 @@ const SHOWCASES: Partial<Record<GroupId, Showcase>> = {
   ml: {
     eyebrow: "Under the hood",
     title: "Matrix factorization, trained in front of you.",
-    body: "A Manim-style walkthrough of collaborative filtering. Sparse ratings are factored into user and item embeddings in ℝ³, trained with SGD on the observed entries only, and the missing ratings fall out as dot products. The training is real and runs in your browser.",
+    body: "A Manim-style walkthrough of collaborative filtering. Sparse ratings are factored into user and item embeddings in ℝ³, trained with SGD on the observed entries only, and each missing rating is predicted as the average rating plus a user·item dot product. The training is real and runs in your browser.",
     node: <RecommenderGate />,
     wide: true,
   },

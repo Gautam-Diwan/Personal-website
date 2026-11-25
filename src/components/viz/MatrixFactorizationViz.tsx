@@ -46,8 +46,8 @@ const CAPTIONS: [number, string][] = [
   [0, "A ratings matrix R: users × movies, mostly unobserved."],
   [T_FACTORS, "Factor it into two thin matrices: R ≈ U Vᵀ."],
   [T_3D, "Each user (row of U) and item (column of Vᵀ) is a vector in ℝ³."],
-  [T_TRAIN, "SGD on observed ratings: nudge u and v so u·v matches r."],
-  [T_PRED, "The ?s are now predictions: just dot products."],
+  [T_TRAIN, "SGD on observed ratings: nudge u and v so μ + u·v matches r."],
+  [T_PRED, "The ?s are now predictions: μ + u·v, clipped to the 1–5 scale."],
 ];
 
 const epochAt = (t: number) => {

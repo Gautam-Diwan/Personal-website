@@ -69,20 +69,20 @@ function tone(
 /** Bubbly pop for nav clicks; `pitch` shifts it so each item sounds a little different. */
 export function playPop(pitch = 1) {
   if (!soundEnabled()) return;
-  tone(420 * pitch, 880 * pitch, 0.09, "sine", 0.18);
-  tone(1300 * pitch, 1700 * pitch, 0.04, "triangle", 0.04, 0.005);
+  tone(420 * pitch, 880 * pitch, 0.09, "sine", 0.5);
+  tone(1300 * pitch, 1700 * pitch, 0.04, "triangle", 0.14, 0.005);
 }
 
 /** Two-step click like a light switch: up for on, down for off. */
 export function playSwitch(on: boolean) {
   if (!soundEnabled()) return;
   const [a, b] = on ? [520, 780] : [700, 420];
-  tone(a, a * 0.98, 0.05, "square", 0.05);
-  tone(b, b * 0.98, 0.06, "square", 0.045, 0.06);
+  tone(a, a * 0.98, 0.05, "square", 0.13);
+  tone(b, b * 0.98, 0.06, "square", 0.12, 0.06);
 }
 
 /** Small confirmation blip, played when sound is switched back on. */
 export function playBlip() {
-  tone(660, 990, 0.07, "sine", 0.14);
-  tone(990, 1320, 0.08, "sine", 0.1, 0.07);
+  tone(660, 990, 0.07, "sine", 0.38);
+  tone(990, 1320, 0.08, "sine", 0.28, 0.07);
 }
