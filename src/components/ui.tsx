@@ -178,12 +178,14 @@ export function Skeleton({ className = "" }: { className?: string }) {
 export function PageContainer({
   children,
   className = "",
+  id,
 }: {
   children: React.ReactNode;
   className?: string;
+  id?: string;
 }) {
   return (
-    <div className={`mx-auto max-w-page px-4 sm:px-6 ${className}`}>
+    <div id={id} className={`mx-auto max-w-page px-4 sm:px-6 ${className}`}>
       {children}
     </div>
   );

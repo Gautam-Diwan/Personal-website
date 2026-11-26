@@ -1,7 +1,13 @@
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import {
+  ArrowRight,
+  Briefcase,
+  FolderGit2,
+  MessageSquare,
+  MousePointerClick,
+} from "lucide-react";
 import { usePortfolio, projectGroups, projectsInGroup } from "../lib/content";
 import { GROUPS, GROUP_BY_ID, type GroupId } from "../lib/groups";
 import { ease, fadeUp, stagger } from "../lib/motion";
@@ -14,6 +20,7 @@ import {
   Skeleton,
 } from "../components/ui";
 import { ProjectCard } from "../components/ProjectCard";
+import { SectionIndex, type IndexSection } from "../components/SectionIndex";
 import { ExperienceTimeline } from "../components/ExperienceTimeline";
 import { DiffusionTerminal } from "../components/DiffusionTerminal";
 import { TechLogo } from "../components/TechLogo";
@@ -135,10 +142,36 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
     },
   ].filter((s) => s.value > 0);
 
+  const c = group.cssVar;
+  const sections: IndexSection[] = [
+    { id: "intro", label: group.label, icon: group.icon, color: c },
+    ...(showcase
+      ? [
+          {
+            id: "showcase",
+            label: showcase.eyebrow,
+            icon: groupId === "ai" ? MessageSquare : MousePointerClick,
+            color: c,
+          },
+        ]
+      : []),
+    { id: "projects", label: "Projects", icon: FolderGit2, color: c },
+    ...(!loading && relatedExp.length > 0
+      ? [{ id: "in-industry", label: "In industry", icon: Briefcase, color: c }]
+      : []),
+    {
+      id: "next-up",
+      label: `Next: ${nextGroup.short === "ML" || nextGroup.short === "AI" ? nextGroup.short : nextGroup.label}`,
+      icon: ArrowRight,
+      color: nextGroup.cssVar,
+    },
+  ];
+
   return (
     <div key={groupId}>
+      <SectionIndex sections={sections} />
       {/* ---------- intro ---------- */}
-      <section className="pb-14 pt-28 md:pb-20 md:pt-36">
+      <section id="intro" className="pb-14 pt-28 md:pb-20 md:pt-36">
         <PageContainer>
           <motion.div
             initial="hidden"
@@ -212,7 +245,7 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
 
       {/* ---------- interactive showcase ---------- */}
       {showcase && (
-        <section className="py-10 md:py-14">
+        <section id="showcase" className="py-10 md:py-14">
           <PageContainer>
             {showcase.wide ? (
               <>
@@ -256,7 +289,7 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
       )}
 
       {/* ---------- projects ---------- */}
-      <section className="py-14 md:py-20">
+      <section id="projects" className="py-14 md:py-20">
         <PageContainer>
           <Heading kicker="Projects" color={group.cssVar}>
             Everything in{" "}
@@ -350,7 +383,7 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
 
       {/* ---------- related experience ---------- */}
       {!loading && relatedExp.length > 0 && (
-        <section className="py-14 md:py-20">
+        <section id="in-industry" className="py-14 md:py-20">
           <PageContainer>
             <Heading kicker="In industry" color={group.cssVar}>
               Where I did this at work
@@ -361,7 +394,7 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
       )}
 
       {/* ---------- next domain ---------- */}
-      <PageContainer className="pb-8 pt-10">
+      <PageContainer id="next-up" className="pb-8 pt-10">
         <Reveal>
           <RevealItem>
             <Link

@@ -15,7 +15,19 @@ import {
   useMotionValue,
   useTransform,
 } from "framer-motion";
-import { ArrowRight, ArrowUpRight, Linkedin, Mail } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Briefcase,
+  Compass,
+  GraduationCap,
+  Hand,
+  LayoutGrid,
+  Linkedin,
+  Mail,
+  Star,
+  Wrench,
+} from "lucide-react";
 import {
   usePortfolio,
   projectsInGroup,
@@ -35,6 +47,7 @@ import {
 } from "../components/ui";
 import { ExperienceTimeline } from "../components/ExperienceTimeline";
 import { FeaturedGrid } from "../components/FeaturedGrid";
+import { SectionIndex, type IndexSection } from "../components/SectionIndex";
 import { TechLogo } from "../components/TechLogo";
 import { useDarkMode } from "../contexts/DarkModeContext";
 import { brandColor, iconFor } from "../lib/techIcons";
@@ -100,7 +113,7 @@ const textLink =
 
 function Hero() {
   return (
-    <section className="pb-16 pt-28 md:pb-24 md:pt-36">
+    <section id="intro" className="pb-16 pt-28 md:pb-24 md:pt-36">
       <PageContainer className="grid items-center gap-12 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
         <motion.div
           initial="hidden"
@@ -121,7 +134,7 @@ function Hero() {
             className="mt-7 max-w-[40rem] space-y-5 text-lg leading-relaxed text-fg/90 sm:text-xl sm:leading-relaxed"
           >
             <p>
-              I&rsquo;m an ML systems and AI engineer finishing my{" "}
+              I&rsquo;m a software engineer finishing my{" "}
               <strong className="font-bold text-fg">
                 Master of Software Engineering – Scalable Systems
               </strong>{" "}
@@ -129,18 +142,23 @@ function Hero() {
               (GPA 4.14 / 4.33), graduating in December 2026.
             </p>
             <p>
-              I like making things fast and reliable. That has meant GPU kernels
-              and a buffer pool for{" "}
-              <DomainLink id="systems">Systems</DomainLink>, training and
-              compressing models in <DomainLink id="ml">ML</DomainLink>, LLM
-              agents that survive production in{" "}
-              <DomainLink id="ai">AI</DomainLink>, and full-stack products on
-              the <DomainLink id="web">Web</DomainLink>.
+              I build products end to end, and I don&rsquo;t treat the layers
+              as separate careers: full-stack products on the{" "}
+              <DomainLink id="web">Web</DomainLink>, the backends and
+              infrastructure under them in{" "}
+              <DomainLink id="systems">Systems</DomainLink>, LLM agents that
+              survive production in <DomainLink id="ai">AI</DomainLink>, and
+              models made fast in <DomainLink id="ml">ML</DomainLink>.
+            </p>
+            <p>
+              Three early-stage startups taught me the rest: own the outcome,
+              not just the ticket; know why a feature matters to the business
+              before building it; and ship it right the first time.
             </p>
             <p className="text-muted">
               Right now I&rsquo;m a Software Developer on a Carnegie Mellon
               practicum with RedZone Robotics, and I&rsquo;m looking for
-              full-time ML infrastructure, AI platform, and backend roles.
+              full-time software engineering roles.
             </p>
           </motion.div>
 
@@ -319,14 +337,14 @@ function Counter({
 function Stats({ projectCount }: { projectCount: number }) {
   const stats = [
     {
-      node: <Counter to={4.14} decimals={2} />,
-      label: "GPA at Carnegie Mellon",
+      node: <Counter to={3} />,
+      label: "early-stage startups",
       color: "--accent",
     },
     {
-      node: <Counter to={8} suffix="×" />,
-      label: "faster image sampling",
-      color: "--ml",
+      node: <Counter to={3} suffix="k+" />,
+      label: "users on billing I architected",
+      color: "--web",
     },
     {
       node: <Counter to={50} prefix="~" suffix="%" />,
@@ -336,7 +354,7 @@ function Stats({ projectCount }: { projectCount: number }) {
     {
       node: <Counter to={projectCount} />,
       label: "projects shipped",
-      color: "--web",
+      color: "--systems",
     },
   ];
   return (
@@ -366,31 +384,31 @@ function Stats({ projectCount }: { projectCount: number }) {
 /* ---------- logo marquee (plain logos, no pills) ---------- */
 
 const MARQUEE = [
+  "TypeScript",
+  "React",
+  "Python",
+  "Go",
+  "Postgres",
+  "AWS",
+  "Docker",
+  "Kubernetes",
+  "FastAPI",
+  "Kafka",
+  "LangGraph",
+  "Claude",
+  "C++",
   "CUDA",
   "PyTorch",
-  "Python",
-  "C++",
+  "Terraform",
+  "GCP",
+  "MongoDB",
+  "OpenAI",
   "Apache TVM",
   "MLX",
   "Hugging Face",
-  "LangGraph",
-  "Claude",
-  "OpenAI",
-  "FastAPI",
-  "React",
-  "TypeScript",
-  "Docker",
-  "Kubernetes",
-  "Terraform",
-  "AWS",
-  "GCP",
-  "Kafka",
-  "Postgres",
-  "MongoDB",
   "DuckDB",
   "Polars",
   "Grafana",
-  "Go",
 ];
 
 function Marquee() {
@@ -422,7 +440,7 @@ function Domains({ projects }: { projects: Project[] }) {
   return (
     <PageContainer className="py-14 md:py-20">
       <div id="work" className="scroll-mt-24" />
-      <Heading kicker="Four ways in">What I work on</Heading>
+      <Heading kicker="One engineer, four disciplines">What I work on</Heading>
       <Reveal>
         <ul className="border-t hairline">
           {GROUPS.map((g, i) => {
@@ -481,11 +499,62 @@ function Domains({ projects }: { projects: Project[] }) {
   );
 }
 
+/* ---------- how I work (beyond the code) ---------- */
+
+const PRINCIPLES = [
+  {
+    title: "Own the outcome",
+    body: "At early-stage startups there is rarely someone to hand things off to. I took a Web3 product from an MVC monolith to Dockerized microservices on AWS ECS and set up its CI/CD myself, so it would hold up under traffic spikes.",
+    color: "--accent",
+  },
+  {
+    title: "Know why it matters to the business",
+    body: "I've built ideal customer profiles, sized cohorts, and run 500+ outreaches that put a potential $75k+ into the MQL stage. Knowing how a company makes money changes what I choose to build first.",
+    color: "--web",
+  },
+  {
+    title: "Build it right, and efficiently",
+    body: "Cost and reliability are part of the spec. I cut LLM cost 40–50% with caching and structured outputs, added checkpoint resume and circuit breakers, and wrote tests proving exactly one refund succeeds under parallel attempts.",
+    color: "--systems",
+  },
+  {
+    title: "Work across the table",
+    body: "I've worked directly with product leadership on a core architecture migration, and studied Product Management, Agile, and Software Project Management at Carnegie Mellon. I can talk shop with sales, product, and engineering.",
+    color: "--ai",
+  },
+];
+
+function HowIWork() {
+  return (
+    <PageContainer id="how-i-work" className="py-14 md:py-20">
+      <Heading kicker="Beyond the code" color="--accent">
+        How I work
+      </Heading>
+      <Reveal className="border-t hairline">
+        {PRINCIPLES.map((p) => (
+          <RevealItem
+            key={p.title}
+            className="grid gap-2 border-b hairline py-7 md:grid-cols-[1fr_1.6fr] md:gap-10"
+          >
+            <h3
+              className="text-2xl font-black tracking-tight"
+              style={{ color: `rgb(var(${p.color}))` }}
+            >
+              {p.title}
+            </h3>
+            <p className="text-lg leading-relaxed text-fg">{p.body}</p>
+          </RevealItem>
+        ))}
+      </Reveal>
+    </PageContainer>
+  );
+}
+
 /* ---------- selected work as a numbered list ---------- */
 
 function Featured({ projects }: { projects: Project[] }) {
   return (
-    <PageContainer className="py-14 md:py-20">
+    <PageContainer id="selected-work" className="py-14 md:py-20">
       <Heading kicker="Selected work" color="--ai">
         Things I&rsquo;m proud of
       </Heading>
@@ -502,7 +571,7 @@ function Toolkit({ skills }: { skills: { category: string; name: string }[] }) {
     return acc;
   }, {});
   return (
-    <PageContainer className="py-14 md:py-20">
+    <PageContainer id="toolkit" className="py-14 md:py-20">
       <Heading kicker="Toolkit" color="--web">
         What I build with
       </Heading>
@@ -544,7 +613,7 @@ function Education() {
       degree: "Master of Software Engineering – Scalable Systems",
       meta: "Pittsburgh, PA · GPA 4.14 / 4.33 · Expected December 2026",
       detail:
-        "ML Systems (15-642), Diffusion and Flow Matching (10-799, A+), Database Systems (15-645), Machine Learning with Large Datasets (10-805), Software Architectures, DevOps.",
+        "Software Architectures, Database Systems (15-645), API Design, DevOps, Product Management, ML Systems (15-642), Machine Learning with Large Datasets (10-805), Diffusion and Flow Matching (10-799, A+).",
       color: "--accent",
       // Official marks from Wikimedia Commons (public domain); shown on a white plate so the
       // brand colors keep their contrast in dark mode too
@@ -570,7 +639,7 @@ function Education() {
     },
   ];
   return (
-    <PageContainer className="py-14 md:py-20">
+    <PageContainer id="education" className="py-14 md:py-20">
       <Heading kicker="Education" color="--ml">
         Where I studied
       </Heading>
@@ -614,19 +683,19 @@ function Education() {
 
 function Contact() {
   return (
-    <PageContainer className="py-16 md:py-24">
+    <PageContainer id="contact" className="py-16 md:py-24">
       <Reveal className="max-w-[44rem]">
         <RevealItem>
           <h2 className="text-4xl font-black leading-tight tracking-tight text-fg sm:text-5xl">
-            Looking for teams where performance is a{" "}
-            <span style={{ color: "rgb(var(--accent))" }}>feature</span>.
+            Looking for teams where engineers{" "}
+            <span style={{ color: "rgb(var(--accent))" }}>own the outcome</span>.
           </h2>
         </RevealItem>
         <RevealItem>
           <p className="mt-5 text-lg leading-relaxed text-muted sm:text-xl">
-            ML infrastructure, AI platform, LLM engineering, or backend roles. I
-            graduate in December 2026, I&rsquo;m open to relocating, and my
-            inbox is open.
+            Software engineering roles across product, backend, platform, and
+            AI, ideally on teams that move fast and care why. I graduate in
+            December 2026, I&rsquo;m open to relocating, and my inbox is open.
           </p>
         </RevealItem>
         <RevealItem className="mt-8 flex flex-wrap items-center gap-6">
@@ -658,11 +727,23 @@ function Contact() {
 
 /* ---------- page ---------- */
 
+const PAGE_SECTIONS: IndexSection[] = [
+  { id: "intro", label: "Intro", icon: Hand, color: "--accent" },
+  { id: "work", label: "What I work on", icon: LayoutGrid, color: "--accent" },
+  { id: "how-i-work", label: "How I work", icon: Compass, color: "--accent" },
+  { id: "selected-work", label: "Selected work", icon: Star, color: "--ai" },
+  { id: "experience", label: "Experience", icon: Briefcase, color: "--systems" },
+  { id: "toolkit", label: "Toolkit", icon: Wrench, color: "--web" },
+  { id: "education", label: "Education", icon: GraduationCap, color: "--ml" },
+  { id: "contact", label: "Contact", icon: Mail, color: "--accent" },
+];
+
 export function HomePage() {
   const { projects, experiences, skills, loading } = usePortfolio();
 
   return (
     <>
+      <SectionIndex sections={PAGE_SECTIONS} />
       <Hero />
       <Location />
       <Marquee />
@@ -676,8 +757,9 @@ export function HomePage() {
         <>
           <Stats projectCount={projects.length} />
           <Domains projects={projects} />
+          <HowIWork />
           <Featured projects={projects} />
-          <PageContainer className="py-14 md:py-20">
+          <PageContainer id="experience" className="py-14 md:py-20">
             <Heading kicker="Experience" color="--systems">
               Where I&rsquo;ve worked
             </Heading>

@@ -10,7 +10,7 @@ const link =
 
 export function Footer() {
   return (
-    <footer className="relative mt-24 border-t hairline">
+    <footer className="relative mt-24 border-t hairline pb-20 xl:pb-0">
       <div className="mx-auto grid max-w-page gap-12 px-4 py-16 sm:px-6 md:grid-cols-[1.5fr_1fr_1fr]">
         <div>
           <p className="text-3xl font-black leading-tight tracking-tight text-fg sm:text-4xl">
@@ -18,8 +18,8 @@ export function Footer() {
             <span style={{ color: "rgb(var(--accent))" }}>fast</span>.
           </p>
           <p className="mt-4 max-w-md text-base leading-relaxed text-muted">
-            Open to full-time ML systems, AI platform, and software engineering
-            roles. Based in Pittsburgh, open to relocation.
+            Open to full-time software engineering roles across product,
+            backend, platform, and AI. Based in Pittsburgh, open to relocation.
           </p>
           <a
             href="mailto:gdiwan@cs.cmu.edu"

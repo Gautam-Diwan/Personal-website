@@ -165,39 +165,64 @@ function GemmVisual() {
   );
 }
 
-function MacsVisual() {
+function EditorVisual() {
   const t = useTicker(1100);
-  const round = t % 3;
+  const step = t % 4; // 0: editing, 1-2: bubbles appear, 3: exported
+  const fields = ["Persona", "Message", "Theme"];
+  const bubbles = [
+    { text: "Can I see a demo?", me: false },
+    { text: "Rendering it now", me: true },
+  ];
   return (
     <div
-      className="relative flex w-full max-w-[260px] items-end justify-between"
+      className="grid w-full max-w-sm grid-cols-[0.9fr_1.1fr] gap-2.5"
       aria-hidden="true"
     >
-      {[0, 1, 2].map((i) => (
-        <div key={i} className="flex flex-col items-center gap-1.5">
-          <motion.div
-            className="grid h-14 w-20 place-items-center rounded-md border-2 bg-bg"
-            style={{ borderColor: "rgb(var(--line) / 0.35)" }}
-            animate={{ y: i === round ? -6 : 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 15 }}
-          >
-            <TechLogo name="MLX" size={20} />
-          </motion.div>
-          <div className="h-1.5 w-24 rounded-b-md bg-fg/25" />
-          <span className="font-mono text-[11px] font-bold text-muted">
-            {["M4 Air", "M4 Pro", "M1 8GB"][i]}
-          </span>
-        </div>
-      ))}
-      <motion.span
-        key={round}
-        className="absolute -top-7 font-mono text-xs font-bold"
-        style={{ color: "rgb(var(--ml))", left: `${round * 38 + 6}%` }}
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
+      <div
+        className="space-y-1.5 rounded-lg border-2 bg-bg p-2"
+        style={{ borderColor: "rgb(var(--line) / 0.2)" }}
       >
-        ΔLoRA ↑
-      </motion.span>
+        {fields.map((f, i) => (
+          <div
+            key={f}
+            className="rounded-md border-2 px-2 py-1 text-left font-mono text-[11px] font-bold text-muted transition-colors duration-300"
+            style={{
+              borderColor:
+                i === t % 3 ? "rgb(var(--web))" : "rgb(var(--line) / 0.15)",
+            }}
+          >
+            {f}
+          </div>
+        ))}
+      </div>
+      <div
+        className="flex flex-col justify-end gap-1.5 rounded-lg border-2 bg-bg p-2"
+        style={{ borderColor: "rgb(var(--line) / 0.2)" }}
+      >
+        {bubbles.map((b, i) =>
+          step > i ? (
+            <motion.div
+              key={b.text}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`max-w-[90%] rounded-lg px-2 py-1 text-left text-[11px] font-bold ${b.me ? "self-end" : "self-start bg-fg/10 text-fg"}`}
+              style={
+                b.me
+                  ? { background: "rgb(var(--web))", color: "rgb(var(--bg))" }
+                  : undefined
+              }
+            >
+              {b.text}
+            </motion.div>
+          ) : null,
+        )}
+        <div
+          className="mt-0.5 text-right font-mono text-[11px] font-bold transition-opacity duration-300"
+          style={{ color: "rgb(var(--web))", opacity: step === 3 ? 1 : 0 }}
+        >
+          PNG ✓
+        </div>
+      </div>
     </div>
   );
 }
@@ -339,15 +364,16 @@ const TILES: Tile[] = [
     ),
   },
   {
-    slug: "macreduce",
+    slug: "chat-simulator-studio",
     span: "",
-    visual: <MacsVisual />,
+    visual: <EditorVisual />,
     text: (
       <>
-        I fine-tuned Qwen3 across <Em>3 Macs</Em> with federated QLoRA, taking
-        perplexity from <Em>64.2 → 23.3</Em>.
+        I built a visual editor whose serverless screenshot API renders headless
+        Chromium inside Vercel&rsquo;s <Em>10-second</Em> limit.
       </>
     ),
+    sub: <>Live preview, shareable links, deployed on two clouds.</>,
   },
   {
     slug: "research-deck-pipeline",

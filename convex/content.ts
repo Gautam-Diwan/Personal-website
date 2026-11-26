@@ -96,7 +96,7 @@ export const projects: ProjectSeed[] = [
     ],
     startDate: "October 2026",
     sortKey: 202610,
-    featured: true,
+    featured: false,
     category: "academic",
   },
   {
@@ -235,7 +235,7 @@ export const projects: ProjectSeed[] = [
     longDescription:
       "Open-source contribution to Open Notebook, a multi-provider LLM notebook app. Landed oMLX as a first-class provider, coordinating with the upstream Esperanto provider library, so users can run local LLM and embedding inference on Apple Silicon. Also hardened outbound provider HTTP against SSRF and fixed Docker CI.",
     context: "Open source contribution",
-    groups: ["ai", "systems"],
+    groups: ["ai"],
     technologies: ["Python", "oMLX", "MLX", "Esperanto", "Docker", "SSRF hardening"],
     highlights: [
       "Landed first-class oMLX as a provider with upstream Esperanto coordination, enabling private local LLM and embedding inference on Apple Silicon (about +431 LOC, 72 tests).",
@@ -262,7 +262,7 @@ export const projects: ProjectSeed[] = [
     longDescription:
       "Built at Skilly. A six-phase research pipeline was first prototyped in n8n, then migrated to Python and LangGraph because n8n could not express N-way parallel Claude fan-out. The final phase generates slide decks from a structured DeckSpec with an LLM critic-revise loop. Reliability and cost were treated as first-class: checkpoint resume, circuit breakers, prompt caching, and full observability.",
     context: "Skilly · Industrial project",
-    groups: ["ai", "systems"],
+    groups: ["ai"],
     technologies: ["LangGraph", "Python", "Claude", "FastAPI", "SQLite", "Jinja2", "Playwright", "Langfuse", "OpenTelemetry", "Grafana"],
     highlights: [
       "Migrated a six-phase pipeline from n8n to LangGraph for N-way parallel Claude fan-out via the Send API, roughly halving runtime.",
@@ -306,7 +306,7 @@ export const projects: ProjectSeed[] = [
     startDate: "May 2026",
     endDate: "Present",
     sortKey: 202605,
-    featured: false,
+    featured: true,
     category: "work",
   },
   {
@@ -536,7 +536,7 @@ export const projects: ProjectSeed[] = [
     longDescription:
       "A Django-inspired backend in Go. CRUD for blogs, tags, users, and friendships, Bcrypt and Paseto authentication, and Postgres through Ent ORM, using Go concurrency for high-throughput request handling.",
     context: "Personal project",
-    groups: ["web", "systems"],
+    groups: ["web"],
     technologies: ["Go", "Postgres", "Ent ORM", "Paseto", "Bcrypt"],
     highlights: [
       "Built CRUD APIs for blogs, tags, users, and friendships.",
@@ -661,13 +661,14 @@ export const experiences: ExperienceSeed[] = [
     startDate: "May 2026",
     endDate: "August 2026",
     summary:
-      "Agentic LLM systems for research automation, deck generation, and large structured datasets, plus GTM outreach engineering.",
+      "Agentic LLM systems, a customer-facing visual editor, and go-to-market engineering at an early-stage startup.",
     description: [
       "Migrated a six-phase research agent from n8n to LangGraph for N-way parallel Claude fan-out, roughly halving runtime; prompt caching, structured outputs, and Agent Skills cut LLM cost about 40 to 50%.",
       "Hardened long runs with SQLite checkpoint resume, circuit breakers, exponential backoff, and simulation-structured queues behind FastAPI status and resume endpoints.",
+      "Built Chat Simulator Studio, a React 19 visual editor with a serverless Playwright screenshot API, Clerk-gated OpenAPI routes, and shareable links, deployed on Vercel and AWS Amplify.",
+      "Built ideal customer profiles for Higher Ed and Staffing, then ran 500+ personalized outreaches across 5+ email and LinkedIn campaigns with Clay, Claygents, and Claude enrichment, leading to a potential $75k+ in additional MQL-stage revenue.",
       "Built data lookup agents over IPEDS, College Scorecard, NCSES HERD, and BLS (QCEW about 2.2 GB) on DuckDB with zero in-memory fallback.",
       "Deployed a 7-service observability stack: OpenTelemetry, Grafana Tempo, Prometheus, Loki, and Langfuse.",
-      "Ran 500+ personalized outreaches across 5+ email and LinkedIn campaigns with Clay, Claygents, and Claude enrichment, leading to a potential $75k+ in additional MQL-stage revenue.",
     ],
     technologies: ["LangGraph", "Claude", "FastAPI", "DuckDB", "OpenTelemetry", "Langfuse", "React 19", "Playwright"],
     groups: ["ai", "systems", "web"],
@@ -733,26 +734,26 @@ export const experiences: ExperienceSeed[] = [
 export const skills: { category: string; items: string[] }[] = [
   {
     category: "Languages",
-    items: ["Python", "C++", "C", "CUDA", "Go", "TypeScript", "JavaScript", "Java"],
-  },
-  {
-    category: "ML Systems",
-    items: ["PyTorch", "Apache TVM", "Triton", "MLX", "vLLM", "llama.cpp", "MPI", "Quantization", "Roofline analysis"],
-  },
-  {
-    category: "AI & Agents",
-    items: ["LangGraph", "LangChain", "Claude API", "OpenAI API", "RAG", "Prompt caching", "Structured outputs", "MCP", "Langfuse"],
+    items: ["TypeScript", "Python", "Go", "JavaScript", "Java", "C++", "C", "CUDA"],
   },
   {
     category: "Backend & Data",
-    items: ["FastAPI", "Node.js", "Django", "Postgres", "MongoDB", "Redis", "Kafka", "DuckDB", "Polars"],
+    items: ["Node.js", "FastAPI", "Django", "Postgres", "MongoDB", "Redis", "Kafka", "DuckDB", "Polars"],
   },
   {
     category: "Frontend",
-    items: ["React 19", "TanStack", "Next.js", "Tailwind CSS", "three.js", "Playwright", "Convex"],
+    items: ["React 19", "TanStack", "Next.js", "Tailwind CSS", "three.js", "Playwright", "Convex", "Stripe"],
   },
   {
     category: "Cloud & Infra",
     items: ["AWS", "GCP", "Docker", "Kubernetes", "Terraform", "Ansible", "GitHub Actions", "OpenTelemetry", "Grafana"],
+  },
+  {
+    category: "AI & ML",
+    items: ["LangGraph", "Claude API", "OpenAI API", "RAG", "Langfuse", "PyTorch", "Apache TVM", "Triton", "vLLM", "MLX", "llama.cpp", "MPI"],
+  },
+  {
+    category: "Product & Business",
+    items: ["ICPs & cohort sizing", "Go-to-market", "Product requirements", "Agile / Scrum", "Clay", "Lemlist", "Pipedrive"],
   },
 ];

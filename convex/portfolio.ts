@@ -8,7 +8,7 @@ import { projects, experiences, skills } from "./content";
  * deploy triggers `seedPortfolioData`, which replaces the portfolio tables.
  * Keep in sync with CONTENT_VERSION in src/lib/content.ts.
  */
-export const CONTENT_VERSION = 4;
+export const CONTENT_VERSION = 6;
 
 const byRecency = <T extends { sortKey?: number; _creationTime: number }>(
   a: T,

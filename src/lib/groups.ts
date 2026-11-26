@@ -35,7 +35,7 @@ export const GROUPS: GroupMeta[] = [
     cssVar: "--systems",
     hex: ["#ffad33", "#a35200"],
     pinned: ["bustub"],
-    tagline: "Kernels, storage engines, and distributed infrastructure.",
+    tagline: "Backends, storage engines, infrastructure, and kernels.",
     description:
       "Performance from first principles: GPU kernels measured against cuBLAS, concurrent database internals, collective communication for distributed training, and the cloud infrastructure that keeps it all running.",
   },
@@ -71,9 +71,9 @@ export const GROUPS: GroupMeta[] = [
     icon: Globe,
     cssVar: "--web",
     hex: ["#3de0a3", "#008055"],
-    tagline: "Full-stack products, APIs, and real-time apps.",
+    tagline: "Products people use and pay for: full-stack, APIs, payments.",
     description:
-      "Product engineering across the stack: React editors with serverless rendering, microservice platforms, real-time chat, open-source Django tooling, and this site.",
+      "Product engineering across the stack: subscription billing, operator dashboards for B2B SaaS, React editors with serverless rendering, microservice platforms, real-time chat, open-source Django tooling, and this site.",
   },
 ];
 
