@@ -20,7 +20,7 @@ export const SHOWCASES: Partial<Record<GroupId, Showcase>> = {
   systems: {
     eyebrow: "Under the hood",
     title: "From SQL to pages in memory.",
-    body: "Run the query to watch the optimizer cost three plans and pick an index nested-loop join. Every page the executor touches then goes through a 4-frame buffer pool managed by ARC, the replacement policy I built for BusTub. Hot customer pages earn a place in T2, revisited heap pages compete through T1, and the target p shifts each time a ghost list proves one side wrong.",
+    body: "Run the query to watch the optimizer cost three plans and pick an index nested-loop join. Both sides are B+ tree index scans: one descent to the first September leaf, then a walk along the leaf chain, with a root-to-leaf probe into the customers index for every order. Every page the executor touches then goes through a 4-frame buffer pool managed by ARC, the replacement policy I built for BusTub. Hot customer pages earn a place in T2, revisited heap pages compete through T1, and the target p shifts each time a ghost list proves one side wrong.",
     node: <QueryPlanViz />,
     wide: true,
   },

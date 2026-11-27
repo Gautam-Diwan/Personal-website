@@ -15,6 +15,7 @@ import {
   StepForward,
 } from "lucide-react";
 import { buildJoinTrace, simulateArc, type ArcSnapshot } from "./arc";
+import { BPlusTreeViz } from "./BPlusTreeViz";
 import { ease } from "../../lib/motion";
 
 // 4 frames is small enough that ghost hits occur and ARC's target p visibly adapts
@@ -775,6 +776,41 @@ export function QueryPlanViz() {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Full width: the two B+ tree indexes the plan reads */}
+          {expanded && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease, delay: 0.75 }}
+              className="min-w-0 border-t hairline p-4 sm:p-5 lg:col-span-2"
+            >
+              <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <p className="eyebrow">Indexes · B+ trees</p>
+                <span className="font-mono text-[11px] text-muted">
+                  {executing && snap.access
+                    ? snap.access.page.startsWith("ix:")
+                      ? `reading ${snap.access.page} (orders index)`
+                      : snap.access.page.startsWith("pk:") ||
+                          snap.access.page.startsWith("c:")
+                        ? `probing ${snap.access.page} (customers index)`
+                        : `fetching heap page ${snap.access.page}`
+                    : "both scans are index scans in the chosen plan"}
+                </span>
+              </div>
+              <BPlusTreeViz
+                trace={trace}
+                step={step}
+                frames={snap.frames}
+                resultColor={
+                  phase === "execute" && snap.result
+                    ? `rgb(var(${RESULT_COLOR[snap.result]}))`
+                    : undefined
+                }
+                executing={executing}
+              />
+            </motion.div>
+          )}
         </div>
       </motion.div>
     </LayoutGroup>
