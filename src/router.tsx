@@ -12,6 +12,7 @@ import { DarkModeProvider } from "./contexts/DarkModeContext";
 import { SceneBackground } from "./components/layout/SceneBackground";
 import { Navbar } from "./components/layout/Navbar";
 import { Footer } from "./components/layout/Footer";
+import { CursorDot } from "./components/layout/CursorDot";
 import { HomePage } from "./pages/HomePage";
 import { AboutPage } from "./pages/AboutPage";
 import { GroupPage } from "./pages/GroupPage";
@@ -38,6 +39,7 @@ function RootLayout() {
       </motion.main>
       <Footer />
       <Toaster theme="system" />
+      <CursorDot />
     </DarkModeProvider>
   );
 }
