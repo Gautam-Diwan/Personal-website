@@ -9,7 +9,12 @@ import {
   MousePointerClick,
 } from "lucide-react";
 import { usePortfolio, projectGroups, projectsInGroup } from "../lib/content";
-import { GROUPS, GROUP_BY_ID, type GroupId } from "../lib/groups";
+import {
+  GROUPS,
+  GROUP_BY_ID,
+  techFilterKey,
+  type GroupId,
+} from "../lib/groups";
 import { ease, fadeUp, stagger } from "../lib/motion";
 import { playPop } from "../lib/sound";
 import {
@@ -115,15 +120,27 @@ export function GroupPage({ groupId }: { groupId: GroupId }) {
   const topTech = useMemo(() => {
     const counts = new Map<string, number>();
     inGroup.forEach((p) =>
-      p.technologies.forEach((t) => counts.set(t, (counts.get(t) ?? 0) + 1)),
+      // count each project once per key, so "C++" and "C++17" on one project don't double up
+      new Set(p.technologies.map(techFilterKey)).forEach((t) =>
+        counts.set(t, (counts.get(t) ?? 0) + 1),
+      ),
     );
     const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1]);
     const shared = ranked.filter(([, c]) => c > 1);
     // Small groups share few technologies; fall back to the most common singles
-    return (shared.length >= 4 ? shared : ranked).slice(0, 8).map(([t]) => t);
-  }, [inGroup]);
+    const auto = (shared.length >= 4 ? shared : ranked)
+      .slice(0, 8)
+      .map(([t]) => t);
+    // Always-offered filters for this group, if any project in it actually uses them
+    const extra = (group.filters ?? []).filter(
+      (t) => counts.has(t) && !auto.includes(t),
+    );
+    return [...auto, ...extra];
+  }, [inGroup, group]);
   const shown = filter
-    ? inGroup.filter((p) => p.technologies.includes(filter))
+    ? inGroup.filter((p) =>
+        p.technologies.some((t) => techFilterKey(t) === filter),
+      )
     : inGroup;
   const relatedExp = (experiences ?? []).filter((e) =>
     (e.groups ?? []).includes(groupId),

@@ -56,7 +56,7 @@ export const projects: ProjectSeed[] = [
       "An end-to-end small-LLM training run for CMU 10-805. Learning rates were tuned cheaply on narrow proxy models and transferred to full width with maximal update parametrization (muP), then a 125M-parameter GPT-2 was continued-pretrained on programming and web data and supervised fine-tuned on chat conversations. Cloud runs were automated with spend guards so the whole thing finished well under budget.",
     context: "CMU 10-805 · Machine Learning with Large Datasets",
     groups: ["ml", "systems"],
-    technologies: ["PyTorch", "muP", "GPT-2", "AWS EC2", "S3", "Python"],
+    technologies: ["PyTorch", "muP", "GPT-2", "AWS", "EC2", "Python"],
     highlights: [
       "Ran 18 learning-rate trials across model widths and training horizons; selected a rate at 4.3663 proxy validation loss and transferred it from width 96 to 768 with muP.",
       "Continued pretraining a 125M-parameter GPT-2 on programming and web data to 2.7387 domain validation loss, then fine-tuned on 10,000 chat conversations to 2.0031 SFT validation loss.",
@@ -213,7 +213,7 @@ export const projects: ProjectSeed[] = [
       "Large-dataset modeling without reaching for a cluster: Polars lazy pipelines for year prediction with feature interactions and regularization, and a PyTorch MLP over TF-IDF plus numeric features streamed from public S3.",
     context: "CMU 10-805 · Machine Learning with Large Datasets",
     groups: ["ml"],
-    technologies: ["Polars", "PyTorch", "NumPy", "S3"],
+    technologies: ["Polars", "PyTorch", "NumPy", "AWS"],
     highlights: [
       "Built Polars LazyFrame pipelines with full-batch gradient descent, L2 tuning, and ordered two-way interactions, reaching held-out test RMSE 16.23.",
       "Trained a PyTorch MLP on TF-IDF plus numeric features loaded from public S3; early-stopped on validation AUROC to reach 0.794 test AUROC.",

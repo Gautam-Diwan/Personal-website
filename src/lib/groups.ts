@@ -23,7 +23,15 @@ export type GroupMeta = {
   description: string;
   /** Project slugs always listed first on this group's page, in this order */
   pinned?: string[];
+  /** Technology filters always offered on this group's page, even if only one project uses them */
+  filters?: string[];
 };
+
+/**
+ * Key a technology is filtered by, so versioned variants share one filter
+ * (e.g. "C++17" is found by the "C++" filter).
+ */
+export const techFilterKey = (t: string) => (t.startsWith("C++") ? "C++" : t);
 
 export const GROUPS: GroupMeta[] = [
   {
@@ -35,6 +43,7 @@ export const GROUPS: GroupMeta[] = [
     cssVar: "--systems",
     hex: ["#ffad33", "#a35200"],
     pinned: ["bustub"],
+    filters: ["C++"],
     tagline: "Backends, storage engines, infrastructure, and kernels.",
     description:
       "Performance from first principles: GPU kernels measured against cuBLAS, concurrent database internals, collective communication for distributed training, and the cloud infrastructure that keeps it all running.",
@@ -47,6 +56,7 @@ export const GROUPS: GroupMeta[] = [
     icon: BrainCircuit,
     cssVar: "--ml",
     hex: ["#ac91ff", "#7319e6"],
+    filters: ["MLX"],
     tagline: "Training, fine-tuning, and making models fast.",
     description:
       "Models end to end: few-step diffusion, federated QLoRA on Apple Silicon, muP learning-rate transfer, quantization and pruning on Blackwell, and the data pipelines that feed them.",

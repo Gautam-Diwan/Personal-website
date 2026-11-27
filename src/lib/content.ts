@@ -10,7 +10,7 @@ import {
 } from "../../convex/content";
 
 /** Keep in sync with CONTENT_VERSION in convex/portfolio.ts */
-export const CONTENT_VERSION = 6;
+export const CONTENT_VERSION = 7;
 
 export type Project = Doc<"projects">;
 export type Experience = Doc<"experiences">;
