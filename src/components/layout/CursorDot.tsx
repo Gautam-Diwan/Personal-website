@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
-const SIZE = 10;
+const SIZE = 4;
 const RING = 34;
 const INTERACTIVE =
   "a, button, [role='button'], input, textarea, select, label, summary";
@@ -90,7 +90,7 @@ export function CursorDot() {
           top: -SIZE / 2,
           background: "rgb(var(--accent))",
         }}
-        animate={{ opacity: hovering ? 0 : 0.9, scale: hovering ? 0.4 : 1 }}
+        animate={{ opacity: hovering ? 0 : 1, scale: hovering ? 0.4 : 1 }}
         transition={t}
       />
       {/* outline ring over anything clickable, so it reads on any colour */}
