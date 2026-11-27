@@ -17,6 +17,7 @@ import { TechLogo } from "../TechLogo";
 
 const NAV = [
   { to: "/", label: "Home", color: "fg" },
+  { to: "/about", label: "About", color: "fg" },
   ...GROUPS.map((g) => ({
     to: g.path,
     label: g.id === "ml" ? "ML" : g.id === "ai" ? "AI" : g.label,
@@ -102,7 +103,7 @@ export function Navbar() {
           >
             GD
           </span>
-          <span className="hidden text-lg font-extrabold tracking-tight text-fg sm:block">
+          <span className="hidden whitespace-nowrap text-lg font-extrabold tracking-tight text-fg sm:block md:hidden lg:block">
             Gautam Diwan
           </span>
         </Link>

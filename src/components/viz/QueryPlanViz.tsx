@@ -409,7 +409,7 @@ export function QueryPlanViz() {
                         />
                         <span className="relative flex flex-col gap-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                           <span
-                            className={`min-w-0 break-words sm:truncate ${rejected ? "line-through decoration-1" : ""}`}
+                            className={`min-w-0 break-words ${rejected ? "line-through decoration-1" : ""}`}
                           >
                             <span className="font-semibold text-fg">
                               {plan.label}
