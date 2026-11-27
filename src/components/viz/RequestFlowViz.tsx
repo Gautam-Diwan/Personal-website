@@ -540,7 +540,7 @@ export function RequestFlowViz() {
             </span>
           </div>
           {/* Fixed-height slots: new rows fade in without changing the panel's height */}
-          <ul className="mt-3 grid h-[304px] grid-rows-4 gap-2 overflow-hidden">
+          <ul className="mt-3 grid h-[304px] grid-cols-[minmax(0,1fr)] grid-rows-4 gap-2 overflow-hidden">
             {log.map((e) => {
               const total = e.segs.reduce((s, x) => s + x.ms, 0);
               const ok = e.status < 400;
@@ -553,12 +553,12 @@ export function RequestFlowViz() {
                   className="h-[70px] rounded-lg border hairline bg-bg/70 px-3 py-2 font-mono text-xs"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="w-10 font-semibold text-fg">
+                    <span className="w-10 shrink-0 font-semibold text-fg">
                       {e.method}
                     </span>
-                    <span className="flex-1 truncate text-fg">{e.url}</span>
+                    <span className="min-w-0 flex-1 truncate text-fg">{e.url}</span>
                     <span
-                      className="rounded px-1.5 py-0.5 font-semibold"
+                      className="shrink-0 rounded px-1.5 py-0.5 font-semibold"
                       style={{
                         color: ok ? WEB : "rgb(var(--systems))",
                         background: ok
@@ -568,7 +568,7 @@ export function RequestFlowViz() {
                     >
                       {e.status}
                     </span>
-                    <span className="w-14 text-right text-fg">
+                    <span className="w-14 shrink-0 text-right text-fg">
                       {total >= 1000
                         ? `${(total / 1000).toFixed(1)}s`
                         : `${total}ms`}

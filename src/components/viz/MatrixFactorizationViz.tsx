@@ -746,8 +746,8 @@ export function MatrixFactorizationViz() {
       className="overflow-hidden rounded-2xl border border-white/15 shadow-2xl"
       style={{ background: M.bg, color: M.text }}
     >
-      <div className="grid lg:grid-cols-[1.3fr_1fr]">
-        <div className="p-5 sm:p-6">
+      <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+        <div className="min-w-0 p-4 sm:p-6">
           <Matrices t={time} state={state} data={data} focus={focus} />
         </div>
         <div className="relative min-h-[340px] border-t border-white/10 lg:border-l lg:border-t-0">
