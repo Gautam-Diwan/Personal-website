@@ -13,6 +13,7 @@ import { SceneBackground } from "./components/layout/SceneBackground";
 import { Navbar } from "./components/layout/Navbar";
 import { Footer } from "./components/layout/Footer";
 import { HomePage } from "./pages/HomePage";
+import { AboutPage } from "./pages/AboutPage";
 import { GroupPage } from "./pages/GroupPage";
 import { WorkInProgress } from "./pages/WorkInProgress";
 import { PageContainer } from "./components/ui";
@@ -82,6 +83,12 @@ const indexRoute = createRoute({
   component: HomePage,
 });
 
+const aboutRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/about",
+  component: AboutPage,
+});
+
 const groupRoutes = GROUPS.map((g) =>
   createRoute({
     getParentRoute: () => rootRoute,
@@ -99,6 +106,7 @@ const blogRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
+  aboutRoute,
   ...groupRoutes,
   blogRoute,
 ]);

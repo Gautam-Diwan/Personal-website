@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, Linkedin, Mail, PenLine } from "lucide-react";
+import { ArrowUpRight, Linkedin, Mail, PenLine, User } from "lucide-react";
 import { GROUPS } from "../../lib/groups";
 import { playPop } from "../../lib/sound";
 import { TechLogo } from "../TechLogo";
@@ -33,6 +33,15 @@ export function Footer() {
         <nav aria-label="Footer: explore">
           <p className={kicker}>Explore</p>
           <ul className="mt-4 space-y-3">
+            <li>
+              <Link
+                to="/about"
+                onClick={() => playPop(0.85)}
+                className={`${link} text-fg`}
+              >
+                <User size={17} strokeWidth={2.5} /> About me
+              </Link>
+            </li>
             {GROUPS.map((g, i) => {
               const Icon = g.icon;
               return (

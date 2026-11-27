@@ -113,7 +113,7 @@ const textLink =
 
 function Hero() {
   return (
-    <section id="intro" className="pb-16 pt-28 md:pb-24 md:pt-36">
+    <section id="intro" className="overflow-x-clip pb-16 pt-28 md:pb-24 md:pt-36">
       <PageContainer className="grid items-center gap-12 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
         <motion.div
           initial="hidden"
@@ -738,7 +738,7 @@ const PAGE_SECTIONS: IndexSection[] = [
   { id: "contact", label: "Contact", icon: Mail, color: "--accent" },
 ];
 
-export function HomePage() {
+export function AboutPage() {
   const { projects, experiences, skills, loading } = usePortfolio();
 
   return (
