@@ -1,5 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, Linkedin, Mail, PenLine, User } from "lucide-react";
+import {
+  ArrowUpRight,
+  Linkedin,
+  Mail,
+  MousePointerClick,
+  PenLine,
+  User,
+} from "lucide-react";
 import { GROUPS } from "../../lib/groups";
 import { playPop } from "../../lib/sound";
 import { TechLogo } from "../TechLogo";
@@ -57,6 +64,16 @@ export function Footer() {
                 </li>
               );
             })}
+            <li>
+              <Link
+                to="/visualizations"
+                onClick={() => playPop(1.15)}
+                className={link}
+                style={{ color: "rgb(var(--accent))" }}
+              >
+                <MousePointerClick size={17} strokeWidth={2.5} /> Visualizations
+              </Link>
+            </li>
             <li>
               <Link
                 to="/blog"

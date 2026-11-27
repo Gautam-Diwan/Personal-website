@@ -23,6 +23,7 @@ const NAV = [
     label: g.id === "ml" ? "ML" : g.id === "ai" ? "AI" : g.label,
     color: g.id,
   })),
+  { to: "/visualizations", label: "Visuals", color: "accent" },
   { to: "/blog", label: "Blog", color: "fg" },
 ] as const;
 

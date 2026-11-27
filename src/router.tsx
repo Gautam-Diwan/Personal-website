@@ -15,6 +15,7 @@ import { Footer } from "./components/layout/Footer";
 import { HomePage } from "./pages/HomePage";
 import { AboutPage } from "./pages/AboutPage";
 import { GroupPage } from "./pages/GroupPage";
+import { VisualizationsPage } from "./pages/VisualizationsPage";
 import { WorkInProgress } from "./pages/WorkInProgress";
 import { PageContainer } from "./components/ui";
 import { GROUPS } from "./lib/groups";
@@ -97,6 +98,12 @@ const groupRoutes = GROUPS.map((g) =>
   }),
 );
 
+const vizRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/visualizations",
+  component: VisualizationsPage,
+});
+
 // The blog CMS (components/Blog.tsx) is parked until there are posts to show.
 const blogRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -108,6 +115,7 @@ const routeTree = rootRoute.addChildren([
   indexRoute,
   aboutRoute,
   ...groupRoutes,
+  vizRoute,
   blogRoute,
 ]);
 
