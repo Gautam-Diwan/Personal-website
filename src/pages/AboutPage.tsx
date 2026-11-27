@@ -151,7 +151,7 @@ function Hero() {
               models made fast in <DomainLink id="ml">ML</DomainLink>.
             </p>
             <p>
-              Three early-stage startups taught me the rest: own the outcome,
+              Four startups taught me the rest: own the outcome,
               not just the ticket; know why a feature matters to the business
               before building it; and ship it right the first time.
             </p>
@@ -337,8 +337,8 @@ function Counter({
 function Stats({ projectCount }: { projectCount: number }) {
   const stats = [
     {
-      node: <Counter to={3} />,
-      label: "early-stage startups",
+      node: <Counter to={4} />,
+      label: "startups",
       color: "--accent",
     },
     {

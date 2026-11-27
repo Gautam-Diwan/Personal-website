@@ -42,11 +42,22 @@ export const GROUPS: GroupMeta[] = [
     icon: Cpu,
     cssVar: "--systems",
     hex: ["#ffad33", "#a35200"],
-    pinned: ["bustub"],
+    pinned: [
+      // databases
+      "bustub",
+      // distributed systems on the cloud
+      "bookstore-cqrs",
+      "devsecops-petclinic",
+      // ML systems
+      "mpi-parallel-training",
+      "gloo-ddp",
+      "blackwell-gemm",
+      "hardware-aware-compression",
+    ],
     filters: ["C++"],
-    tagline: "Backends, storage engines, infrastructure, and kernels.",
+    tagline: "Databases, distributed systems on the cloud, and ML systems.",
     description:
-      "Performance from first principles: GPU kernels measured against cuBLAS, concurrent database internals, collective communication for distributed training, and the cloud infrastructure that keeps it all running.",
+      "Databases first: I built the core of an OLTP database engine in C++ on CMU's BusTub, from a concurrent buffer pool with an ARC replacer to a latch-crabbing B+ tree. Then distributed systems on the cloud, with event-driven CQRS services on Kubernetes and the infrastructure as code behind them. Then ML systems: parallel training engines, collective communication, and GPU kernels measured against cuBLAS.",
   },
   {
     id: "ml",
@@ -56,10 +67,20 @@ export const GROUPS: GroupMeta[] = [
     icon: BrainCircuit,
     cssVar: "--ml",
     hex: ["#ac91ff", "#7319e6"],
+    pinned: [
+      // large-scale training: autoregressive, then diffusion
+      "gpt2-lr-transfer",
+      "few-step-image-generation",
+      // fine-tuning
+      "macreduce",
+      "bert-lora-minhash",
+      // inference optimization
+      "hardware-aware-compression",
+    ],
     filters: ["MLX"],
-    tagline: "Training, fine-tuning, and making models fast.",
+    tagline: "Training at scale, fine-tuning, and fast inference.",
     description:
-      "Models end to end: few-step diffusion, federated QLoRA on Apple Silicon, muP learning-rate transfer, quantization and pruning on Blackwell, and the data pipelines that feed them.",
+      "Large-scale training, autoregressive and diffusion: training GPT-2 on AWS and few-step diffusion and flow-matching generators. Fine-tuning with LoRA and federated QLoRA, hyperparameter optimization with muP learning-rate transfer, and inference optimization on both NVIDIA Blackwell and Apple Silicon.",
   },
   {
     id: "ai",

@@ -38,8 +38,13 @@ const COMPANIES = [
 ];
 
 const CREDENTIALS = [
-  { icon: GraduationCap, text: "CMU MSE · 4.14 GPA", short: "CMU · 4.14 GPA" },
-  { icon: Rocket, text: "3 early-stage startups", short: "3 startups" },
+  {
+    icon: GraduationCap,
+    text: "Carnegie Mellon Master of Software Engineering – Scalable Systems · 4.14 GPA",
+    short:
+      "Carnegie Mellon Master of Software Engineering – Scalable Systems · 4.14 GPA",
+  },
+  { icon: Rocket, text: "4 startups", short: "4 startups" },
   {
     icon: MapPin,
     text: "Pittsburgh · open to relocate",
@@ -110,7 +115,7 @@ function DomainTile({ id, proof }: { id: GroupId; proof: React.ReactNode }) {
 export function HomePage() {
   return (
     <section className="flex min-h-[100svh] items-center overflow-x-clip pb-10 pt-[84px] sm:pb-16 sm:pt-24 lg:pt-[68px]">
-      <PageContainer className="grid w-full items-center gap-12 lg:grid-cols-[1.45fr_1fr] lg:gap-16">
+      <PageContainer className="grid w-full items-center gap-12 lg:grid-cols-[1.52fr_1fr] lg:gap-16">
         <motion.div
           initial="hidden"
           animate="show"
@@ -216,14 +221,14 @@ export function HomePage() {
 
           <motion.div
             variants={fadeUp}
-            className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 sm:mt-8 sm:gap-y-4"
+            className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3 sm:mt-8 sm:gap-y-4"
           >
             <a
               href="mailto:gdiwan@cs.cmu.edu"
               onClick={() => playPop(1.1)}
               className="btn-primary"
             >
-              <Mail size={18} /> Email me
+              <Mail size={18} /> gdiwan@cs.cmu.edu
             </a>
             <Link
               to="/about"

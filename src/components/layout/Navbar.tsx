@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, Moon, Sun, Volume2, VolumeX, X } from "lucide-react";
+import {
+  Linkedin,
+  Mail,
+  Menu,
+  Moon,
+  Sun,
+  Volume2,
+  VolumeX,
+  X,
+} from "lucide-react";
 import { useDarkMode } from "../../contexts/DarkModeContext";
 import { GROUPS } from "../../lib/groups";
 import { ease } from "../../lib/motion";
@@ -45,7 +54,7 @@ function useSound() {
 }
 
 const iconBtn =
-  "grid h-10 w-10 place-items-center rounded-lg text-fg transition-colors hover:bg-fg/[0.07] active:scale-95";
+  "grid h-10 w-10 place-items-center rounded-lg md:w-9 lg:w-10 text-fg transition-colors hover:bg-fg/[0.07] active:scale-95";
 
 export function Navbar() {
   const { isDark, toggleDarkMode } = useDarkMode();
@@ -118,14 +127,14 @@ export function Navbar() {
                 <Link
                   to={item.to}
                   onClick={() => playPop(0.85 + i * 0.07)}
-                  className="relative block px-3 py-2 text-[15px] font-bold transition-transform hover:-translate-y-px"
+                  className="relative block px-2 py-2 text-[15px] font-bold lg:px-3 transition-transform hover:-translate-y-px"
                   style={{ color }}
                 >
                   {item.label}
                   {active && (
                     <motion.span
                       layoutId="nav-underline"
-                      className="absolute inset-x-3 -bottom-0.5 h-[3px] rounded-full"
+                      className="absolute inset-x-2 -bottom-0.5 h-[3px] rounded-full lg:inset-x-3"
                       style={{ background: color }}
                       transition={{
                         type: "spring",
@@ -176,6 +185,25 @@ export function Navbar() {
           >
             <TechLogo name="GitHub" size={19} />
           </a>
+          <a
+            href="https://linkedin.com/in/gautamdiwan"
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => playPop(1.25)}
+            className={`${iconBtn} hidden sm:grid`}
+            aria-label="LinkedIn"
+          >
+            <Linkedin size={19} style={{ color: "#0A66C2" }} />
+          </a>
+          <a
+            href="mailto:gdiwan@cs.cmu.edu"
+            onClick={() => playPop(1.3)}
+            className={`${iconBtn} hidden sm:grid`}
+            aria-label="Email gdiwan@cs.cmu.edu"
+            title="gdiwan@cs.cmu.edu"
+          >
+            <Mail size={19} />
+          </a>
           <button
             onClick={() => {
               playPop(open ? 0.8 : 1);
@@ -221,6 +249,32 @@ export function Navbar() {
                 </Link>
               </li>
             ))}
+            <li className="flex items-center gap-1 py-2.5 sm:hidden">
+              <a
+                href="mailto:gdiwan@cs.cmu.edu"
+                className="mr-auto flex items-center gap-2 py-1 text-base font-bold text-fg"
+              >
+                <Mail size={18} /> gdiwan@cs.cmu.edu
+              </a>
+              <a
+                href="https://linkedin.com/in/gautamdiwan"
+                target="_blank"
+                rel="noreferrer"
+                className={iconBtn}
+                aria-label="LinkedIn"
+              >
+                <Linkedin size={19} style={{ color: "#0A66C2" }} />
+              </a>
+              <a
+                href="https://github.com/Gautam-Diwan"
+                target="_blank"
+                rel="noreferrer"
+                className={iconBtn}
+                aria-label="GitHub"
+              >
+                <TechLogo name="GitHub" size={19} />
+              </a>
+            </li>
           </motion.ul>
         )}
       </AnimatePresence>
